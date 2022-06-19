@@ -107,8 +107,11 @@ func (s *SceneGame) Update(dt int) {
 		if !s.lblIntro.Visibe {
 			s.SaveGame()
 			var motiv string
-			// s.level, s.lives, motiv = s.GetNextLevel(s.level, s.lives, s.board.getPercent())
-			s.level, s.lives, motiv = getApp().db.todayData[s.count].NextLevel()
+			count := getApp().db.todayGamesCount
+			s.level, s.lives, motiv = getApp().db.todayData[count].NextLevel()
+			ss := getApp().db.todayData[count].String()
+			s.lblResult.SetText(ss)
+			log.Printf("Game Result is: %v", ss)
 			s.count += 1
 			s.lblMotiv.SetText(motiv)
 			s.lblName.DrawRect = false
@@ -117,9 +120,6 @@ func (s *SceneGame) Update(dt int) {
 			s.lblIntro.Visibe = true
 			s.lblResult.Visibe = true
 			s.lblMotiv.Visibe = true
-			ss := getApp().db.todayData[s.count].String()
-			s.lblResult.SetText(ss)
-			log.Printf("Game Result is: %v", ss)
 		}
 	}
 }

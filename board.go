@@ -66,7 +66,7 @@ func (b *Board) Reset(gameCount, level int) {
 func (b *Board) CheckUserMove() {
 	b.userMoved = true
 	b.moveStatus = Regular
-	log.Println("User Moved %v", b)
+	log.Printf("User Moved %v", b)
 }
 
 func (b *Board) CheckMoveRegular() {

@@ -48,7 +48,7 @@ func (r *ResultLbls) Layout() *ebiten.Image {
 	boxWidth := r.rect.W / rows
 	boxHeight := int(float64(r.rect.GetLowestSize()) * 0.05)
 	keys := make([]int, 0)
-	for k, _ := range getApp().db.todayData {
+	for k := range getApp().db.todayData {
 		keys = append(keys, k)
 	}
 	sort.Ints(keys)
