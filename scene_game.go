@@ -119,6 +119,7 @@ func (s *SceneGame) Update(dt int) {
 			var motiv string
 			// s.level, s.lives, motiv = s.GetNextLevel(s.level, s.lives, s.board.getPercent())
 			s.level, s.lives, motiv = getApp().db.todayData[s.count].NextLevel()
+			s.count += 1
 			s.lblMotiv.SetText(motiv)
 			s.lblName.DrawRect = false
 			s.lblName.SetText(s.name)
@@ -148,10 +149,6 @@ func (s *SceneGame) moveStatus() {
 }
 
 func (s *SceneGame) SaveGame() {
-	ss := getApp().db.todayData[s.count].String()
-	s.lblResult.SetText(ss)
-	log.Printf("Game Result is: %v", ss)
-	s.count += 1
 	dtBeg := s.board.dtBeg.Format("2006.01.02 15:04:05.000")
 	dtEnd := s.board.dtEnd.Format("2006.01.02 15:04:05.000")
 	values := &GameData{
@@ -162,6 +159,9 @@ func (s *SceneGame) SaveGame() {
 		percent: s.board.getPercent(),
 	}
 	getApp().db.Insert(values)
+	ss := getApp().db.todayData[s.count].String()
+	s.lblResult.SetText(ss)
+	log.Printf("Game Result is: %v", ss)
 }
 
 func (s *SceneGame) Draw(surface *ebiten.Image) {

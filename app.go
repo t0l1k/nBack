@@ -21,10 +21,15 @@ func getApp() (a *App) {
 		if fullScreen {
 			w, h = ebiten.ScreenSizeInFullscreen()
 		} else {
-			k := 2
-			w, h = 200*k, 320*k
-			ebiten.SetWindowTitle("nBack")
+			ww, hh := ebiten.ScreenSizeInFullscreen()
+			k := 10
+			w, h = 180*k, 320*k
+			for ww <= w || hh <= h {
+				k -= 1
+				w, h = 200*k, 320*k
+			}
 		}
+		ebiten.SetWindowTitle("nBack")
 		ebiten.SetFullscreen(fullScreen)
 		ebiten.SetWindowSize(w, h)
 		rect := ui.NewRect([]int{0, 0, w, h})
