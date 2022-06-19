@@ -11,15 +11,16 @@ import (
 )
 
 type SceneGame struct {
-	name                                   string
-	lblName, lblIntro, lblResult, lblMotiv *ui.Label
-	rect                                   *ui.Rect
-	container                              []ui.Drawable
-	stopper                                int
-	board                                  *Board
-	count, level, lives                    int
-	delayBeginCellShow, delayBeginCellHide int
-	timeToNextCell, timeShowCell           int
+	name                                             string
+	lblName, lblIntro, lblResult, lblMotiv, lblTimer *ui.Label
+	rect                                             *ui.Rect
+	container                                        []ui.Drawable
+	stopper, pauseTimer                              int
+	board                                            *Board
+	count, level, lives                              int
+	delayBeginCellShow, delayBeginCellHide           int
+	timeToNextCell, timeShowCell                     int
+	paused                                           bool
 }
 
 func NewSceneGame() *SceneGame {
@@ -70,6 +71,9 @@ func (s *SceneGame) initUi() {
 	s.lblMotiv = ui.NewLabel("Motivation", rect)
 	s.Add(s.lblMotiv)
 	s.lblMotiv.Visibe = false
+	s.lblTimer = ui.NewLabel(s.name, rect)
+	s.Add(s.lblTimer)
+	s.lblTimer.Visibe = false
 	s.Resize()
 }
 
@@ -80,12 +84,13 @@ func (s *SceneGame) Update(dt int) {
 	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
 		if s.board.inGame {
 			s.board.CheckUserMove()
-		} else {
+		} else if !s.paused {
 			s.board.Reset(s.count, s.level)
 			s.lblIntro.Visibe = false
 			s.lblResult.Visibe = false
 			s.lblMotiv.Visibe = false
 			s.lblName.DrawRect = true
+			s.lblTimer.Visibe = false
 		}
 	}
 	if s.board.inGame {
@@ -120,6 +125,25 @@ func (s *SceneGame) Update(dt int) {
 			s.lblIntro.Visibe = true
 			s.lblResult.Visibe = true
 			s.lblMotiv.Visibe = true
+			s.lblTimer.Visibe = true
+			s.lblTimer.SetBg(color.RGBA{128, 0, 0, 255})
+			s.pauseTimer = 5000
+			s.paused = true
+		}
+		if s.pauseTimer > 0 {
+			if s.paused {
+				s.pauseTimer -= dt
+				s.lblTimer.SetText(fmt.Sprintf("%v", s.pauseTimer/1000))
+			} else {
+				s.pauseTimer += dt
+				s.lblTimer.SetText(fmt.Sprintf("%02v:%02v", s.pauseTimer/1000/60, s.pauseTimer/1000%60))
+			}
+		} else if s.pauseTimer <= 0 {
+			if s.paused {
+				s.paused = false
+				s.pauseTimer += 5000
+				s.lblTimer.SetBg(color.RGBA{0, 128, 0, 255})
+			}
 		}
 	}
 }
@@ -184,6 +208,9 @@ func (s *SceneGame) Resize() {
 	w, h = int(float64(getApp().rect.W)*0.7), int(float64(getApp().rect.H)*0.08)
 	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*5.5)
 	s.lblMotiv.Resize([]int{x, y, w, h})
+	w, h = int(float64(getApp().rect.W)*0.5), int(float64(getApp().rect.H)*0.2)
+	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*4)
+	s.lblTimer.Resize([]int{x, y, w, h})
 }
 
 func (s *SceneGame) Quit() {}

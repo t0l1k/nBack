@@ -21,7 +21,7 @@ func getApp() (a *App) {
 		if fullScreen {
 			w, h = ebiten.ScreenSizeInFullscreen()
 		} else {
-			w, h = fitchWindowSize()
+			w, h = fitWindowSize()
 		}
 		ebiten.SetWindowTitle("nBack")
 		ebiten.SetFullscreen(fullScreen)
@@ -43,7 +43,7 @@ func getApp() (a *App) {
 	return a
 }
 
-func fitchWindowSize() (w int, h int) {
+func fitWindowSize() (w int, h int) {
 	ww, hh := ebiten.ScreenSizeInFullscreen()
 	k := 10
 	w, h = 180*k, 320*k
@@ -77,7 +77,7 @@ func (a *App) Update() error {
 			ebiten.SetFullscreen(a.fullScreen)
 			w, h = ebiten.ScreenSizeInFullscreen()
 		} else {
-			w, h = fitchWindowSize()
+			w, h = fitWindowSize()
 		}
 		ebiten.SetFullscreen(a.fullScreen)
 		ebiten.SetWindowSize(w, h)
