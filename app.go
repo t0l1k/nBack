@@ -21,13 +21,7 @@ func getApp() (a *App) {
 		if fullScreen {
 			w, h = ebiten.ScreenSizeInFullscreen()
 		} else {
-			ww, hh := ebiten.ScreenSizeInFullscreen()
-			k := 10
-			w, h = 180*k, 320*k
-			for ww <= w || hh <= h {
-				k -= 1
-				w, h = 200*k, 320*k
-			}
+			w, h = fitchWindowSize()
 		}
 		ebiten.SetWindowTitle("nBack")
 		ebiten.SetFullscreen(fullScreen)
@@ -41,12 +35,23 @@ func getApp() (a *App) {
 			scenes:     scs,
 			db:         db,
 		}
-		log.Printf("App init.")
+		log.Printf("App init: screen size:[%v, %v]", w, h)
 	} else {
 		a = app
 		log.Printf("App call.")
 	}
 	return a
+}
+
+func fitchWindowSize() (w int, h int) {
+	ww, hh := ebiten.ScreenSizeInFullscreen()
+	k := 10
+	w, h = 180*k, 320*k
+	for ww <= w || hh <= h {
+		k -= 1
+		w, h = 200*k, 320*k
+	}
+	return w, h
 }
 
 type App struct {
@@ -65,6 +70,22 @@ func (a *App) GetScreenSize() (w, h int) {
 func (a *App) Update() error {
 	if inpututil.IsKeyJustReleased(ebiten.KeyEscape) {
 		a.Pop()
+	} else if inpututil.IsKeyJustReleased(ebiten.KeyF11) {
+		a.fullScreen = !a.fullScreen
+		var w, h int
+		if a.fullScreen {
+			ebiten.SetFullscreen(a.fullScreen)
+			w, h = ebiten.ScreenSizeInFullscreen()
+		} else {
+			w, h = fitchWindowSize()
+		}
+		ebiten.SetFullscreen(a.fullScreen)
+		ebiten.SetWindowSize(w, h)
+		a.rect = ui.NewRect([]int{0, 0, w, h})
+		for _, scene := range a.scenes {
+			scene.Resize()
+		}
+
 	}
 	a.currentScene.Update(a.getTick())
 	return nil

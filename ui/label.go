@@ -118,6 +118,11 @@ func (l *Label) Draw(surface *ebiten.Image) {
 	}
 }
 
+func (l *Label) Resize(rect []int) {
+	l.rect = NewRect(rect)
+	l.Dirty = true
+}
+
 func (l Label) String() string {
 	return fmt.Sprintf("%v %v", l.text, l.rect)
 }

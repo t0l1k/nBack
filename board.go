@@ -34,15 +34,16 @@ type Board struct {
 	moveStatus                         status
 }
 
-func NewBoard(rect *ui.Rect) *Board {
+func NewBoard(rect []int) *Board {
 	rand.Seed(time.Now().UnixNano())
 	b := &Board{
-		rect:   rect,
+		rect:   ui.NewRect(rect),
 		inGame: false,
 	}
 	b.grid = ui.NewGridView(rect, 3)
 	b.Add(b.grid)
 	b.field = b.initCells()
+	b.Resize(rect)
 	return b
 }
 
@@ -157,9 +158,6 @@ func (b *Board) getPercent() int {
 }
 
 func (b *Board) initCells() (field []*Cell) {
-	x, y := b.rect.GetPos()
-	cellSize, _ := b.rect.GetSize()
-	cellSize /= 3
 	for i := 0; i < 9; i++ {
 		isCenter := false
 		aX := i % 3
@@ -167,9 +165,7 @@ func (b *Board) initCells() (field []*Cell) {
 		if aX == 1 && aY == 1 {
 			isCenter = true
 		}
-		cellX := aX*cellSize + x
-		cellY := aY*cellSize + y
-		c := NewCell(ui.NewRect([]int{cellX, cellY, cellSize, cellSize}), isCenter)
+		c := NewCell([]int{0, 0, 1, 1}, isCenter)
 		field = append(field, c)
 		b.Add(c)
 	}
@@ -196,4 +192,23 @@ func (b *Board) Draw(surface *ebiten.Image) {
 
 func (b *Board) String() string {
 	return fmt.Sprintf("#%v nB%v %v/%v", b.gameCount, b.level, b.move, b.totalMoves)
+}
+
+func (b *Board) Resize(rect []int) {
+	b.rect = ui.NewRect(rect)
+	b.grid.Resize(rect)
+	b.resizeCells()
+}
+
+func (b *Board) resizeCells() {
+	x, y := b.rect.GetPos()
+	cellSize, _ := b.rect.GetSize()
+	cellSize /= 3
+	for i := 0; i < 9; i++ {
+		aX := i % 3
+		aY := i / 3
+		cellX := aX*cellSize + x
+		cellY := aY*cellSize + y
+		b.field[i].Resize([]int{cellX, cellY, cellSize, cellSize})
+	}
 }

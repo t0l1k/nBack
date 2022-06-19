@@ -16,10 +16,10 @@ type GridView struct {
 	bg, fg                  color.RGBA
 }
 
-func NewGridView(rect *Rect, spacing int) *GridView {
+func NewGridView(rect []int, spacing int) *GridView {
 	return &GridView{
 		spacing:  spacing,
-		rect:     rect,
+		rect:     NewRect(rect),
 		Image:    nil,
 		Dirty:    true,
 		Visibe:   false,
@@ -61,4 +61,9 @@ func (g *GridView) Draw(surface *ebiten.Image) {
 		op.GeoM.Translate(float64(x), float64(y))
 		surface.DrawImage(g.Image, op)
 	}
+}
+
+func (g *GridView) Resize(rect []int) {
+	g.rect = NewRect(rect)
+	g.Dirty = true
 }

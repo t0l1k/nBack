@@ -57,30 +57,20 @@ func (s *SceneGame) initGameTimers() {
 }
 
 func (s *SceneGame) initUi() {
-	x, y, w, h := 0, 0, int(float64(getApp().rect.W)*0.3), int(float64(getApp().rect.H)*0.05)
+	rect := []int{0, 0, 1, 1}
 	s.name = "Game N-Back result"
-	s.lblName = ui.NewLabel(s.name, []int{x, y, w, h})
+	s.lblName = ui.NewLabel(s.name, rect)
 	s.Add(s.lblName)
-	sz := s.rect.GetLowestSize()
-	cellSize := float64(sz)/3 - float64(sz)*0.02
-	marginX := float64(s.rect.W)/2 - cellSize*3/2
-	marginY := float64(s.rect.H)/2 - cellSize*3/2
-	x, y = int(marginX), int(marginY)+h/2
-	s.board = NewBoard(ui.NewRect([]int{x, y, int(cellSize) * 3, int(cellSize) * 3}))
+	s.board = NewBoard(rect)
 	s.Add(s.board)
-	w, h = int(float64(getApp().rect.W)*0.8), int(float64(getApp().rect.H)*0.05)
-	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*1.5)
-	s.lblIntro = ui.NewLabel("Press the space bar to start the game", []int{x, y, w, h})
+	s.lblIntro = ui.NewLabel("Press the space bar to start the game", rect)
 	s.Add(s.lblIntro)
-	w, h = int(float64(getApp().rect.W)*0.9), int(float64(getApp().rect.H)*0.08)
-	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*3.5)
-	s.lblResult = ui.NewLabel(" ", []int{x, y, w, h})
+	s.lblResult = ui.NewLabel(" ", rect)
 	s.Add(s.lblResult)
-	w, h = int(float64(getApp().rect.W)*0.7), int(float64(getApp().rect.H)*0.08)
-	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*5.5)
-	s.lblMotiv = ui.NewLabel("Motivation", []int{x, y, w, h})
+	s.lblMotiv = ui.NewLabel("Motivation", rect)
 	s.Add(s.lblMotiv)
 	s.lblMotiv.Visibe = false
+	s.Resize()
 }
 
 func (s *SceneGame) Update(dt int) {
@@ -127,6 +117,9 @@ func (s *SceneGame) Update(dt int) {
 			s.lblIntro.Visibe = true
 			s.lblResult.Visibe = true
 			s.lblMotiv.Visibe = true
+			ss := getApp().db.todayData[s.count].String()
+			s.lblResult.SetText(ss)
+			log.Printf("Game Result is: %v", ss)
 		}
 	}
 }
@@ -159,9 +152,7 @@ func (s *SceneGame) SaveGame() {
 		percent: s.board.getPercent(),
 	}
 	getApp().db.Insert(values)
-	ss := getApp().db.todayData[s.count].String()
-	s.lblResult.SetText(ss)
-	log.Printf("Game Result is: %v", ss)
+	log.Println("Game Saved in DB.")
 }
 
 func (s *SceneGame) Draw(surface *ebiten.Image) {
@@ -172,6 +163,27 @@ func (s *SceneGame) Draw(surface *ebiten.Image) {
 
 func (s *SceneGame) Add(item ui.Drawable) {
 	s.container = append(s.container, item)
+}
+
+func (s *SceneGame) Resize() {
+	s.rect = getApp().rect
+	x, y, w, h := 0, 0, int(float64(getApp().rect.W)*0.3), int(float64(getApp().rect.H)*0.05)
+	s.lblName.Resize([]int{x, y, w, h})
+	sz := s.rect.GetLowestSize()
+	cellSize := float64(sz)/3 - float64(sz)*0.02
+	marginX := float64(s.rect.W)/2 - cellSize*3/2
+	marginY := float64(s.rect.H)/2 - cellSize*3/2
+	x, y = int(marginX), int(marginY)+h/2
+	s.board.Resize([]int{x, y, int(cellSize) * 3, int(cellSize) * 3})
+	w, h = int(float64(getApp().rect.W)*0.8), int(float64(getApp().rect.H)*0.05)
+	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*1.5)
+	s.lblIntro.Resize([]int{x, y, w, h})
+	w, h = int(float64(getApp().rect.W)*0.9), int(float64(getApp().rect.H)*0.08)
+	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*3.5)
+	s.lblResult.Resize([]int{x, y, w, h})
+	w, h = int(float64(getApp().rect.W)*0.7), int(float64(getApp().rect.H)*0.08)
+	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*5.5)
+	s.lblMotiv.Resize([]int{x, y, w, h})
 }
 
 func (s *SceneGame) Quit() {}

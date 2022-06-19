@@ -6,4 +6,5 @@ type Drawable interface {
 	Layout() *ebiten.Image
 	Update(dt int)
 	Draw(surface *ebiten.Image)
+	Resize([]int)
 }

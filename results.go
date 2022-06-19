@@ -75,3 +75,8 @@ func (r *ResultLbls) Draw(surface *ebiten.Image) {
 		surface.DrawImage(r.Image, op)
 	}
 }
+
+func (r *ResultLbls) Resize(rect []int) {
+	r.rect = ui.NewRect(rect)
+	r.Dirty = true
+}

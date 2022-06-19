@@ -17,9 +17,9 @@ type Cell struct {
 	margin                                    float64
 }
 
-func NewCell(rect *ui.Rect, isCenter bool) *Cell {
+func NewCell(rect []int, isCenter bool) *Cell {
 	return &Cell{
-		rect:     rect,
+		rect:     ui.NewRect(rect),
 		Image:    nil,
 		IsCenter: isCenter,
 		Dirty:    true,
@@ -72,6 +72,11 @@ func (c *Cell) Draw(surface *ebiten.Image) {
 		op.GeoM.Translate(float64(x), float64(y))
 		surface.DrawImage(c.Image, op)
 	}
+}
+
+func (c *Cell) Resize(rect []int) {
+	c.rect = ui.NewRect(rect)
+	c.Dirty = true
 }
 
 func (c Cell) String() string {
