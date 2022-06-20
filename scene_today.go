@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image/color"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -48,7 +47,6 @@ func (s *SceneToday) Update(dt int) {
 	}
 }
 func (s *SceneToday) Draw(surface *ebiten.Image) {
-	surface.Fill(color.RGBA{0, 0, 0, 255})
 	for _, value := range s.container {
 		value.Draw(surface)
 	}

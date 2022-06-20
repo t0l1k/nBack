@@ -55,7 +55,7 @@ func (*Label) getFont(size float64) font.Face {
 	}
 	mplusFont, err := opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    size,
-		DPI:     96,
+		DPI:     72,
 		Hinting: font.HintingFull,
 	})
 	if err != nil {
@@ -66,17 +66,17 @@ func (*Label) getFont(size float64) font.Face {
 
 func (l *Label) getFontSize() int {
 	percent := 0.85
-	w, _ := l.rect.GetSize()
+	w, h := l.rect.GetSize()
 	var sz = l.rect.GetLowestSize()
 	fontSize := percent * float64(sz)
 	fnt := l.getFont(fontSize)
 	defer fnt.Close()
-	bound, _ := font.BoundString(fnt, l.text)
-	for w < bound.Max.X.Ceil() {
+	bound := text.BoundString(fnt, l.text)
+	for w < bound.Max.X || h < bound.Max.Y {
 		fontSize = percent * float64(sz)
 		fnt = l.getFont(fontSize)
 		defer fnt.Close()
-		bound, _ = font.BoundString(fnt, l.text)
+		bound = text.BoundString(fnt, l.text)
 		percent -= 0.01
 	}
 	return int(fontSize)
@@ -95,9 +95,9 @@ func (l *Label) Layout() *ebiten.Image {
 	}
 	fnt := l.getFont(float64(l.getFontSize()))
 	defer fnt.Close()
-	bound, _ := font.BoundString(fnt, l.text)
-	wF := (bound.Max.X - bound.Min.X).Ceil()
-	hF := (bound.Max.Y - bound.Min.Y).Ceil()
+	b := text.BoundString(fnt, l.text)
+	wF := b.Dx()
+	hF := b.Dy()
 	x := (w - wF) / 2
 	y := h - (h-hF)/2
 	text.Draw(image, l.text, fnt, x, y, l.fg)

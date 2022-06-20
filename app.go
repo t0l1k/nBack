@@ -1,6 +1,7 @@
 package main
 
 import (
+	"image/color"
 	"log"
 	"os"
 	"time"
@@ -92,6 +93,7 @@ func (a *App) Update() error {
 }
 
 func (a *App) Draw(screen *ebiten.Image) {
+	screen.Fill(color.RGBA{0, 0, 0, 255})
 	a.currentScene.Draw(screen)
 }
 
