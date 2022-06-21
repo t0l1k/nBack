@@ -15,12 +15,44 @@ func NewRect(arr []int) *Rect {
 	}
 }
 
-func (r Rect) GetPos() (int, int) {
+func (r Rect) Pos() (int, int) {
 	return r.X, r.Y
 }
 
-func (r Rect) GetSize() (int, int) {
+func (r Rect) Size() (int, int) {
 	return r.W, r.H
+}
+
+func (r Rect) Left() int {
+	return r.X
+}
+
+func (r Rect) Right() int {
+	return r.X + r.W
+}
+
+func (r Rect) Top() int {
+	return r.X
+}
+
+func (r Rect) Bottom() int {
+	return r.X + r.H
+}
+
+func (r Rect) TopLeft() (int, int) {
+	return r.X, r.Y
+}
+
+func (r Rect) TopRight() (int, int) {
+	return r.X + r.W, r.Y
+}
+
+func (r Rect) BottomLeft() (int, int) {
+	return r.X, r.Y + r.H
+}
+
+func (r Rect) BottomRight() (int, int) {
+	return r.X + r.W, r.Y + r.H
 }
 
 func (r Rect) GetLowestSize() int {

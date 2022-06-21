@@ -40,6 +40,15 @@ func (l *Label) SetBg(value color.RGBA) {
 	l.bg = value
 	l.Dirty = true
 }
+
+func (l *Label) SetFg(value color.RGBA) {
+	if l.fg == value {
+		return
+	}
+	l.fg = value
+	l.Dirty = true
+}
+
 func (l *Label) SetText(value string) {
 	if l.text == value {
 		return
@@ -66,7 +75,7 @@ func (*Label) getFont(size float64) font.Face {
 
 func (l *Label) getFontSize() int {
 	percent := 0.85
-	w, h := l.rect.GetSize()
+	w, h := l.rect.Size()
 	var sz = l.rect.GetLowestSize()
 	fontSize := percent * float64(sz)
 	fnt := l.getFont(fontSize)
@@ -86,7 +95,7 @@ func (l *Label) Layout() *ebiten.Image {
 	if !l.Dirty {
 		return l.Image
 	}
-	w, h := l.rect.GetSize()
+	w, h := l.rect.Size()
 	image := ebiten.NewImage(w, h)
 	image.Fill(l.bg)
 	if l.DrawRect {
@@ -112,7 +121,7 @@ func (l *Label) Draw(surface *ebiten.Image) {
 	}
 	if l.Visibe {
 		op := &ebiten.DrawImageOptions{}
-		x, y := l.rect.GetPos()
+		x, y := l.rect.Pos()
 		op.GeoM.Translate(float64(x), float64(y))
 		surface.DrawImage(l.Image, op)
 	}

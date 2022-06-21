@@ -32,7 +32,7 @@ func (g *GridView) Layout() *ebiten.Image {
 	if !g.Dirty {
 		return g.Image
 	}
-	w, h := g.rect.GetSize()
+	w, h := g.rect.Size()
 	image := ebiten.NewImage(w, h)
 	spacing := int(g.rect.GetLowestSize()/g.spacing + 1)
 	if g.DrawRect {
@@ -57,7 +57,7 @@ func (g *GridView) Draw(surface *ebiten.Image) {
 	}
 	if g.Visibe {
 		op := &ebiten.DrawImageOptions{}
-		x, y := g.rect.GetPos()
+		x, y := g.rect.Pos()
 		op.GeoM.Translate(float64(x), float64(y))
 		surface.DrawImage(g.Image, op)
 	}

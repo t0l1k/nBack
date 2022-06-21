@@ -12,18 +12,16 @@ type SceneToday struct {
 	name                     string
 	lblName, lblPeriodResult *ui.Label
 	lblsResult               *ResultLbls
+	plotResult               *ResultPlot
+	toggleResults            bool
 	rect                     *ui.Rect
 	container                []ui.Drawable
 }
 
 func NewSceneToday() *SceneToday {
-	return &SceneToday{
+	s := &SceneToday{
 		rect: getApp().rect,
 	}
-}
-
-func (s *SceneToday) Entered() {
-	getApp().db.ReadTodayGames()
 	rect := []int{0, 0, 1, 1}
 	s.name = "Games for Today"
 	s.lblName = ui.NewLabel(s.name, rect)
@@ -32,7 +30,16 @@ func (s *SceneToday) Entered() {
 	s.Add(s.lblPeriodResult)
 	s.lblsResult = NewResultLbls(rect)
 	s.Add(s.lblsResult)
+	s.plotResult = NewResultPlot(rect)
+	s.plotResult.Visibe = false
+	s.Add(s.plotResult)
+	return s
+}
+
+func (s *SceneToday) Entered() {
+	getApp().db.ReadTodayGames()
 	s.Resize()
+	s.toggleResults = false
 	log.Println("Eneterd SceneToday")
 }
 func (s *SceneToday) Add(item ui.Drawable) {
@@ -44,6 +51,17 @@ func (s *SceneToday) Update(dt int) {
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
 		getApp().Push(NewSceneGame())
+	}
+	if inpututil.IsKeyJustReleased(ebiten.KeyP) {
+		s.toggleResults = !s.toggleResults
+		if s.toggleResults {
+			s.plotResult.Dirty = true
+			s.plotResult.Visibe = true
+			s.lblsResult.Visibe = false
+		} else {
+			s.plotResult.Visibe = false
+			s.lblsResult.Visibe = true
+		}
 	}
 }
 func (s *SceneToday) Draw(surface *ebiten.Image) {
@@ -62,6 +80,7 @@ func (s *SceneToday) Resize() {
 	w, h = int(float64(s.rect.W)*0.9), int(float64(s.rect.H)*0.75)
 	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*1.05)
 	s.lblsResult.Resize([]int{x, y, w, h})
+	s.plotResult.Resize([]int{x, y, w, h})
 }
 
 func (s *SceneToday) Quit() {}

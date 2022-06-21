@@ -32,7 +32,7 @@ func NewCell(rect []int, isCenter bool) *Cell {
 }
 
 func (c *Cell) Layout() *ebiten.Image {
-	w, h := c.rect.GetSize()
+	w, h := c.rect.Size()
 	image := ebiten.NewImage(w, h)
 	bg := c.bg
 	if c.Active {
@@ -68,7 +68,7 @@ func (c *Cell) Draw(surface *ebiten.Image) {
 	}
 	if c.Visibe {
 		op := &ebiten.DrawImageOptions{}
-		x, y := c.rect.GetPos()
+		x, y := c.rect.Pos()
 		op.GeoM.Translate(float64(x), float64(y))
 		surface.DrawImage(c.Image, op)
 	}

@@ -1,11 +1,13 @@
 package main
 
 import (
+	"container/list"
 	"database/sql"
 	"fmt"
 	"image/color"
 	"log"
 	"math"
+	"sort"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -65,6 +67,24 @@ func (t *TodayGamesData) getTimeDuraton() (result string) {
 	result = fmt.Sprintf("%02v:%02v.%03v", minutes, seconds, int(mSec))
 	if sec > 3600 {
 		result = fmt.Sprintf("%02v:%02v:%02v.%03v", sec/3600, minutes, seconds, int(mSec))
+	}
+	return
+}
+
+func (t *TodayGamesData) PlotData() (gameNr, level, levelValue, percents, colors list.List) {
+	keys := make([]int, 0)
+	for k := range *t {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+	for _, k := range keys {
+		v := getApp().db.todayData[k]
+		gameNr.PushBack(k)
+		level.PushBack(v.level)
+		result := float64(v.percent)*0.01 + float64(v.level)
+		levelValue.PushBack(result)
+		percents.PushBack(v.percent)
+		colors.PushBack(v.BgColor())
 	}
 	return
 }

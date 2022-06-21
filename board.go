@@ -201,8 +201,8 @@ func (b *Board) Resize(rect []int) {
 }
 
 func (b *Board) resizeCells() {
-	x, y := b.rect.GetPos()
-	cellSize, _ := b.rect.GetSize()
+	x, y := b.rect.Pos()
+	cellSize, _ := b.rect.Size()
 	cellSize /= 3
 	for i := 0; i < 9; i++ {
 		aX := i % 3
