@@ -106,7 +106,7 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 	if !r.Dirty {
 		return r.Image
 	}
-	xArr, yArr, lvlValues, percents, colors := getApp().db.todayData.PlotData()
+	xArr, yArr, lvlValues, percents, colors := getApp().db.todayData.PlotTodayData()
 	fmt.Println(xArr, yArr, lvlValues, percents, colors)
 	axisXMax := xArr.Len()
 	axisYMax := getApp().db.todayData.getMax() + 2

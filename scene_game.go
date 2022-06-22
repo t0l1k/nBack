@@ -169,11 +169,19 @@ func (s *SceneGame) SaveGame() {
 	dtBeg := s.board.dtBeg.Format("2006.01.02 15:04:05.000")
 	dtEnd := s.board.dtEnd.Format("2006.01.02 15:04:05.000")
 	values := &GameData{
-		dtBeg:   dtBeg,
-		dtEnd:   dtEnd,
-		level:   s.level,
-		lives:   s.lives,
-		percent: s.board.getPercent(),
+		dtBeg:        dtBeg,
+		dtEnd:        dtEnd,
+		level:        s.level,
+		lives:        s.lives,
+		percent:      s.board.getPercent(),
+		correct:      s.board.countCorrect,
+		wrong:        s.board.countWrong,
+		moves:        s.board.move,
+		totalmoves:   s.board.totalMoves,
+		manual:       false,
+		advance:      80,
+		fallback:     50,
+		resetonerror: false,
 	}
 	getApp().db.Insert(values)
 	log.Println("Game Saved in DB.")

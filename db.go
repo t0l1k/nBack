@@ -71,7 +71,7 @@ func (t *TodayGamesData) getTimeDuraton() (result string) {
 	return
 }
 
-func (t *TodayGamesData) PlotData() (gameNr, level, levelValue, percents, colors list.List) {
+func (t *TodayGamesData) PlotTodayData() (gameNr, level, levelValue, percents, colors list.List) {
 	keys := make([]int, 0)
 	for k := range *t {
 		keys = append(keys, k)
@@ -90,21 +90,24 @@ func (t *TodayGamesData) PlotData() (gameNr, level, levelValue, percents, colors
 }
 
 func (t *TodayGamesData) String() string {
-	return fmt.Sprintf("%v #%v max:%v, avg:%v [%v]",
-		t.getToday(),
-		t.getCount(),
-		t.getMax(),
-		t.getAvg(),
-		t.getTimeDuraton(),
-	)
+	s := fmt.Sprintf("%v", t.getToday())
+	if t.getCount() > 0 {
+		s = fmt.Sprintf("%v #%v max:%v, avg:%v [%v]",
+			t.getToday(),
+			t.getCount(),
+			t.getMax(),
+			t.getAvg(),
+			t.getTimeDuraton(),
+		)
+	}
+	return s
 }
 
+// dtBeg, dtEnd, level, lives, percent, correct, wrong, moves, totalmoves, manual, advance, fallback, resetonerror
 type GameData struct {
-	id           int
-	dtBeg, dtEnd string
-	level        int
-	lives        int
-	percent      int
+	dtBeg, dtEnd                                                                    string
+	id, level, lives, percent, correct, wrong, moves, totalmoves, advance, fallback int
+	manual, resetonerror                                                            bool
 }
 
 func (d *GameData) NextLevel() (int, int, string) {
@@ -176,13 +179,13 @@ func (q GameData) String() string {
 	m := int(sec / 60)
 	seconds := int(sec) % 60
 	dStr := fmt.Sprintf("%02v:%02v.%03v", m, seconds, int(mSec))
-	ss := fmt.Sprintf("#%v nB%v %v%% [%v]",
+	ss := fmt.Sprintf("#%v nB%v %v%% correct:%v wrong:%v moves:%v [%v]",
 		getApp().db.todayGamesCount,
 		q.level,
 		q.percent,
-		// q.move,
-		// q.countCorrect,
-		// q.countWrong,
+		q.correct,
+		q.wrong,
+		q.moves,
 		dStr)
 	return ss
 }
@@ -199,7 +202,7 @@ func (d *Db) Setup() {
 	if err != nil {
 		panic(err)
 	}
-	var createDB string = "CREATE TABLE IF NOT EXISTS simple(id INTEGER PRIMARY KEY AUTOINCREMENT,dtBeg TEXT, dtEnd TEXT, level INTEGER, lives INTEGER, percent INTEGER)"
+	var createDB string = "CREATE TABLE IF NOT EXISTS simple(id INTEGER PRIMARY KEY AUTOINCREMENT,dtBeg TEXT, dtEnd TEXT, level INTEGER, lives INTEGER, percent INTEGER, correct INTEGER, wrong NTEGER, moves INTEGER, totalmoves INTEGER, manual INTEGER, advance INTEGER, fallback INTEGER, resetonerror INTEGER)"
 	cur, err := d.conn.Prepare(createDB)
 	if err != nil {
 		panic(err)
@@ -208,7 +211,7 @@ func (d *Db) Setup() {
 }
 
 func (d *Db) Insert(values *GameData) {
-	insStr := "INSERT INTO simple(dtBeg, dtEnd, level, lives, percent) VALUES(?,?,?,?,?)"
+	insStr := "INSERT INTO simple(dtBeg, dtEnd, level, lives, percent, correct, wrong, moves, totalmoves, manual, advance, fallback, resetonerror) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	cur, err := d.conn.Prepare(insStr)
 	if err != nil {
 		log.Println("Error in DB:", insStr, values)
@@ -219,10 +222,18 @@ func (d *Db) Insert(values *GameData) {
 	level := values.level
 	lives := values.lives
 	percent := values.percent
-	cur.Exec(dtBeg, dtEnd, level, lives, percent)
+	correct := values.correct
+	wrong := values.wrong
+	moves := values.moves
+	totalmoves := values.totalmoves
+	manual := values.manual
+	advance := values.advance
+	fallback := values.fallback
+	resetonerror := values.resetonerror
+	cur.Exec(dtBeg, dtEnd, level, lives, percent, correct, wrong, moves, totalmoves, manual, advance, fallback, resetonerror)
 	d.todayGamesCount += 1
 	d.todayData[d.todayGamesCount] = values
-	log.Printf("DB: Inserted:%v %v %v %v %v", dtBeg, dtEnd, level, lives, percent)
+	log.Println("DB: Inserted:", dtBeg, dtEnd, level, lives, percent, correct, wrong, moves, totalmoves, manual, advance, fallback, resetonerror)
 }
 
 func (d *Db) ReadTodayGames() {
@@ -238,7 +249,7 @@ func (d *Db) ReadTodayGames() {
 	i := 1
 	for rows.Next() {
 		values := &GameData{}
-		err = rows.Scan(&values.id, &values.dtBeg, &values.dtEnd, &values.level, &values.lives, &values.percent)
+		err = rows.Scan(&values.id, &values.dtBeg, &values.dtEnd, &values.level, &values.lives, &values.percent, &values.correct, &values.wrong, &values.moves, &values.totalmoves, &values.manual, &values.advance, &values.fallback, &values.resetonerror)
 		if err != nil && err != sql.ErrNoRows {
 			panic(err)
 		}

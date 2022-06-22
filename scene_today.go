@@ -33,13 +33,14 @@ func NewSceneToday() *SceneToday {
 	s.plotResult = NewResultPlot(rect)
 	s.plotResult.Visibe = false
 	s.Add(s.plotResult)
+	s.toggleResults = false
 	return s
 }
 
 func (s *SceneToday) Entered() {
 	getApp().db.ReadTodayGames()
+	s.lblPeriodResult.SetText(getApp().db.todayData.String())
 	s.Resize()
-	s.toggleResults = false
 	log.Println("Eneterd SceneToday")
 }
 func (s *SceneToday) Add(item ui.Drawable) {
