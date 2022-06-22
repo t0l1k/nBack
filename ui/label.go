@@ -21,7 +21,7 @@ type Label struct {
 	bg, fg                  color.RGBA
 }
 
-func NewLabel(text string, rect []int) *Label {
+func NewLabel(text string, rect []int, bg, fg color.RGBA) *Label {
 	return &Label{
 		text:     text,
 		rect:     NewRect(rect),
@@ -29,8 +29,8 @@ func NewLabel(text string, rect []int) *Label {
 		Dirty:    true,
 		Visibe:   true,
 		DrawRect: false,
-		bg:       color.RGBA{0, 128, 0, 255},
-		fg:       color.RGBA{255, 255, 0, 255}}
+		bg:       bg,
+		fg:       fg}
 }
 
 func (l *Label) SetBg(value color.RGBA) {

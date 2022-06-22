@@ -13,22 +13,24 @@ type Cell struct {
 	rect                                      *ui.Rect
 	Image                                     *ebiten.Image
 	Dirty, Visibe, DrawRect, IsCenter, Active bool
-	bg, fg                                    color.RGBA
+	bg, fg, activeColor                       color.RGBA
 	margin                                    float64
 }
 
 func NewCell(rect []int, isCenter bool) *Cell {
 	return &Cell{
-		rect:     ui.NewRect(rect),
-		Image:    nil,
-		IsCenter: isCenter,
-		Dirty:    true,
-		Visibe:   false,
-		DrawRect: true,
-		Active:   false,
-		margin:   0.1,
-		bg:       color.RGBA{64, 0, 0, 255},
-		fg:       color.RGBA{255, 255, 0, 255}}
+		rect:        ui.NewRect(rect),
+		Image:       nil,
+		IsCenter:    isCenter,
+		Dirty:       true,
+		Visibe:      false,
+		DrawRect:    true,
+		Active:      false,
+		margin:      0.1,
+		bg:          getApp().theme.bg,
+		fg:          getApp().theme.fg,
+		activeColor: getApp().theme.active,
+	}
 }
 
 func (c *Cell) Layout() *ebiten.Image {
@@ -36,7 +38,7 @@ func (c *Cell) Layout() *ebiten.Image {
 	image := ebiten.NewImage(w, h)
 	bg := c.bg
 	if c.Active {
-		bg = color.RGBA{0, 0, 255, 255}
+		bg = c.activeColor
 	}
 	m := float64(w) * c.margin
 	if c.DrawRect {

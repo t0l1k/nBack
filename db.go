@@ -138,10 +138,11 @@ func (d *GameData) NextLevel() (int, int, string) {
 }
 
 func (d GameData) BgColor() (result color.RGBA) {
-	colorRegular := color.RGBA{0, 0, 128, 255}
-	colorCorrect := color.RGBA{0, 128, 0, 255}
-	colorError := color.RGBA{255, 0, 0, 255}
-	colorWarning := color.RGBA{255, 128, 0, 255}
+	theme := getApp().theme
+	colorRegular := theme.regular
+	colorCorrect := theme.correct
+	colorError := theme.error
+	colorWarning := theme.warning
 	adv := 80
 	fall := 50
 	if d.percent >= adv {

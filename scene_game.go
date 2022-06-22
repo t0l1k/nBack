@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"image/color"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -38,7 +37,6 @@ func (s *SceneGame) Entered() {
 func (s *SceneGame) initGame() {
 	s.count = getApp().db.todayGamesCount
 	if s.count > 0 {
-		fmt.Println(s.count)
 		s.level, s.lives, _ = getApp().db.todayData[s.count].NextLevel()
 	} else {
 		s.count = 1
@@ -60,18 +58,18 @@ func (s *SceneGame) initGameTimers() {
 func (s *SceneGame) initUi() {
 	rect := []int{0, 0, 1, 1}
 	s.name = "Game N-Back result"
-	s.lblName = ui.NewLabel(s.name, rect)
+	s.lblName = ui.NewLabel(s.name, rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblName)
 	s.board = NewBoard(rect)
 	s.Add(s.board)
-	s.lblIntro = ui.NewLabel("Press the space bar to start the game", rect)
+	s.lblIntro = ui.NewLabel("Press the space bar to start the game", rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblIntro)
-	s.lblResult = ui.NewLabel(" ", rect)
+	s.lblResult = ui.NewLabel(" ", rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblResult)
-	s.lblMotiv = ui.NewLabel("Motivation", rect)
+	s.lblMotiv = ui.NewLabel("Motivation", rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblMotiv)
 	s.lblMotiv.Visibe = false
-	s.lblTimer = ui.NewLabel(s.name, rect)
+	s.lblTimer = ui.NewLabel(s.name, rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblTimer)
 	s.lblTimer.Visibe = false
 	s.Resize()
@@ -98,14 +96,11 @@ func (s *SceneGame) Update(dt int) {
 		if s.stopper >= s.timeToNextCell {
 			s.stopper -= s.timeToNextCell
 			s.board.MakeMove()
-			log.Println("0", s.stopper, s.board.IsShowActiveCell(), s.board.move)
 		} else if !s.board.IsShowActiveCell() && s.delayBeginCellShow < s.stopper && s.stopper < s.delayBeginCellHide {
 			s.board.CheckMoveRegular()
 			s.board.ShowActiveCell()
-			log.Println("1", s.stopper, s.board.IsShowActiveCell())
 		} else if s.board.IsShowActiveCell() && s.stopper > s.delayBeginCellHide {
 			s.board.HideActiveCell()
-			log.Println("2", s.stopper, s.board.IsShowActiveCell())
 		}
 		s.moveStatus()
 	} else {
@@ -121,12 +116,12 @@ func (s *SceneGame) Update(dt int) {
 			s.lblMotiv.SetText(motiv)
 			s.lblName.DrawRect = false
 			s.lblName.SetText(s.name)
-			s.lblName.SetBg(color.RGBA{0, 128, 0, 255})
+			s.lblName.SetBg(getApp().theme.correct)
 			s.lblIntro.Visibe = true
 			s.lblResult.Visibe = true
 			s.lblMotiv.Visibe = true
 			s.lblTimer.Visibe = true
-			s.lblTimer.SetBg(color.RGBA{128, 0, 0, 255})
+			s.lblTimer.SetBg(getApp().theme.error)
 			s.pauseTimer = 5000
 			s.paused = true
 		}
@@ -142,7 +137,7 @@ func (s *SceneGame) Update(dt int) {
 			if s.paused {
 				s.paused = false
 				s.pauseTimer += 5000
-				s.lblTimer.SetBg(color.RGBA{0, 128, 0, 255})
+				s.lblTimer.SetBg(getApp().theme.correct)
 			}
 		}
 	}
@@ -151,15 +146,15 @@ func (s *SceneGame) Update(dt int) {
 func (s *SceneGame) moveStatus() {
 	switch s.board.moveStatus {
 	case Correct:
-		s.lblName.SetBg(color.RGBA{0, 128, 0, 255})
+		s.lblName.SetBg(getApp().theme.correct)
 	case Error:
-		s.lblName.SetBg(color.RGBA{255, 0, 0, 255})
+		s.lblName.SetBg(getApp().theme.error)
 	case Warning:
-		s.lblName.SetBg(color.RGBA{255, 128, 0, 255})
+		s.lblName.SetBg(getApp().theme.warning)
 	case Regular:
-		s.lblName.SetBg(color.RGBA{0, 0, 128, 255})
+		s.lblName.SetBg(getApp().theme.regular)
 	default:
-		s.lblName.SetBg(color.RGBA{32, 32, 32, 255})
+		s.lblName.SetBg(getApp().theme.bg)
 	}
 	str := fmt.Sprintf("Pos %v (%v) (%v/%v)", s.level, s.lives, s.board.move, s.board.totalMoves)
 	s.lblName.SetText(str)

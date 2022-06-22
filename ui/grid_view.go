@@ -2,7 +2,6 @@ package ui
 
 import (
 	"image/color"
-	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -16,7 +15,7 @@ type GridView struct {
 	bg, fg                  color.RGBA
 }
 
-func NewGridView(rect []int, spacing int) *GridView {
+func NewGridView(rect []int, spacing int, bg, fg color.RGBA) *GridView {
 	return &GridView{
 		spacing:  spacing,
 		rect:     NewRect(rect),
@@ -24,8 +23,8 @@ func NewGridView(rect []int, spacing int) *GridView {
 		Dirty:    true,
 		Visibe:   false,
 		DrawRect: true,
-		bg:       color.RGBA{64, 0, 0, 255},
-		fg:       color.RGBA{255, 255, 0, 255}}
+		bg:       bg,
+		fg:       fg}
 }
 
 func (g *GridView) Layout() *ebiten.Image {
@@ -46,7 +45,6 @@ func (g *GridView) Layout() *ebiten.Image {
 		ebitenutil.DrawLine(image, float64(x), 0, float64(x), float64(g.rect.H), g.fg)
 	}
 	g.Dirty = false
-	log.Printf("Grid created. %v %v %v %v", w, h, g.rect, spacing)
 	return image
 }
 

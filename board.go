@@ -40,7 +40,7 @@ func NewBoard(rect []int) *Board {
 		rect:   ui.NewRect(rect),
 		inGame: false,
 	}
-	b.grid = ui.NewGridView(rect, 3)
+	b.grid = ui.NewGridView(rect, 3, getApp().theme.bg, getApp().theme.fg)
 	b.Add(b.grid)
 	b.field = b.initCells()
 	b.Resize(rect)
@@ -130,12 +130,10 @@ func (b *Board) setFieldVisible(value bool) {
 
 func (b *Board) ShowActiveCell() {
 	b.field[b.moveNumber].SetActive(true)
-	log.Printf("Show Cell At:%v", b.moveNumber)
 }
 
 func (b *Board) HideActiveCell() {
 	b.field[b.moveNumber].SetActive(false)
-	log.Printf("Hide Cell At:%v", b.moveNumber)
 }
 
 func (b *Board) IsShowActiveCell() bool {

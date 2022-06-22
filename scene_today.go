@@ -24,9 +24,9 @@ func NewSceneToday() *SceneToday {
 	}
 	rect := []int{0, 0, 1, 1}
 	s.name = "Games for Today"
-	s.lblName = ui.NewLabel(s.name, rect)
+	s.lblName = ui.NewLabel(s.name, rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblName)
-	s.lblPeriodResult = ui.NewLabel(getApp().db.todayData.String(), rect)
+	s.lblPeriodResult = ui.NewLabel(getApp().db.todayData.String(), rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblPeriodResult)
 	s.lblsResult = NewResultLbls(rect)
 	s.Add(s.lblsResult)

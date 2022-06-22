@@ -26,10 +26,10 @@ func getArr(level, moves int) (arr []int) {
 		count += 1
 	}
 	if !check {
-		log.Printf("RR:%v generate:[%v] elapsed time:%v count:%v", max, best, time.Now().Sub(start), count)
+		log.Printf("RR:%v elapsed time:%v count:%v", max, time.Now().Sub(start), count)
 		return best
 	}
-	log.Printf("RR:%v generate:[%v] elapsed time:%v count:%v", max, arr, time.Now().Sub(start), count)
+	log.Printf("RR:%v elapsed time:%v count:%v", max, time.Now().Sub(start), count)
 	return arr
 }
 
@@ -41,7 +41,6 @@ func genArr(moves int) (a []int) {
 			a = append(a, num)
 		}
 	}
-	log.Println("gen:", a)
 	return a
 }
 

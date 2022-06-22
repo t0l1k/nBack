@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image/color"
 	"log"
 	"os"
 	"time"
@@ -35,11 +34,11 @@ func getApp() (a *App) {
 			lastDt:     -1,
 			scenes:     scs,
 			db:         db,
+			theme:      NewTheme(),
 		}
 		log.Printf("App init: screen size:[%v, %v]", w, h)
 	} else {
 		a = app
-		log.Printf("App call.")
 	}
 	return a
 }
@@ -62,6 +61,7 @@ type App struct {
 	currentScene ui.Scene
 	lastDt       int
 	db           *Db
+	theme        *Theme
 }
 
 func (a *App) GetScreenSize() (w, h int) {
@@ -93,7 +93,7 @@ func (a *App) Update() error {
 }
 
 func (a *App) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{0, 0, 0, 255})
+	screen.Fill(a.theme.bg)
 	a.currentScene.Draw(screen)
 }
 
