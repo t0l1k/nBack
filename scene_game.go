@@ -40,15 +40,15 @@ func (s *SceneGame) initGame() {
 		s.level, s.lives, _ = getApp().db.todayData[s.count].NextLevel()
 	} else {
 		s.count = 1
-		s.level = 1
-		s.lives = 3
+		s.level = getApp().preferences.defaultLevel
+		s.lives = getApp().preferences.thresholdFallbackSessions
 	}
 	ss := fmt.Sprintf("#%v level:%v", s.count, s.level)
 	s.lblResult.SetText(ss)
 }
 func (s *SceneGame) initGameTimers() {
-	s.timeToNextCell = 2000
-	s.timeShowCell = 500
+	s.timeToNextCell = getApp().preferences.timeToNextCell
+	s.timeShowCell = getApp().preferences.timeShowCell
 	s.stopper = 0
 	delay := (s.timeToNextCell - s.timeShowCell) / 2
 	s.delayBeginCellShow = delay
@@ -122,7 +122,7 @@ func (s *SceneGame) Update(dt int) {
 			s.lblMotiv.Visibe = true
 			s.lblTimer.Visibe = true
 			s.lblTimer.SetBg(getApp().theme.error)
-			s.pauseTimer = 5000
+			s.pauseTimer = getApp().preferences.pauseRest
 			s.paused = true
 		}
 		if s.pauseTimer > 0 {
@@ -136,7 +136,7 @@ func (s *SceneGame) Update(dt int) {
 		} else if s.pauseTimer <= 0 {
 			if s.paused {
 				s.paused = false
-				s.pauseTimer += 5000
+				s.pauseTimer += getApp().preferences.pauseRest
 				s.lblTimer.SetBg(getApp().theme.correct)
 			}
 		}

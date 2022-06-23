@@ -45,7 +45,7 @@ func genArr(moves int) (a []int) {
 }
 
 func checkRR(a []int, level int) (bool, int) {
-	RR := 12.5
+	RR := getApp().preferences.rr
 	count := 0
 	for i, v := range a {
 		nextMove := i + level

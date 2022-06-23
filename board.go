@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"math/rand"
 	"time"
 
@@ -56,7 +57,8 @@ func (b *Board) Reset(gameCount, level int) {
 	b.level = level
 	b.moves = make([]int, 0)
 	b.move = 0
-	b.totalMoves = 5*1 + b.level*b.level
+	pref := getApp().preferences
+	b.totalMoves = pref.trials*pref.trialsFactor + int(math.Pow(float64(b.level), float64(pref.trialsExponent)))
 	b.arr = getArr(b.level, b.totalMoves)
 	b.countCorrect, b.countWrong = 0, 0
 	b.dtBeg = time.Now()

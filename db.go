@@ -112,13 +112,13 @@ type GameData struct {
 
 func (d *GameData) NextLevel() (int, int, string) {
 	motiv := ""
-	adv := 80
-	fall := 50
+	adv := getApp().preferences.thresholdAdvance
+	fall := getApp().preferences.thresholdFallback
 	level := d.level
 	lives := d.lives
 	if d.percent >= adv {
 		level += 1
-		lives = 3
+		lives = getApp().preferences.thresholdFallbackSessions
 		motiv = "Excellent result! Level up!"
 	} else if d.percent >= fall && d.percent < adv {
 		motiv = "Good result! One more time this level!"
@@ -127,7 +127,7 @@ func (d *GameData) NextLevel() (int, int, string) {
 			motiv = "Let's improve the results! Level down!"
 			if level > 1 {
 				level -= 1
-				lives = 3
+				lives = getApp().preferences.thresholdFallbackSessions
 			}
 		} else if lives > 1 {
 			motiv = "Let's improve the results! Let's have an extra try!"
@@ -143,8 +143,8 @@ func (d GameData) BgColor() (result color.Color) {
 	colorCorrect := theme.correct
 	colorError := theme.error
 	colorWarning := theme.warning
-	adv := 80
-	fall := 50
+	adv := getApp().preferences.thresholdAdvance
+	fall := getApp().preferences.thresholdFallback
 	if d.percent >= adv {
 		result = colorRegular
 	} else if d.percent >= fall && d.percent < adv {
@@ -247,7 +247,6 @@ func (d *Db) ReadTodayGames() {
 	now := time.Now()
 	todayBeginDt := time.Date(now.Year(), now.Month(), now.Day(), 4, 0, 0, 0, now.Location())
 	dtFormat := "2006.01.02 15:04:05.000"
-	i := 1
 	for rows.Next() {
 		values := &GameData{}
 		err = rows.Scan(&values.id, &values.dtBeg, &values.dtEnd, &values.level, &values.lives, &values.percent, &values.correct, &values.wrong, &values.moves, &values.totalmoves, &values.manual, &values.advance, &values.fallback, &values.resetonerror)
@@ -262,7 +261,6 @@ func (d *Db) ReadTodayGames() {
 			d.todayGamesCount += 1
 			d.todayData[d.todayGamesCount] = values
 		}
-		i += 1
 	}
 }
 

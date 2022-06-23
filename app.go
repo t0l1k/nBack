@@ -16,25 +16,26 @@ func getApp() (a *App) {
 	if app == nil {
 		db := &Db{}
 		db.Setup()
-		fullScreen := false
+		pref := NewSettings()
 		var w, h int
-		if fullScreen {
+		if pref.fullScreen {
 			w, h = ebiten.ScreenSizeInFullscreen()
 		} else {
 			w, h = fitWindowSize()
 		}
 		ebiten.SetWindowTitle("nBack")
-		ebiten.SetFullscreen(fullScreen)
+		ebiten.SetFullscreen(pref.fullScreen)
 		ebiten.SetWindowSize(w, h)
 		rect := ui.NewRect([]int{0, 0, w, h})
-		scs := []ui.Scene{}
+		scns := []ui.Scene{}
 		a = &App{
-			fullScreen: fullScreen,
-			rect:       rect,
-			lastDt:     -1,
-			scenes:     scs,
-			db:         db,
-			theme:      NewTheme(),
+			fullScreen:  pref.fullScreen,
+			rect:        rect,
+			lastDt:      -1,
+			scenes:      scns,
+			db:          db,
+			theme:       NewTheme(),
+			preferences: pref,
 		}
 		log.Printf("App init: screen size:[%v, %v]", w, h)
 	} else {
@@ -62,6 +63,7 @@ type App struct {
 	lastDt       int
 	db           *Db
 	theme        *Theme
+	preferences  *Setting
 }
 
 func (a *App) GetScreenSize() (w, h int) {

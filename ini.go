@@ -2,6 +2,39 @@ package main
 
 import "image/color"
 
+type Setting struct {
+	timeToNextCell, timeShowCell                                   int
+	defaultLevel                                                   int
+	manual                                                         bool
+	manualAdv                                                      int
+	thresholdAdvance, thresholdFallback, thresholdFallbackSessions int
+	trials, trialsFactor, trialsExponent                           int
+	rr                                                             float64
+	usecentercell, resetOnFirstWrong, fullScreen                   bool
+	pauseRest                                                      int
+}
+
+func NewSettings() *Setting {
+	return &Setting{
+		timeToNextCell:            2000,
+		timeShowCell:              500,
+		defaultLevel:              1, // Level in manul mode and first game level today
+		manual:                    false,
+		manualAdv:                 0, // games with 100% to next level in manual mode
+		thresholdAdvance:          80,
+		thresholdFallback:         50,
+		thresholdFallbackSessions: 3,
+		trials:                    5, //20 = classic = trials*factor+level**exponent
+		trialsFactor:              1,
+		trialsExponent:            2,
+		rr:                        12.5, // Random Repition
+		usecentercell:             false,
+		resetOnFirstWrong:         false,
+		fullScreen:                false,
+		pauseRest:                 5000,
+	}
+}
+
 type Theme struct {
 	bg, fg, active, regular, correct, error, warning color.RGBA
 }

@@ -41,7 +41,7 @@ func (s *SceneToday) Entered() {
 	getApp().db.ReadTodayGames()
 	s.lblPeriodResult.SetText(getApp().db.todayData.String())
 	s.Resize()
-	log.Println("Eneterd SceneToday")
+	log.Println("Entered SceneToday")
 }
 func (s *SceneToday) Add(item ui.Drawable) {
 	s.container = append(s.container, item)
