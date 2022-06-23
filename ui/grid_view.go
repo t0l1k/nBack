@@ -12,10 +12,10 @@ type GridView struct {
 	rect                    *Rect
 	Image                   *ebiten.Image
 	Dirty, Visibe, DrawRect bool
-	bg, fg                  color.RGBA
+	bg, fg                  color.Color
 }
 
-func NewGridView(rect []int, spacing int, bg, fg color.RGBA) *GridView {
+func NewGridView(rect []int, spacing int, bg, fg color.Color) *GridView {
 	return &GridView{
 		spacing:  spacing,
 		rect:     NewRect(rect),

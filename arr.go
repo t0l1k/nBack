@@ -13,7 +13,7 @@ func getArr(level, moves int) (arr []int) {
 	check := false
 	max := 0
 	best := make([]int, 0)
-	elapsed := time.Now().Sub(start)
+	elapsed := time.Since(start)
 	for (int(elapsed.Seconds()) < pause) && count < 100000 && !check {
 		arr = genArr(moves)
 		var percent int
@@ -22,14 +22,14 @@ func getArr(level, moves int) (arr []int) {
 			max = int(percent)
 			best = arr
 		}
-		elapsed = time.Now().Sub(start)
+		elapsed = time.Since(start)
 		count += 1
 	}
 	if !check {
-		log.Printf("RR:%v elapsed time:%v count:%v", max, time.Now().Sub(start), count)
+		log.Printf("RR:%v elapsed time:%v count:%v", max, time.Since(start), count)
 		return best
 	}
-	log.Printf("RR:%v elapsed time:%v count:%v", max, time.Now().Sub(start), count)
+	log.Printf("RR:%v elapsed time:%v count:%v", max, time.Since(start), count)
 	return arr
 }
 

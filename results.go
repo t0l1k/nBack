@@ -16,7 +16,7 @@ type ResultLbls struct {
 	rect          *ui.Rect
 	Image         *ebiten.Image
 	Dirty, Visibe bool
-	bg, fg        color.RGBA
+	bg, fg        color.Color
 }
 
 func NewResultLbls(rect []int) *ResultLbls {
@@ -89,7 +89,7 @@ type ResultPlot struct {
 	rect          *ui.Rect
 	Image         *ebiten.Image
 	Dirty, Visibe bool
-	bg, fg        color.RGBA
+	bg, fg        color.Color
 }
 
 func NewResultPlot(rect []int) *ResultPlot {
@@ -212,9 +212,12 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 		}
 		return r
 	}
-	{
+	{ // parse data green line
 		points := zip(xArr, yArr)
 		var results1 []float64
+		xx := xPos(float64(axisXMax) * float64(0) / float64(xArr.Len()))
+		yy := yPos(float64(0))
+		results1 = append(results1, xx, yy)
 		for e := points.Front(); e != nil; e = e.Next() {
 			x := e.Value.(*list.List).Front().Value
 			y := e.Value.(*list.List).Back().Value
@@ -227,7 +230,7 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.correct)
 		}
 	}
-	{
+	{ // blue line and circle
 		points := zip(xArr, lvlValues)
 		var results1 []float64
 		for e := points.Front(); e != nil; e = e.Next() {
@@ -241,9 +244,9 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 		for e := percents.Front(); e != nil; e = e.Next() {
 			perc = append(perc, e.Value.(int))
 		}
-		var clrs []color.RGBA
+		var clrs []color.Color
 		for e := colors.Front(); e != nil; e = e.Next() {
-			clrs = append(clrs, e.Value.(color.RGBA))
+			clrs = append(clrs, e.Value.(color.Color))
 		}
 		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 {
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
@@ -253,8 +256,8 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 		for i, j := 0, 1; j < len(results1); i, j = i+2, j+2 {
 			x1, y1 := results1[i], results1[j]
 			boxSize := gridWidth
-			lbl := ui.NewLabel(strconv.Itoa(perc[k]), []int{int(x1) - boxSize/2, int(y1) - boxSize/2, boxSize, boxSize}, bg, fg)
-			lbl.SetBg(clrs[k])
+			lbl := ui.NewLabel(strconv.Itoa(perc[k]), []int{int(x1) - boxSize/2, int(y1) - boxSize/2, boxSize, boxSize}, clrs[k], fg)
+			ui.DrawCircle(image, x1, y1, float64(boxSize), clrs[k], true)
 			lbl.Draw(image)
 			k++
 		}

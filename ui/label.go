@@ -18,10 +18,10 @@ type Label struct {
 	rect                    *Rect
 	Image                   *ebiten.Image
 	Dirty, Visibe, DrawRect bool
-	bg, fg                  color.RGBA
+	bg, fg                  color.Color
 }
 
-func NewLabel(text string, rect []int, bg, fg color.RGBA) *Label {
+func NewLabel(text string, rect []int, bg, fg color.Color) *Label {
 	return &Label{
 		text:     text,
 		rect:     NewRect(rect),
@@ -33,7 +33,7 @@ func NewLabel(text string, rect []int, bg, fg color.RGBA) *Label {
 		fg:       fg}
 }
 
-func (l *Label) SetBg(value color.RGBA) {
+func (l *Label) SetBg(value color.Color) {
 	if l.bg == value {
 		return
 	}
@@ -41,7 +41,7 @@ func (l *Label) SetBg(value color.RGBA) {
 	l.Dirty = true
 }
 
-func (l *Label) SetFg(value color.RGBA) {
+func (l *Label) SetFg(value color.Color) {
 	if l.fg == value {
 		return
 	}

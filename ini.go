@@ -7,12 +7,15 @@ type Theme struct {
 }
 
 func NewTheme() *Theme {
+	// black := color.RGBA{0, 0, 0, 255}
+	white := color.RGBA{255, 255, 255, 255}
+	gray := color.RGBA{192, 192, 192, 255}
 	return &Theme{
-		bg:      color.RGBA{0, 0, 0, 255},
-		fg:      color.RGBA{255, 255, 255, 255},
+		bg:      gray,
+		fg:      white,
 		active:  color.RGBA{255, 255, 0, 255},
-		regular: color.RGBA{0, 0, 128, 255},
-		correct: color.RGBA{0, 128, 0, 255},
+		regular: color.RGBA{0, 0, 192, 255},
+		correct: color.RGBA{0, 192, 0, 255},
 		warning: color.RGBA{255, 128, 0, 255},
 		error:   color.RGBA{255, 0, 0, 255},
 	}

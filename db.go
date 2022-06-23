@@ -137,7 +137,7 @@ func (d *GameData) NextLevel() (int, int, string) {
 	return level, lives, motiv
 }
 
-func (d GameData) BgColor() (result color.RGBA) {
+func (d GameData) BgColor() (result color.Color) {
 	theme := getApp().theme
 	colorRegular := theme.regular
 	colorCorrect := theme.correct

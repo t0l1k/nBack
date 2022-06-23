@@ -13,7 +13,7 @@ type Cell struct {
 	rect                                      *ui.Rect
 	Image                                     *ebiten.Image
 	Dirty, Visibe, DrawRect, IsCenter, Active bool
-	bg, fg, activeColor                       color.RGBA
+	bg, fg, activeColor                       color.Color
 	margin                                    float64
 }
 
