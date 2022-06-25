@@ -105,10 +105,8 @@ func (l *Label) Layout() *ebiten.Image {
 	fnt := l.getFont(float64(l.getFontSize()))
 	defer fnt.Close()
 	b := text.BoundString(fnt, l.text)
-	wF := b.Dx()
-	hF := b.Dy()
-	x := (w - wF) / 2
-	y := h - (h-hF)/2
+	x := (l.rect.W - b.Max.X) / 2
+	y := l.rect.H - (l.rect.H-b.Dy())/2
 	text.Draw(image, l.text, fnt, x, y, l.fg)
 	l.Dirty = false
 	return image

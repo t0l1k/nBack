@@ -38,6 +38,16 @@ func (r Rect) Top() int {
 func (r Rect) Bottom() int {
 	return r.X + r.H
 }
+func (r Rect) CenterX() int {
+	return (r.W - r.X) / 2
+}
+
+func (r Rect) CenterY() int {
+	return (r.H - r.Y) / 2
+}
+func (r Rect) Center() (int, int) {
+	return r.CenterX(), r.CenterY()
+}
 
 func (r Rect) TopLeft() (int, int) {
 	return r.X, r.Y

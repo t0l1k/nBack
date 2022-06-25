@@ -152,8 +152,13 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 			lbl.Draw(image)
 		}
 	}
-	if gridWidth > margin {
-		gridWidth = margin
+	{
+		boxSize := margin
+		xL, yL := axisRect.Right()-boxSize*3, axisRect.Bottom()-boxSize
+		w, h = boxSize*3, boxSize
+		lbl := ui.NewLabel("Game number", []int{xL, yL, w, h}, bg, fg)
+		lbl.SetBg(bg)
+		lbl.Draw(image)
 	}
 	// y axis
 	x1, y1 = axisRect.BottomLeft()
@@ -176,14 +181,6 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 		lbl.Draw(image)
 	}
 	{
-		boxSize := margin * 7
-		xL, yL := axisRect.Right()/2-boxSize/2, axisRect.Top()-int(float64(boxSize)/4.5)
-		w, h = boxSize, boxSize/4
-		lbl := ui.NewLabel("Daily results", []int{xL, yL, w, h}, bg, fg)
-		lbl.SetBg(bg)
-		lbl.Draw(image)
-	}
-	{
 		boxSize := margin
 		xL, yL := axisRect.Left()+int(float64(boxSize)*0.2), axisRect.Top()-boxSize
 		w, h = int(float64(boxSize)*1.5), boxSize
@@ -192,13 +189,14 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 		lbl.Draw(image)
 	}
 	{
-		boxSize := margin
-		xL, yL := axisRect.Right()-boxSize*3, axisRect.Bottom()-boxSize
-		w, h = boxSize*3, boxSize
-		lbl := ui.NewLabel("Game number", []int{xL, yL, w, h}, bg, fg)
+		boxSize := margin * 7
+		xL, yL := axisRect.Right()/2-boxSize/2, axisRect.Top()-int(float64(boxSize)/4.5)
+		w, h = boxSize, boxSize/4
+		lbl := ui.NewLabel("Daily results", []int{xL, yL, w, h}, bg, fg)
 		lbl.SetBg(bg)
 		lbl.Draw(image)
 	}
+
 	zip := func(a, b list.List) *list.List {
 		if a.Len() != b.Len() {
 			panic("len(a) != len(b)")
@@ -255,7 +253,7 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 		k := 0
 		for i, j := 0, 1; j < len(results1); i, j = i+2, j+2 {
 			x1, y1 := results1[i], results1[j]
-			boxSize := gridWidth
+			boxSize := gridWidth / 2
 			lbl := ui.NewLabel(strconv.Itoa(perc[k]), []int{int(x1) - boxSize/2, int(y1) - boxSize/2, boxSize, boxSize}, clrs[k], fg)
 			ui.DrawCircle(image, x1, y1, float64(boxSize), clrs[k], true)
 			lbl.Draw(image)

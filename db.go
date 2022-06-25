@@ -43,7 +43,7 @@ func (t *TodayGamesData) getAvg() (sum float64) {
 	return 0
 }
 
-func (t *TodayGamesData) getTimeDuraton() (result string) {
+func (t *TodayGamesData) getGamesTimeDuraton() (result string) {
 	if t.getCount() == 0 {
 		return
 	}
@@ -60,13 +60,18 @@ func (t *TodayGamesData) getTimeDuraton() (result string) {
 		}
 		durration += dtEnd.Sub(dtBeg)
 	}
-	mSec := durration.Milliseconds() / 1e3
-	sec := durration.Seconds()
-	minutes := int(sec / 60)
-	seconds := int(sec) % 60
-	result = fmt.Sprintf("%02v:%02v.%03v", minutes, seconds, int(mSec))
-	if sec > 3600 {
-		result = fmt.Sprintf("%02v:%02v:%02v.%03v", sec/3600, minutes, seconds, int(mSec))
+	d := durration.Round(time.Millisecond)
+	hours := d / time.Hour
+	d -= hours * time.Hour
+	minutes := d / time.Minute
+	d -= minutes * time.Minute
+	sec := d / time.Second
+	d -= sec * time.Second
+	mSec := d / time.Millisecond
+	if hours > 0 {
+		result = fmt.Sprintf("%02v:%02v:%02v.%03v", int(hours), int(minutes), int(sec), int(mSec))
+	} else {
+		result = fmt.Sprintf("%02v:%02v.%03v", int(minutes), int(sec), int(mSec))
 	}
 	return
 }
@@ -97,13 +102,12 @@ func (t *TodayGamesData) String() string {
 			t.getCount(),
 			t.getMax(),
 			t.getAvg(),
-			t.getTimeDuraton(),
+			t.getGamesTimeDuraton(),
 		)
 	}
 	return s
 }
 
-// dtBeg, dtEnd, level, lives, percent, correct, wrong, moves, totalmoves, manual, advance, fallback, resetonerror
 type GameData struct {
 	dtBeg, dtEnd                                                                    string
 	id, level, lives, percent, correct, wrong, moves, totalmoves, advance, fallback int

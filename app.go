@@ -10,6 +10,18 @@ import (
 	"github.com/t0l1k/nBack/ui"
 )
 
+type App struct {
+	startDt      time.Time
+	fullScreen   bool
+	rect         *ui.Rect
+	scenes       []ui.Scene
+	currentScene ui.Scene
+	lastDt       int
+	db           *Db
+	theme        *Theme
+	preferences  *Setting
+}
+
 var app *App
 
 func getApp() (a *App) {
@@ -29,6 +41,7 @@ func getApp() (a *App) {
 		rect := ui.NewRect([]int{0, 0, w, h})
 		scns := []ui.Scene{}
 		a = &App{
+			startDt:     time.Now(),
 			fullScreen:  pref.fullScreen,
 			rect:        rect,
 			lastDt:      -1,
@@ -53,17 +66,6 @@ func fitWindowSize() (w int, h int) {
 		w, h = 200*k, 320*k
 	}
 	return w, h
-}
-
-type App struct {
-	fullScreen   bool
-	rect         *ui.Rect
-	scenes       []ui.Scene
-	currentScene ui.Scene
-	lastDt       int
-	db           *Db
-	theme        *Theme
-	preferences  *Setting
 }
 
 func (a *App) GetScreenSize() (w, h int) {

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -9,13 +11,13 @@ import (
 )
 
 type SceneToday struct {
-	name                     string
-	lblName, lblPeriodResult *ui.Label
-	lblsResult               *ResultLbls
-	plotResult               *ResultPlot
-	toggleResults            bool
-	rect                     *ui.Rect
-	container                []ui.Drawable
+	name                            string
+	lblName, lblPeriodResult, lblDt *ui.Label
+	lblsResult                      *ResultLbls
+	plotResult                      *ResultPlot
+	toggleResults                   bool
+	rect                            *ui.Rect
+	container                       []ui.Drawable
 }
 
 func NewSceneToday() *SceneToday {
@@ -28,6 +30,8 @@ func NewSceneToday() *SceneToday {
 	s.Add(s.lblName)
 	s.lblPeriodResult = ui.NewLabel(getApp().db.todayData.String(), rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblPeriodResult)
+	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getApp().theme.correct, getApp().theme.fg)
+	s.Add(s.lblDt)
 	s.lblsResult = NewResultLbls(rect)
 	s.Add(s.lblsResult)
 	s.plotResult = NewResultPlot(rect)
@@ -47,6 +51,7 @@ func (s *SceneToday) Add(item ui.Drawable) {
 	s.container = append(s.container, item)
 }
 func (s *SceneToday) Update(dt int) {
+	s.updateDt()
 	for _, value := range s.container {
 		value.Update(dt)
 	}
@@ -65,6 +70,25 @@ func (s *SceneToday) Update(dt int) {
 		}
 	}
 }
+
+func (s *SceneToday) updateDt() {
+	durration := time.Since(getApp().startDt)
+	d := durration.Round(time.Second)
+	hours := d / time.Hour
+	d -= hours * time.Hour
+	minutes := d / time.Minute
+	d -= minutes * time.Minute
+	sec := d / time.Second
+	result := ""
+	if hours > 0 {
+		result = fmt.Sprintf("%02v:%02v:%02v", int(hours), int(minutes), int(sec))
+	} else {
+		result = fmt.Sprintf("%02v:%02v", int(minutes), int(sec))
+	}
+	ss := fmt.Sprintf("up: %v", result)
+	s.lblDt.SetText(ss)
+}
+
 func (s *SceneToday) Draw(surface *ebiten.Image) {
 	for _, value := range s.container {
 		value.Draw(surface)
@@ -73,8 +97,10 @@ func (s *SceneToday) Draw(surface *ebiten.Image) {
 
 func (s *SceneToday) Resize() {
 	s.rect = getApp().rect
-	x, y, w, h := 0, 0, int(float64(getApp().rect.W)*0.3), int(float64(getApp().rect.H)*0.05)
+	x, y, w, h := 0, 0, int(float64(getApp().rect.W)*0.25), int(float64(getApp().rect.H)*0.05)
 	s.lblName.Resize([]int{x, y, w, h})
+	x = s.rect.Right() - w
+	s.lblDt.Resize([]int{x, y, w, h})
 	w, h = int(float64(getApp().rect.W)*0.9), int(float64(getApp().rect.H)*0.1)
 	x, y = (s.rect.W-w)/2, int(float64(h)*0.8)
 	s.lblPeriodResult.Resize([]int{x, y, w, h})
