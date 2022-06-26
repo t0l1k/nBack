@@ -144,17 +144,19 @@ func (s *SceneGame) Update(dt int) {
 }
 
 func (s *SceneGame) moveStatus() {
-	switch s.board.moveStatus {
-	case Correct:
-		s.lblName.SetBg(getApp().theme.correct)
-	case Error:
-		s.lblName.SetBg(getApp().theme.error)
-	case Warning:
-		s.lblName.SetBg(getApp().theme.warning)
-	case Regular:
-		s.lblName.SetBg(getApp().theme.regular)
-	default:
-		s.lblName.SetBg(getApp().theme.bg)
+	if getApp().preferences.feedbackOnUserMove {
+		switch s.board.moveStatus {
+		case Correct:
+			s.lblName.SetBg(getApp().theme.correct)
+		case Error:
+			s.lblName.SetBg(getApp().theme.error)
+		case Warning:
+			s.lblName.SetBg(getApp().theme.warning)
+		case Regular:
+			s.lblName.SetBg(getApp().theme.regular)
+		default:
+			s.lblName.SetBg(getApp().theme.bg)
+		}
 	}
 	str := fmt.Sprintf("Pos %v (%v) (%v/%v)", s.level, s.lives, s.board.move, s.board.totalMoves)
 	s.lblName.SetText(str)
@@ -173,10 +175,10 @@ func (s *SceneGame) SaveGame() {
 		wrong:        s.board.countWrong,
 		moves:        s.board.move,
 		totalmoves:   s.board.totalMoves,
-		manual:       false,
-		advance:      80,
-		fallback:     50,
-		resetonerror: false,
+		manual:       getApp().preferences.manual,
+		advance:      getApp().preferences.thresholdAdvance,
+		fallback:     getApp().preferences.thresholdFallback,
+		resetonerror: getApp().preferences.resetOnFirstWrong,
 	}
 	getApp().db.Insert(values)
 	log.Println("Game Saved in DB.")

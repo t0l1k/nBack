@@ -3,15 +3,15 @@ package main
 import "image/color"
 
 type Setting struct {
-	timeToNextCell, timeShowCell                                   int
-	defaultLevel                                                   int
-	manual                                                         bool
-	manualAdv                                                      int
-	thresholdAdvance, thresholdFallback, thresholdFallbackSessions int
-	trials, trialsFactor, trialsExponent                           int
-	rr                                                             float64
-	usecentercell, resetOnFirstWrong, fullScreen                   bool
-	pauseRest                                                      int
+	timeToNextCell, timeShowCell                                     int
+	defaultLevel                                                     int
+	manual                                                           bool
+	manualAdv                                                        int
+	thresholdAdvance, thresholdFallback, thresholdFallbackSessions   int
+	trials, trialsFactor, trialsExponent                             int
+	rr                                                               float64
+	feedbackOnUserMove, usecentercell, resetOnFirstWrong, fullScreen bool
+	pauseRest                                                        int
 }
 
 func NewSettings() *Setting {
@@ -32,6 +32,7 @@ func NewSettings() *Setting {
 		resetOnFirstWrong:         false,
 		fullScreen:                false,
 		pauseRest:                 5000,
+		feedbackOnUserMove:        true,
 	}
 }
 
