@@ -152,6 +152,9 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 			lbl.Draw(image)
 		}
 	}
+	if gridWidth > margin*2 {
+		gridWidth = margin * 2
+	}
 	{
 		boxSize := margin
 		xL, yL := axisRect.Right()-boxSize*3, axisRect.Bottom()-boxSize

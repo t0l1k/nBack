@@ -20,7 +20,7 @@ func NewSettings() *Setting {
 		timeShowCell:              500,
 		defaultLevel:              1, // Level in manul mode and first game level today
 		manual:                    false,
-		manualAdv:                 0, // games with 100% to next level in manual mode
+		manualAdv:                 3, // games with 100% to next level in manual mode, 0 same level
 		thresholdAdvance:          80,
 		thresholdFallback:         50,
 		thresholdFallbackSessions: 3,

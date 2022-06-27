@@ -23,12 +23,14 @@ type SceneGame struct {
 }
 
 func NewSceneGame() *SceneGame {
-	return &SceneGame{
+	s := &SceneGame{
 		rect: getApp().rect}
+	s.initUi()
+	return s
 }
 
 func (s *SceneGame) Entered() {
-	s.initUi()
+	s.Resize()
 	s.initGame()
 	s.initGameTimers()
 	log.Printf("Enterd Scene Game")
@@ -44,6 +46,11 @@ func (s *SceneGame) initGame() {
 		s.lives = getApp().preferences.thresholdFallbackSessions
 	}
 	ss := fmt.Sprintf("#%v level:%v", s.count, s.level)
+	if getApp().preferences.manual {
+		ss += " Manual game mode."
+	} else {
+		ss += " Classic game mode."
+	}
 	s.lblResult.SetText(ss)
 }
 func (s *SceneGame) initGameTimers() {
@@ -72,7 +79,6 @@ func (s *SceneGame) initUi() {
 	s.lblTimer = ui.NewLabel(s.name, rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblTimer)
 	s.lblTimer.Visibe = false
-	s.Resize()
 }
 
 func (s *SceneGame) Update(dt int) {

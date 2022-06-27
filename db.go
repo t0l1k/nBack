@@ -67,11 +67,11 @@ func (t *TodayGamesData) getGamesTimeDuraton() (result string) {
 	d -= minutes * time.Minute
 	sec := d / time.Second
 	d -= sec * time.Second
-	mSec := d / time.Millisecond
+	ms := d / time.Millisecond
 	if hours > 0 {
-		result = fmt.Sprintf("%02v:%02v:%02v.%03v", int(hours), int(minutes), int(sec), int(mSec))
+		result = fmt.Sprintf("%02v:%02v:%02v.%03v", int(hours), int(minutes), int(sec), int(ms))
 	} else {
-		result = fmt.Sprintf("%02v:%02v.%03v", int(minutes), int(sec), int(mSec))
+		result = fmt.Sprintf("%02v:%02v.%03v", int(minutes), int(sec), int(ms))
 	}
 	return
 }
@@ -92,6 +92,37 @@ func (t *TodayGamesData) PlotTodayData() (gameNr, level, levelValue, percents, c
 		colors.PushBack(v.BgColor())
 	}
 	return
+}
+
+func (t *TodayGamesData) getWinCountInManual() (bool, bool, int) {
+	keys := make([]int, 0)
+	for k := range *t {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+	count := 0
+	adv := getApp().preferences.manualAdv
+	lastLvl := getApp().db.todayData[len(keys)].level
+	ok := false
+	for i := len(keys); i > 0; i-- {
+		v := getApp().db.todayData[i]
+		if adv == 0 || !v.manual && count < adv {
+			return false, ok, count
+		} else if v.manual && v.percent == 100 && v.level == lastLvl {
+			count++
+			ok = true
+			if count == adv {
+				return true, ok, count
+			}
+		} else if v.manual && v.percent < 100 && v.level == lastLvl {
+			count = 0
+			return false, ok, count
+		}
+		if v.level != lastLvl {
+			return false, ok, count
+		}
+	}
+	return count >= adv, ok, count
 }
 
 func (t *TodayGamesData) String() string {
@@ -116,25 +147,39 @@ type GameData struct {
 
 func (d *GameData) NextLevel() (int, int, string) {
 	motiv := ""
+	manual := getApp().preferences.manual
 	adv := getApp().preferences.thresholdAdvance
 	fall := getApp().preferences.thresholdFallback
 	level := d.level
 	lives := d.lives
-	if d.percent >= adv {
+	if manual {
+		win, ok, count := getApp().db.todayData.getWinCountInManual()
+		if !win && !ok {
+			level = getApp().preferences.defaultLevel
+			lives = count
+		} else if !win && ok {
+			motiv = "Manual game mode. Good result! One more time this level!"
+			lives = count
+		} else if win && ok {
+			motiv = "Manual game mode. Excellent result! Level up!"
+			level += 1
+			lives = count
+		}
+	} else if d.percent >= adv {
 		level += 1
 		lives = getApp().preferences.thresholdFallbackSessions
-		motiv = "Excellent result! Level up!"
+		motiv = "Classic game mode. Excellent result! Level up!"
 	} else if d.percent >= fall && d.percent < adv {
-		motiv = "Good result! One more time this level!"
+		motiv = "Classic game mode. Good result! One more time this level!"
 	} else if d.percent < fall {
 		if lives == 1 {
-			motiv = "Let's improve the results! Level down!"
+			motiv = "Classic game mode. Let's improve the results! Level down!"
 			if level > 1 {
 				level -= 1
 				lives = getApp().preferences.thresholdFallbackSessions
 			}
 		} else if lives > 1 {
-			motiv = "Let's improve the results! Let's have an extra try!"
+			motiv = "Classic game mode. Let's improve the results! Let's have an extra try!"
 			lives -= 1
 		}
 	}
