@@ -76,7 +76,7 @@ func (t *TodayGamesData) getGamesTimeDuraton() (result string) {
 	return
 }
 
-func (t *TodayGamesData) PlotTodayData() (gameNr, level, levelValue, percents, colors list.List) {
+func (t *TodayGamesData) PlotTodayData() (gameNr, level, levelValue, percents, movesPerceent, colors list.List) {
 	keys := make([]int, 0)
 	for k := range *t {
 		keys = append(keys, k)
@@ -90,6 +90,11 @@ func (t *TodayGamesData) PlotTodayData() (gameNr, level, levelValue, percents, c
 		levelValue.PushBack(result)
 		percents.PushBack(v.percent)
 		colors.PushBack(v.BgColor())
+		moves := float64(v.moves)
+		totalmoves := float64(v.totalmoves)
+		percentMoves := moves * 100 / totalmoves
+		lvlMoves := float64(v.level) * percentMoves / 100
+		movesPerceent.PushBack(lvlMoves)
 	}
 	return
 }
@@ -237,6 +242,17 @@ func (q GameData) String() string {
 		q.wrong,
 		q.moves,
 		dStr)
+	if getApp().preferences.resetOnFirstWrong {
+		ss = fmt.Sprintf("#%v nB%v %v%% correct:%v wrong:%v moves:(%v/%v) [%v]",
+			getApp().db.todayGamesCount,
+			q.level,
+			q.percent,
+			q.correct,
+			q.wrong,
+			q.moves,
+			q.totalmoves,
+			dStr)
+	}
 	return ss
 }
 

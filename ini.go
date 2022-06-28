@@ -29,7 +29,7 @@ func NewSettings() *Setting {
 		trialsExponent:            2,
 		rr:                        12.5, // Random Repition
 		usecentercell:             false,
-		resetOnFirstWrong:         false,
+		resetOnFirstWrong:         true,
 		fullScreen:                false,
 		pauseRest:                 5000,
 		feedbackOnUserMove:        true,

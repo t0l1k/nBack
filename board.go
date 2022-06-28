@@ -23,7 +23,7 @@ const (
 
 type Board struct {
 	rect                               *ui.Rect
-	inGame, userMoved                  bool
+	inGame, userMoved, reset           bool
 	gameCount, level, totalMoves, move int
 	grid                               *ui.GridView
 	field                              []*Cell
@@ -50,6 +50,7 @@ func NewBoard(rect []int) *Board {
 
 func (b *Board) Reset(gameCount, level int) {
 	b.inGame = true
+	b.reset = false
 	b.userMoved = false
 	b.grid.Visibe = true
 	b.setFieldVisible(true)
@@ -106,12 +107,15 @@ func (b *Board) CheckMoveRegular() {
 			s += " analyze early"
 		}
 	}
+	if b.countWrong > 0 && getApp().preferences.resetOnFirstWrong {
+		b.reset = true
+	}
 	b.userMoved = false
 	log.Println(s)
 }
 func (b *Board) MakeMove() {
 	b.moveStatus = Neutral
-	if b.move == b.totalMoves {
+	if b.move == b.totalMoves || b.reset {
 		b.inGame = false
 		b.CheckMoveRegular()
 		b.grid.Visibe = false
@@ -143,6 +147,9 @@ func (b *Board) IsShowActiveCell() bool {
 }
 
 func (b *Board) getPercent() int {
+	if b.reset {
+		return 0
+	}
 	var (
 		aa, bb, i, j float64
 	)

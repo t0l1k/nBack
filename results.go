@@ -105,13 +105,16 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 	if !r.Dirty {
 		return r.Image
 	}
-	xArr, yArr, lvlValues, percents, colors := getApp().db.todayData.PlotTodayData()
+	xArr, yArr, lvlValues, percents, movesPercent, colors := getApp().db.todayData.PlotTodayData()
 	axisXMax := xArr.Len()
 	axisYMax := getApp().db.todayData.getMax() + 2
 	w0, h0 := r.rect.Size()
 	image := ebiten.NewImage(w0, h0)
 	bg := r.bg
 	fg := r.fg
+	red, g, b, a := fg.RGBA()
+	a /= 3
+	fg2 := color.RGBA{uint8(red), uint8(g), uint8(b), uint8(a)}
 	image.Fill(bg)
 	margin := int(float64(r.rect.GetLowestSize()) * 0.05)
 	x, y := margin, margin
@@ -141,7 +144,7 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 		ebitenutil.DrawLine(image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
 		x1, y1 = xPos(float64(x)), axisRect.Bottom()
 		x2, y2 = xPos(float64(x)), axisRect.Top()
-		ebitenutil.DrawLine(image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
+		ebitenutil.DrawLine(image, float64(x1), float64(y1), float64(x2), float64(y2), fg2)
 		gridWidth = int(xPos(float64(x))) - int(xPos(float64(lastW)))
 		lastW = x
 		if i%5 == 0 || i == 1 || i == xTicks {
@@ -175,7 +178,7 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 		ebitenutil.DrawLine(image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
 		x1, y1 = axisRect.Left(), yPos(float64(y))
 		x2, y2 = axisRect.Right(), yPos(float64(y))
-		ebitenutil.DrawLine(image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
+		ebitenutil.DrawLine(image, float64(x1), float64(y1), float64(x2), float64(y2), fg2)
 		boxSize := int(float64(axisRect.GetLowestSize()) * 0.05)
 		xL, yL := axisRect.Left()-int(float64(boxSize)*1.2), int(yPos(float64(y))-float64(boxSize)/2)
 		w, h = boxSize, boxSize
@@ -215,21 +218,42 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 	}
 	{ // parse data green line
 		points := zip(xArr, yArr)
-		var results1 []float64
+		var results1, results2, results3 []float64
 		xx := xPos(float64(axisXMax) * float64(0) / float64(xArr.Len()))
 		yy := yPos(float64(0))
 		results1 = append(results1, xx, yy)
+		results2 = append(results2, xx, yy)
+		results3 = append(results3, xx, yy)
 		for e := points.Front(); e != nil; e = e.Next() {
 			x := e.Value.(*list.List).Front().Value
 			y := e.Value.(*list.List).Back().Value
 			xx := xPos(float64(axisXMax) * float64(x.(int)) / float64(xArr.Len()))
 			yy := yPos(float64(y.(int)))
+			yy2 := yPos(0)
 			results1 = append(results1, xx, yy)
+			results2 = append(results2, xx, yy2)
+		}
+		points2 := zip(xArr, movesPercent)
+		for e := points2.Front(); e != nil; e = e.Next() {
+			x := e.Value.(*list.List).Front().Value
+			percent := e.Value.(*list.List).Back().Value
+			xx := xPos(float64(axisXMax) * float64(x.(int)) / float64(xArr.Len()))
+			yy := yPos(float64(percent.(float64)))
+			results3 = append(results3, xx, yy)
 		}
 		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 {
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
 			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.correct)
 		}
+		for i, j := 0, 1; j < len(results2); i, j = i+2, j+2 {
+			x1, y1, x2, y2 := results1[i], results1[j], results2[i], results2[j]
+			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.error)
+		}
+		for i, j := 0, 1; j < len(results3); i, j = i+2, j+2 {
+			x1, y1, x2, y2 := results1[i], results1[j], results3[i], results3[j]
+			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.regular)
+		}
+
 	}
 	{ // blue line and circle
 		points := zip(xArr, lvlValues)
