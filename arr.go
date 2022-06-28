@@ -37,7 +37,7 @@ func genArr(moves int) (a []int) {
 	fieldSize := 3
 	for len(a) < moves {
 		num := rand.Intn((fieldSize * fieldSize) - 1)
-		if num != (fieldSize*fieldSize-1)/2 {
+		if num != (fieldSize*fieldSize-1)/2 && !getApp().preferences.usecentercell || getApp().preferences.usecentercell {
 			a = append(a, num)
 		}
 	}

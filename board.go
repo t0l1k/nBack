@@ -169,7 +169,7 @@ func (b *Board) initCells() (field []*Cell) {
 		isCenter := false
 		aX := i % 3
 		aY := i / 3
-		if aX == 1 && aY == 1 {
+		if aX == 1 && aY == 1 && !getApp().preferences.usecentercell {
 			isCenter = true
 		}
 		c := NewCell([]int{0, 0, 1, 1}, isCenter)
