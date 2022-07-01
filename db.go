@@ -47,7 +47,7 @@ func (t *TodayGamesData) getGamesTimeDuraton() (result string) {
 	if t.getCount() == 0 {
 		return
 	}
-	dtFormat := "2006.01.02 15:04:05.000"
+	dtFormat := "2006-01-02 15:04:05.000"
 	var durration time.Duration
 	for _, v := range *t {
 		dtBeg, err := time.Parse(dtFormat, v.dtBeg)
@@ -219,7 +219,7 @@ func (q GameData) ShortStr() string {
 }
 func (q GameData) String() string {
 	var durration time.Duration
-	dtFormat := "2006.01.02 15:04:05.000"
+	dtFormat := "2006-01-02 15:04:05.000"
 	dtBeg, err := time.Parse(dtFormat, q.dtBeg)
 	if err != nil {
 		panic(err)
@@ -260,6 +260,7 @@ type Db struct {
 	conn            *sql.DB
 	todayData       TodayGamesData
 	todayGamesCount int
+	scoresData      ScoresData
 }
 
 func (d *Db) Setup() {
@@ -311,7 +312,7 @@ func (d *Db) ReadTodayGames() {
 	}
 	now := time.Now()
 	todayBeginDt := time.Date(now.Year(), now.Month(), now.Day(), 4, 0, 0, 0, now.Location())
-	dtFormat := "2006.01.02 15:04:05.000"
+	dtFormat := "2006-01-02 15:04:05.000"
 	for rows.Next() {
 		values := &GameData{}
 		err = rows.Scan(&values.id, &values.dtBeg, &values.dtEnd, &values.level, &values.lives, &values.percent, &values.correct, &values.wrong, &values.moves, &values.totalmoves, &values.manual, &values.advance, &values.fallback, &values.resetonerror)
@@ -329,7 +330,92 @@ func (d *Db) ReadTodayGames() {
 	}
 }
 
+func (d *Db) ReadAllGamesScore() (*ScoreData, string) {
+	qry := "SELECT count(level) games, max(level) max, round(avg(level),2) average FROM simple;"
+	rows, err := d.conn.Query(qry)
+	if err != nil {
+		panic(err)
+	}
+	values := &ScoreData{}
+	resultStr := ""
+	for rows.Next() {
+		err = rows.Scan(&values.games, &values.max, &values.avg)
+		if err != nil && err != sql.ErrNoRows {
+			panic(err)
+		}
+		resultStr = fmt.Sprintf("Games: %v Max:%v Average:%v", values.games, values.max, values.avg)
+	}
+	return values, resultStr
+}
+
+func (d *Db) ReadAllGamesForScoresByDays() {
+	qry := "SELECT count() games,max(level)max,round( avg(level),2)average, strftime('%Y-%m-%d',datetime(dtBeg)) day FROM simple GROUP BY day;"
+	d.scoresData = make(ScoresData)
+	rows, err := d.conn.Query(qry)
+	if err != nil {
+		panic(err)
+	}
+	dtFormat := "2006-01-02"
+	i := 1
+	for rows.Next() {
+		values := &ScoreData{}
+		var dStr string
+		err = rows.Scan(&values.games, &values.max, &values.avg, &dStr)
+		if err != nil && err != sql.ErrNoRows {
+			panic(err)
+		}
+		dt, err := time.Parse(dtFormat, dStr)
+		if err != nil {
+			panic(err)
+		}
+		values.dt = dt
+		d.scoresData[i] = values
+		i++
+	}
+}
+
 func (d *Db) Close() {
 	d.conn.Close()
 	log.Println("DB Closed.")
+}
+
+type ScoreData struct {
+	dt         time.Time
+	games, max int
+	avg        float64
+}
+
+func (s *ScoreData) String() string {
+	dtFormat := "2006-01-02"
+	return fmt.Sprintf("%v Games:%v Max:%v Avg:%v", s.dt.Format(dtFormat), s.games, s.max, s.avg)
+}
+
+type ScoresData map[int]*ScoreData
+
+func (s *ScoresData) PlotData() (idx, maxs, averages, strs list.List) {
+
+	keys := make([]int, 0)
+	for k := range *s {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+	i := 1
+	for _, k := range keys {
+		v := getApp().db.scoresData[k]
+		idx.PushBack(i)
+		maxs.PushBack(v.max)
+		averages.PushBack(v.avg)
+		strs.PushBack(v.String())
+		i++
+		fmt.Println(v)
+	}
+	return
+}
+
+func (s *ScoresData) String() string {
+	ss := ""
+	for k, v := range *s {
+		ss += fmt.Sprintf("%v [%v]\n", k, v)
+	}
+	return ss
 }

@@ -169,8 +169,8 @@ func (s *SceneGame) moveStatus() {
 }
 
 func (s *SceneGame) SaveGame() {
-	dtBeg := s.board.dtBeg.Format("2006.01.02 15:04:05.000")
-	dtEnd := s.board.dtEnd.Format("2006.01.02 15:04:05.000")
+	dtBeg := s.board.dtBeg.Format("2006-01-02 15:04:05.000")
+	dtEnd := s.board.dtEnd.Format("2006-01-02 15:04:05.000")
 	values := &GameData{
 		dtBeg:        dtBeg,
 		dtEnd:        dtEnd,

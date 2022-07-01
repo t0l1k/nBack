@@ -37,15 +37,16 @@ func NewSettings() *Setting {
 }
 
 type Theme struct {
-	bg, fg, active, regular, correct, error, warning color.RGBA
+	bg, bg2, fg, active, regular, correct, error, warning color.RGBA
 }
 
 func NewTheme() *Theme {
-	// black := color.RGBA{0, 0, 0, 255}
+	black := color.RGBA{0, 0, 0, 255}
 	white := color.RGBA{255, 255, 255, 255}
 	gray := color.RGBA{192, 192, 192, 255}
 	return &Theme{
 		bg:      gray,
+		bg2:     black,
 		fg:      white,
 		active:  color.RGBA{255, 255, 0, 255},
 		regular: color.RGBA{0, 0, 192, 255},

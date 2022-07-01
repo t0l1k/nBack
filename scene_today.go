@@ -69,6 +69,9 @@ func (s *SceneToday) Update(dt int) {
 			s.lblsResult.Visibe = true
 		}
 	}
+	if inpututil.IsKeyJustReleased(ebiten.KeyS) {
+		getApp().Push(NewSceneScore())
+	}
 }
 
 func (s *SceneToday) updateDt() {
