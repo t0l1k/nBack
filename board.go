@@ -41,7 +41,7 @@ func NewBoard(rect []int) *Board {
 		rect:   ui.NewRect(rect),
 		inGame: false,
 	}
-	b.grid = ui.NewGridView(rect, 3, getApp().theme.bg, getApp().theme.fg)
+	b.grid = ui.NewGridView(rect, 3, getApp().theme.gameBg, getApp().theme.gameFg)
 	b.Add(b.grid)
 	b.field = b.initCells()
 	b.Resize(rect)

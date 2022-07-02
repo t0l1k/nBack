@@ -161,7 +161,7 @@ func (s *SceneGame) moveStatus() {
 		case Regular:
 			s.lblName.SetBg(getApp().theme.regular)
 		default:
-			s.lblName.SetBg(getApp().theme.bg)
+			s.lblName.SetBg(getApp().theme.gameBg)
 		}
 	}
 	str := fmt.Sprintf("Pos %v (%v) (%v/%v)", s.level, s.lives, s.board.move, s.board.totalMoves)
@@ -191,6 +191,7 @@ func (s *SceneGame) SaveGame() {
 }
 
 func (s *SceneGame) Draw(surface *ebiten.Image) {
+	surface.Fill(getApp().theme.gameBg)
 	for _, value := range s.container {
 		value.Draw(surface)
 	}

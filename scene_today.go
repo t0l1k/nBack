@@ -34,7 +34,7 @@ func NewSceneToday() *SceneToday {
 	s.Add(s.lblDt)
 	s.lblsResult = NewResultLbls(rect)
 	s.Add(s.lblsResult)
-	s.lblIntro = ui.NewLabel("Press <SPACE> to start the game,<P> plot, <S> score,<F11> toggle fullscreen, <Esc> quit", rect, getApp().theme.correct, getApp().theme.fg)
+	s.lblIntro = ui.NewLabel("Press <SPACE> to start the game,<P> plot, <S> score,<F11> toggle fullscreen, <O> Options, <Esc> quit", rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblIntro)
 	s.plotResult = NewResultPlot(rect)
 	s.plotResult.Visibe = false
@@ -73,6 +73,9 @@ func (s *SceneToday) Update(dt int) {
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyS) {
 		getApp().Push(NewSceneScore())
+	}
+	if inpututil.IsKeyJustReleased(ebiten.KeyO) {
+		getApp().Push(NewSceneOptions())
 	}
 }
 

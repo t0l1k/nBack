@@ -27,9 +27,9 @@ func NewCell(rect []int, isCenter bool) *Cell {
 		DrawRect:    true,
 		Active:      false,
 		margin:      0.1,
-		bg:          getApp().theme.bg,
-		fg:          getApp().theme.fg,
-		activeColor: getApp().theme.active,
+		bg:          getApp().theme.gameBg,
+		fg:          getApp().theme.gameFg,
+		activeColor: getApp().theme.gameActiveColor,
 	}
 }
 
