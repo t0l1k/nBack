@@ -12,6 +12,7 @@ type Setting struct {
 	rr                                                               float64
 	feedbackOnUserMove, usecentercell, resetOnFirstWrong, fullScreen bool
 	pauseRest                                                        int
+	gridSize                                                         int
 }
 
 func NewSettings() *Setting {
@@ -33,6 +34,7 @@ func NewSettings() *Setting {
 		fullScreen:                false,
 		pauseRest:                 5000,
 		feedbackOnUserMove:        true,
+		gridSize:                  3,
 	}
 }
 

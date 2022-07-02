@@ -107,7 +107,7 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 	}
 	xArr, yArr, lvlValues, percents, movesPercent, colors := getApp().db.todayData.PlotTodayData()
 	axisXMax := xArr.Len()
-	axisYMax := getApp().db.todayData.getMax() + 2
+	axisYMax := getApp().db.todayData.getMax() + 1
 	w0, h0 := r.rect.Size()
 	image := ebiten.NewImage(w0, h0)
 	bg := r.bg
@@ -216,7 +216,7 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 		}
 		return r
 	}
-	{ // parse data green line
+	{ // parse data green line, moves line
 		points := zip(xArr, yArr)
 		var results1, results2, results3 []float64
 		xx := xPos(float64(axisXMax) * float64(0) / float64(xArr.Len()))
@@ -241,17 +241,17 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 			yy := yPos(float64(percent.(float64)))
 			results3 = append(results3, xx, yy)
 		}
-		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 {
+		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 { // level line
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
 			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.correct)
 		}
-		for i, j := 0, 1; j < len(results2); i, j = i+2, j+2 {
+		for i, j := 0, 1; j < len(results2); i, j = i+2, j+2 { // total moves line
 			x1, y1, x2, y2 := results1[i], results1[j], results2[i], results2[j]
-			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.error)
+			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.correct)
 		}
-		for i, j := 0, 1; j < len(results3); i, j = i+2, j+2 {
+		for i, j := 0, 1; j < len(results3); i, j = i+2, j+2 { // moves line
 			x1, y1, x2, y2 := results1[i], results1[j], results3[i], results3[j]
-			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.regular)
+			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.error)
 		}
 
 	}
@@ -273,7 +273,7 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 		for e := colors.Front(); e != nil; e = e.Next() {
 			clrs = append(clrs, e.Value.(color.Color))
 		}
-		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 {
+		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 { // max line
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
 			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.regular)
 		}

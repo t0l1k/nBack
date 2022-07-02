@@ -34,7 +34,7 @@ func (r *ScorePlot) Layout() *ebiten.Image {
 	xArr, yArr, avgArr, strsArr := getApp().db.scoresData.PlotData()
 	axisXMax := xArr.Len()
 	score, _ := getApp().db.ReadAllGamesScore()
-	axisYMax := score.max + 2
+	axisYMax := score.max + 1
 	w0, h0 := r.rect.Size()
 	image := ebiten.NewImage(w0, h0)
 	bg := r.bg

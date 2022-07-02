@@ -11,13 +11,13 @@ import (
 )
 
 type SceneToday struct {
-	name                            string
-	lblName, lblPeriodResult, lblDt *ui.Label
-	lblsResult                      *ResultLbls
-	plotResult                      *ResultPlot
-	toggleResults                   bool
-	rect                            *ui.Rect
-	container                       []ui.Drawable
+	name                                      string
+	lblName, lblPeriodResult, lblDt, lblIntro *ui.Label
+	lblsResult                                *ResultLbls
+	plotResult                                *ResultPlot
+	toggleResults                             bool
+	rect                                      *ui.Rect
+	container                                 []ui.Drawable
 }
 
 func NewSceneToday() *SceneToday {
@@ -34,6 +34,8 @@ func NewSceneToday() *SceneToday {
 	s.Add(s.lblDt)
 	s.lblsResult = NewResultLbls(rect)
 	s.Add(s.lblsResult)
+	s.lblIntro = ui.NewLabel("Press <SPACE> to start the game,<P> plot, <S> score,<F11> toggle fullscreen, <Esc> quit", rect, getApp().theme.correct, getApp().theme.fg)
+	s.Add(s.lblIntro)
 	s.plotResult = NewResultPlot(rect)
 	s.plotResult.Visibe = false
 	s.Add(s.plotResult)
@@ -111,6 +113,9 @@ func (s *SceneToday) Resize() {
 	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*1.05)
 	s.lblsResult.Resize([]int{x, y, w, h})
 	s.plotResult.Resize([]int{x, y, w, h})
+	w, h = int(float64(getApp().rect.W)*0.8), int(float64(getApp().rect.H)*0.03)
+	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h))
+	s.lblIntro.Resize([]int{x, y, w, h})
 }
 
 func (s *SceneToday) Quit() {}

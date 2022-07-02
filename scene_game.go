@@ -69,7 +69,7 @@ func (s *SceneGame) initUi() {
 	s.Add(s.lblName)
 	s.board = NewBoard(rect)
 	s.Add(s.board)
-	s.lblIntro = ui.NewLabel("Press the space bar to start the game", rect, getApp().theme.correct, getApp().theme.fg)
+	s.lblIntro = ui.NewLabel("Press the <SPACE> to start the game, <ESC> quit the game", rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblIntro)
 	s.lblResult = ui.NewLabel(" ", rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblResult)

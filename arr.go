@@ -34,10 +34,10 @@ func getArr(level, moves int) (arr []int) {
 }
 
 func genArr(moves int) (a []int) {
-	fieldSize := 3
+	dim := getApp().preferences.gridSize
 	for len(a) < moves {
-		num := rand.Intn((fieldSize * fieldSize) - 1)
-		if num != (fieldSize*fieldSize-1)/2 && !getApp().preferences.usecentercell || getApp().preferences.usecentercell {
+		num := rand.Intn((dim * dim) - 1)
+		if num != (dim*dim-1)/2 && !getApp().preferences.usecentercell || getApp().preferences.usecentercell {
 			a = append(a, num)
 		}
 	}

@@ -165,16 +165,17 @@ func (b *Board) getPercent() int {
 }
 
 func (b *Board) initCells() (field []*Cell) {
-	for i := 0; i < 9; i++ {
+	dim := getApp().preferences.gridSize
+	for i := 0; i < dim*dim; i++ {
 		isCenter := false
-		aX := i % 3
-		aY := i / 3
-		if aX == 1 && aY == 1 && !getApp().preferences.usecentercell {
+		aX := i % dim
+		aY := i / dim
+		if aX == dim/2 && aY == dim/2 && !getApp().preferences.usecentercell && dim%2 != 0 {
 			isCenter = true
 		}
-		c := NewCell([]int{0, 0, 1, 1}, isCenter)
-		field = append(field, c)
-		b.Add(c)
+		cell := NewCell([]int{0, 0, 1, 1}, isCenter)
+		field = append(field, cell)
+		b.Add(cell)
 	}
 	return field
 }
@@ -208,12 +209,13 @@ func (b *Board) Resize(rect []int) {
 }
 
 func (b *Board) resizeCells() {
+	dim := getApp().preferences.gridSize
 	x, y := b.rect.Pos()
 	cellSize, _ := b.rect.Size()
-	cellSize /= 3
-	for i := 0; i < 9; i++ {
-		aX := i % 3
-		aY := i / 3
+	cellSize /= dim
+	for i := 0; i < dim*dim; i++ {
+		aX := i % dim
+		aY := i / dim
 		cellX := aX*cellSize + x
 		cellY := aY*cellSize + y
 		b.field[i].Resize([]int{cellX, cellY, cellSize, cellSize})
