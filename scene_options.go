@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -8,12 +9,13 @@ import (
 )
 
 type SceneOptions struct {
-	name      string
-	rect      *ui.Rect
-	container []ui.Drawable
-	lblName   *ui.Label
-	optGame   *OptGame
-	optTheme  *OptTheme
+	name               string
+	rect               *ui.Rect
+	container          []ui.Drawable
+	lblName            *ui.Label
+	optGame            *OptGame
+	optTheme           *OptTheme
+	btnReset, btnApply *ui.Button
 }
 
 func NewSceneOptions() *SceneOptions {
@@ -28,6 +30,10 @@ func NewSceneOptions() *SceneOptions {
 	s.Add(s.optGame)
 	s.optTheme = NewOptTheme(rect)
 	s.Add(s.optTheme)
+	s.btnReset = ui.NewButton("Reset", rect, getApp().theme.correct, getApp().theme.fg, func(b *ui.Button) { fmt.Println("Pressed Reset") })
+	s.Add(s.btnReset)
+	s.btnApply = ui.NewButton("Apply", rect, getApp().theme.correct, getApp().theme.fg, func(b *ui.Button) { fmt.Println("Pressed Apply") })
+	s.Add(s.btnApply)
 	return s
 }
 
@@ -56,6 +62,8 @@ func (s *SceneOptions) Resize() {
 	s.rect = getApp().rect
 	x, y, w, h := 0, 0, int(float64(getApp().rect.W)*0.25), int(float64(getApp().rect.H)*0.05)
 	s.lblName.Resize([]int{x, y, w, h})
+	s.btnReset.Resize([]int{s.rect.W - w*2, y, w, h})
+	s.btnApply.Resize([]int{s.rect.W - w, y, w, h})
 	y = s.rect.H - (h * 3)
 	w, h1 := s.rect.W, h*3
 	s.optTheme.Resize([]int{x, y, w, h1})

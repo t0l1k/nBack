@@ -93,7 +93,7 @@ func (s *SceneGame) Update(dt int) {
 			s.lblIntro.Visibe = false
 			s.lblResult.Visibe = false
 			s.lblMotiv.Visibe = false
-			s.lblName.DrawRect = true
+			s.lblName.SetRect(true)
 			s.lblTimer.Visibe = false
 		}
 	}
@@ -120,7 +120,7 @@ func (s *SceneGame) Update(dt int) {
 			log.Printf("Game Result is: %v", ss)
 			s.count += 1
 			s.lblMotiv.SetText(motiv)
-			s.lblName.DrawRect = false
+			s.lblName.SetRect(true)
 			s.lblName.SetText(s.name)
 			s.lblName.SetBg(getApp().theme.correct)
 			s.lblIntro.Visibe = true

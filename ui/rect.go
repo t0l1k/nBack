@@ -1,6 +1,8 @@
 package ui
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Rect struct {
 	X, Y, W, H int
@@ -13,6 +15,9 @@ func NewRect(arr []int) *Rect {
 		W: arr[2],
 		H: arr[3],
 	}
+}
+func (r Rect) InRect(x, y int) bool {
+	return r.Left() <= x && r.Right() >= x && r.Top() <= y && r.Bottom() >= y
 }
 
 func (r Rect) Pos() (int, int) {
@@ -32,11 +37,11 @@ func (r Rect) Right() int {
 }
 
 func (r Rect) Top() int {
-	return r.X
+	return r.Y
 }
 
 func (r Rect) Bottom() int {
-	return r.X + r.H
+	return r.Y + r.H
 }
 func (r Rect) CenterX() int {
 	return (r.W - r.X) / 2

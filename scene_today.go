@@ -113,10 +113,10 @@ func (s *SceneToday) Resize() {
 	x, y = (s.rect.W-w)/2, int(float64(h)*0.8)
 	s.lblPeriodResult.Resize([]int{x, y, w, h})
 	w, h = int(float64(s.rect.W)*0.9), int(float64(s.rect.H)*0.75)
-	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*1.05)
+	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*1.08)
 	s.lblsResult.Resize([]int{x, y, w, h})
 	s.plotResult.Resize([]int{x, y, w, h})
-	w, h = int(float64(getApp().rect.W)*0.8), int(float64(getApp().rect.H)*0.03)
+	w, h = s.rect.Right(), int(float64(getApp().rect.H)*0.05)
 	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h))
 	s.lblIntro.Resize([]int{x, y, w, h})
 }

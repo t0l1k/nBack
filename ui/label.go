@@ -17,7 +17,7 @@ type Label struct {
 	text                    string
 	rect                    *Rect
 	Image                   *ebiten.Image
-	Dirty, Visibe, DrawRect bool
+	Dirty, Visibe, drawRect bool
 	bg, fg                  color.Color
 }
 
@@ -28,7 +28,7 @@ func NewLabel(text string, rect []int, bg, fg color.Color) *Label {
 		Image:    nil,
 		Dirty:    true,
 		Visibe:   true,
-		DrawRect: false,
+		drawRect: false,
 		bg:       bg,
 		fg:       fg}
 }
@@ -38,6 +38,14 @@ func (l *Label) SetBg(value color.Color) {
 		return
 	}
 	l.bg = value
+	l.Dirty = true
+}
+
+func (l *Label) SetRect(value bool) {
+	if l.drawRect == value {
+		return
+	}
+	l.drawRect = value
 	l.Dirty = true
 }
 
@@ -98,7 +106,7 @@ func (l *Label) Layout() *ebiten.Image {
 	w, h := l.rect.Size()
 	image := ebiten.NewImage(w, h)
 	image.Fill(l.bg)
-	if l.DrawRect {
+	if l.drawRect {
 		ebitenutil.DrawRect(image, 0, 0, float64(w), float64(h), l.fg)
 		ebitenutil.DrawRect(image, 2, 2, float64(w)-4, float64(h)-4, l.bg)
 	}
