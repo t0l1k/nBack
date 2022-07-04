@@ -14,7 +14,6 @@ type Button struct {
 	text                  string
 	mouseDown             bool
 	onPressed             func(b *Button)
-	lbl                   *Label
 }
 
 func NewButton(text string, rect []int, bg, fg color.Color, f func(b *Button)) *Button {
@@ -29,7 +28,6 @@ func NewButton(text string, rect []int, bg, fg color.Color, f func(b *Button)) *
 		bg:        bg,
 		fg:        fg,
 		onPressed: f,
-		lbl:       NewLabel(text, rect, bg, fg),
 	}
 }
 
@@ -39,28 +37,50 @@ func (b *Button) Layout() *ebiten.Image {
 	}
 	w, h := b.rect.Size()
 	image := ebiten.NewImage(w, h)
+	lbl := NewLabel(b.text, []int{0, 0, w, h}, b.bg, b.fg)
+	if b.focus && !b.mouseDown {
+		lbl.SetBg(b.fg)
+		lbl.SetFg(b.bg)
+		lbl.SetRect(false)
+	} else if !b.focus && !b.mouseDown {
+		lbl.SetBg(b.bg)
+		lbl.SetFg(b.fg)
+	} else if b.focus && b.mouseDown {
+		lbl.SetRect(true)
+	}
+	lbl.Draw(image)
 	b.Dirty = false
 	return image
+}
+
+func (b *Button) SetFocus(value bool) {
+	if b.focus == value {
+		return
+	}
+	b.focus = value
+	b.Dirty = true
+}
+
+func (b *Button) SetMouseDown(value bool) {
+	if b.mouseDown == value {
+		return
+	}
+	b.mouseDown = value
+	b.Dirty = true
 }
 
 func (b *Button) Update(dt int) {
 	x, y := ebiten.CursorPosition()
 	if b.rect.InRect(x, y) {
-		b.focus = true
-		b.lbl.SetBg(b.fg)
-		b.lbl.SetFg(b.bg)
+		b.SetFocus(true)
 	} else {
-		b.focus = false
-		b.lbl.SetBg(b.bg)
-		b.lbl.SetFg(b.fg)
+		b.SetFocus(false)
 	}
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		if b.focus {
-			b.mouseDown = true
-			b.lbl.SetRect(true)
+			b.SetMouseDown(true)
 		} else {
-			b.mouseDown = false
-			b.lbl.SetRect(false)
+			b.SetMouseDown(false)
 		}
 	} else {
 		if b.mouseDown {
@@ -68,11 +88,10 @@ func (b *Button) Update(dt int) {
 				b.onPressed(b)
 			}
 		}
-		b.mouseDown = false
-		b.lbl.SetRect(false)
+		b.SetMouseDown(false)
 	}
-	b.lbl.Update(dt)
 }
+
 func (b *Button) Draw(surface *ebiten.Image) {
 	if b.Dirty {
 		b.Image = b.Layout()
@@ -83,11 +102,9 @@ func (b *Button) Draw(surface *ebiten.Image) {
 		op.GeoM.Translate(float64(x), float64(y))
 		surface.DrawImage(b.Image, op)
 	}
-	b.lbl.Draw(surface)
 }
 
 func (b *Button) Resize(rect []int) {
 	b.rect = NewRect(rect)
-	b.lbl.Resize(rect)
 	b.Dirty = true
 }
