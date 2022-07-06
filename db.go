@@ -340,6 +340,9 @@ func (d *Db) ReadAllGamesScore() (*ScoreData, string) {
 	resultStr := ""
 	for rows.Next() {
 		err = rows.Scan(&values.games, &values.max, &values.avg)
+		if values.games == 0 {
+			break
+		}
 		if err != nil && err != sql.ErrNoRows {
 			panic(err)
 		}
