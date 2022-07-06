@@ -54,8 +54,8 @@ func (s *SceneGame) initGame() {
 	s.lblResult.SetText(ss)
 }
 func (s *SceneGame) initGameTimers() {
-	s.timeToNextCell = getApp().preferences.timeToNextCell
-	s.timeShowCell = getApp().preferences.timeShowCell
+	s.timeToNextCell = int(getApp().preferences.timeToNextCell * 1000)
+	s.timeShowCell = int(getApp().preferences.timeShowCell * 1000)
 	s.stopper = 0
 	delay := (s.timeToNextCell - s.timeShowCell) / 2
 	s.delayBeginCellShow = delay
@@ -128,7 +128,7 @@ func (s *SceneGame) Update(dt int) {
 			s.lblMotiv.Visibe = true
 			s.lblTimer.Visibe = true
 			s.lblTimer.SetBg(getApp().theme.error)
-			s.pauseTimer = getApp().preferences.pauseRest
+			s.pauseTimer = getApp().preferences.pauseRest * 1000
 			s.paused = true
 		}
 		if s.pauseTimer > 0 {
@@ -142,7 +142,7 @@ func (s *SceneGame) Update(dt int) {
 		} else if s.pauseTimer <= 0 {
 			if s.paused {
 				s.paused = false
-				s.pauseTimer += getApp().preferences.pauseRest
+				s.pauseTimer += getApp().preferences.pauseRest * 1000
 				s.lblTimer.SetBg(getApp().theme.correct)
 			}
 		}

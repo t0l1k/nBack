@@ -3,7 +3,7 @@ package main
 import "image/color"
 
 type Setting struct {
-	timeToNextCell, timeShowCell                                     int
+	timeToNextCell, timeShowCell                                     float64
 	defaultLevel                                                     int
 	manual                                                           bool
 	manualAdv                                                        int
@@ -17,8 +17,8 @@ type Setting struct {
 
 func NewSettings() *Setting {
 	return &Setting{
-		timeToNextCell:            2000,
-		timeShowCell:              500,
+		timeToNextCell:            2.0,
+		timeShowCell:              0.5,
 		trials:                    5, //20 = classic = trials*factor+level**exponent
 		trialsFactor:              1,
 		trialsExponent:            2,
@@ -33,7 +33,7 @@ func NewSettings() *Setting {
 		usecentercell:             false,
 		feedbackOnUserMove:        true,
 		gridSize:                  3,
-		pauseRest:                 5000,
+		pauseRest:                 5,
 		fullScreen:                false,
 	}
 }
