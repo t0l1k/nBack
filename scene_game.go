@@ -186,7 +186,7 @@ func (s *SceneGame) SaveGame() {
 		fallback:     getApp().preferences.thresholdFallback,
 		resetonerror: getApp().preferences.resetOnFirstWrong,
 	}
-	getApp().db.Insert(values)
+	getApp().db.InsertGame(values)
 	log.Println("Game Saved in DB.")
 }
 

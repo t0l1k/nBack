@@ -29,6 +29,7 @@ func getApp() (a *App) {
 		db := &Db{}
 		db.Setup()
 		pref := NewSettings()
+		db.ReadSettings(pref)
 		var w, h int
 		if pref.fullScreen {
 			w, h = ebiten.ScreenSizeInFullscreen()

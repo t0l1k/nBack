@@ -109,6 +109,16 @@ func (c *Combobox) Layout() *ebiten.Image {
 
 func (c *Combobox) Value() interface{} { return c.data[c.current] }
 
+func (c *Combobox) SetValue(value interface{}) {
+	for i, v := range c.data {
+		if v == value {
+			c.current = i
+			c.Dirty = true
+			break
+		}
+	}
+}
+
 func (c *Combobox) SetFocus(value bool) {
 	if c.focus == value {
 		return
