@@ -285,8 +285,16 @@ func (d *Db) Setup() {
 }
 
 func (d *Db) InsertSettings(values *Setting) {
+	var empthyPreviousSettings = "DELETE from settings WHERE id>0"
+	cur, err := d.conn.Prepare(empthyPreviousSettings)
+	if err != nil {
+		panic(err)
+	}
+	cur.Exec()
+	log.Println("Deleted previous settings")
+
 	insStr := "INSERT INTO settings(timetonextcell, timeshowcell, rr, level, manualadv, manual, thresholdadv, thresholdfall, threshholssessions, trials, factor, exponent, feedbackmove, usecenter, resetonwrong, fullscreen, pauserest, grid) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-	cur, err := d.conn.Prepare(insStr)
+	cur, err = d.conn.Prepare(insStr)
 	if err != nil {
 		log.Println("Error in DB:", insStr, values)
 		panic(err)

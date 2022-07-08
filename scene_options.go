@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -182,7 +181,6 @@ func NewSceneOptions() *SceneOptions {
 
 func (s *SceneOptions) Setup() {
 	sets := getApp().preferences.Load()
-	fmt.Println(sets)
 	s.optFullScr.SetChecked(sets.fullScreen)
 	s.optCenterCell.SetChecked(sets.usecentercell)
 	s.optFeeback.SetChecked(sets.feedbackOnUserMove)
