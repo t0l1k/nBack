@@ -10,16 +10,17 @@ import (
 )
 
 type SceneGame struct {
-	name                                             string
-	lblName, lblIntro, lblResult, lblMotiv, lblTimer *ui.Label
-	rect                                             *ui.Rect
-	container                                        []ui.Drawable
-	stopper, pauseTimer                              int
-	board                                            *Board
-	count, level, lives                              int
-	delayBeginCellShow, delayBeginCellHide           int
-	timeToNextCell, timeShowCell                     int
-	paused                                           bool
+	name                                          string
+	lblName, lblResult, lblMotiv, lblTimer, lblDt *ui.Label
+	btnStart, btnQuit                             *ui.Button
+	rect                                          *ui.Rect
+	container                                     []ui.Drawable
+	stopper, pauseTimer                           int
+	board                                         *Board
+	count, level, lives                           int
+	delayBeginCellShow, delayBeginCellHide        int
+	timeToNextCell, timeShowCell                  int
+	paused                                        bool
 }
 
 func NewSceneGame() *SceneGame {
@@ -64,37 +65,45 @@ func (s *SceneGame) initGameTimers() {
 
 func (s *SceneGame) initUi() {
 	rect := []int{0, 0, 1, 1}
+	s.btnStart = ui.NewButton("New Session", rect, getApp().theme.correct, getApp().theme.fg, func(b *ui.Button) {
+		log.Println("Button new session pressed")
+		s.paused = false
+		s.newSession()
+	})
+	s.Add(s.btnStart)
+	s.btnQuit = ui.NewButton("<", rect, getApp().theme.correct, getApp().theme.fg, func(b *ui.Button) { getApp().Pop() })
+	s.Add(s.btnQuit)
 	s.name = "Game N-Back result"
 	s.lblName = ui.NewLabel(s.name, rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblName)
 	s.board = NewBoard(rect)
 	s.Add(s.board)
-	s.lblIntro = ui.NewLabel("Press the <SPACE> to start the game, <ESC> quit the game", rect, getApp().theme.correct, getApp().theme.fg)
-	s.Add(s.lblIntro)
 	s.lblResult = ui.NewLabel(" ", rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblResult)
 	s.lblMotiv = ui.NewLabel("Motivation", rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblMotiv)
-	s.lblMotiv.Visibe = false
+	s.lblMotiv.Visible = false
 	s.lblTimer = ui.NewLabel(s.name, rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblTimer)
-	s.lblTimer.Visibe = false
+	s.lblTimer.Visible = false
+	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getApp().theme.correct, getApp().theme.fg)
+	s.Add(s.lblDt)
 }
 
 func (s *SceneGame) Update(dt int) {
 	for _, value := range s.container {
 		value.Update(dt)
 	}
+	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+		if s.board.inGame {
+			s.board.CheckUserMove()
+		}
+	}
 	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
 		if s.board.inGame {
 			s.board.CheckUserMove()
 		} else if !s.paused {
-			s.board.Reset(s.count, s.level)
-			s.lblIntro.Visibe = false
-			s.lblResult.Visibe = false
-			s.lblMotiv.Visibe = false
-			s.lblName.SetRect(true)
-			s.lblTimer.Visibe = false
+			s.newSession()
 		}
 	}
 	if s.board.inGame {
@@ -110,7 +119,8 @@ func (s *SceneGame) Update(dt int) {
 		}
 		s.moveStatus()
 	} else {
-		if !s.lblIntro.Visibe {
+		s.lblDt.SetText(getApp().updateUpTime())
+		if !s.lblResult.Visible {
 			s.SaveGame()
 			var motiv string
 			count := getApp().db.todayGamesCount
@@ -123,13 +133,16 @@ func (s *SceneGame) Update(dt int) {
 			s.lblName.SetRect(true)
 			s.lblName.SetText(s.name)
 			s.lblName.SetBg(getApp().theme.correct)
-			s.lblIntro.Visibe = true
-			s.lblResult.Visibe = true
-			s.lblMotiv.Visibe = true
-			s.lblTimer.Visibe = true
+			x, y, w, h := int(float64(getApp().rect.H)*0.05), 0, int(float64(getApp().rect.W)*0.20), int(float64(getApp().rect.H)*0.05)
+			s.lblName.Resize([]int{x, y, w, h})
+			s.lblResult.Visible = true
+			s.lblMotiv.Visible = true
+			s.lblTimer.Visible = true
+			s.btnQuit.Visible = true
 			s.lblTimer.SetBg(getApp().theme.error)
 			s.pauseTimer = getApp().preferences.pauseRest * 1000
 			s.paused = true
+			s.lblDt.Visible = true
 		}
 		if s.pauseTimer > 0 {
 			if s.paused {
@@ -138,6 +151,7 @@ func (s *SceneGame) Update(dt int) {
 			} else {
 				s.pauseTimer += dt
 				s.lblTimer.SetText(fmt.Sprintf("%02v:%02v", s.pauseTimer/1000/60, s.pauseTimer/1000%60))
+				s.btnStart.Visible = true
 			}
 		} else if s.pauseTimer <= 0 {
 			if s.paused {
@@ -146,6 +160,29 @@ func (s *SceneGame) Update(dt int) {
 				s.lblTimer.SetBg(getApp().theme.correct)
 			}
 		}
+	}
+}
+
+func (s *SceneGame) newSession() {
+	s.board.Reset(s.count, s.level)
+	s.btnStart.Visible = false
+	s.lblResult.Visible = false
+	s.lblMotiv.Visible = false
+	s.lblTimer.Visible = false
+	s.btnQuit.Visible = false
+	s.lblDt.Visible = false
+	if getApp().preferences.feedbackOnUserMove {
+		x, y, w, h := 0, 0, int(float64(getApp().rect.W)*0.20), int(float64(getApp().rect.H)*0.05)
+		s.lblName.Resize([]int{x, y, w, h})
+		s.lblName.SetRect(true)
+	} else {
+		s.lblName.Visible = false
+		sz := s.rect.GetLowestSize()
+		cellSize := float64(sz)/3 - float64(sz)*0.02
+		marginX := float64(s.rect.W)/2 - cellSize*3/2
+		marginY := float64(s.rect.H)/2 - cellSize*3/2
+		x, y := int(marginX), int(marginY)
+		s.board.Resize([]int{x, y, int(cellSize) * 3, int(cellSize) * 3})
 	}
 }
 
@@ -203,17 +240,21 @@ func (s *SceneGame) Add(item ui.Drawable) {
 
 func (s *SceneGame) Resize() {
 	s.rect = getApp().rect
-	x, y, w, h := 0, 0, int(float64(getApp().rect.W)*0.3), int(float64(getApp().rect.H)*0.05)
+	x, y, w, h := 0, 0, int(float64(getApp().rect.H)*0.05), int(float64(getApp().rect.H)*0.05)
+	s.btnQuit.Resize([]int{x, y, w, h})
+	x, w = h, int(float64(getApp().rect.W)*0.20)
 	s.lblName.Resize([]int{x, y, w, h})
+	x = s.rect.Right() - w
+	s.lblDt.Resize([]int{x, y, w, h})
 	sz := s.rect.GetLowestSize()
 	cellSize := float64(sz)/3 - float64(sz)*0.02
 	marginX := float64(s.rect.W)/2 - cellSize*3/2
 	marginY := float64(s.rect.H)/2 - cellSize*3/2
 	x, y = int(marginX), int(marginY)+h/2
 	s.board.Resize([]int{x, y, int(cellSize) * 3, int(cellSize) * 3})
-	w, h = int(float64(getApp().rect.W)*0.8), int(float64(getApp().rect.H)*0.05)
-	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*1.5)
-	s.lblIntro.Resize([]int{x, y, w, h})
+	w, h = int(float64(getApp().rect.W)*0.5), int(float64(getApp().rect.H)*0.15)
+	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*1)
+	s.btnStart.Resize([]int{x, y, w, h})
 	w, h = int(float64(getApp().rect.W)*0.9), int(float64(getApp().rect.H)*0.08)
 	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*3.5)
 	s.lblResult.Resize([]int{x, y, w, h})

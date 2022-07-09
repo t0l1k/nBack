@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -77,24 +78,27 @@ func (a *App) Update() error {
 	if inpututil.IsKeyJustReleased(ebiten.KeyEscape) {
 		a.Pop()
 	} else if inpututil.IsKeyJustReleased(ebiten.KeyF11) {
-		a.fullScreen = !a.fullScreen
-		var w, h int
-		if a.fullScreen {
-			ebiten.SetFullscreen(a.fullScreen)
-			w, h = ebiten.ScreenSizeInFullscreen()
-		} else {
-			w, h = fitWindowSize()
-		}
-		ebiten.SetFullscreen(a.fullScreen)
-		ebiten.SetWindowSize(w, h)
-		a.rect = ui.NewRect([]int{0, 0, w, h})
-		for _, scene := range a.scenes {
-			scene.Resize()
-		}
-
+		a.toggleFullscreen()
 	}
 	a.currentScene.Update(a.getTick())
 	return nil
+}
+
+func (a *App) toggleFullscreen() {
+	a.fullScreen = !a.fullScreen
+	var w, h int
+	if a.fullScreen {
+		ebiten.SetFullscreen(a.fullScreen)
+		w, h = ebiten.ScreenSizeInFullscreen()
+	} else {
+		w, h = fitWindowSize()
+	}
+	ebiten.SetFullscreen(a.fullScreen)
+	ebiten.SetWindowSize(w, h)
+	a.rect = ui.NewRect([]int{0, 0, w, h})
+	for _, scene := range a.scenes {
+		scene.Resize()
+	}
 }
 
 func (a *App) Draw(screen *ebiten.Image) {
@@ -144,4 +148,21 @@ func (a *App) getTick() int {
 	}
 	a.lastDt = dt
 	return ticks
+}
+
+func (s *App) updateUpTime() string {
+	durration := time.Since(getApp().startDt)
+	d := durration.Round(time.Second)
+	hours := d / time.Hour
+	d -= hours * time.Hour
+	minutes := d / time.Minute
+	d -= minutes * time.Minute
+	sec := d / time.Second
+	result := ""
+	if hours > 0 {
+		result = fmt.Sprintf("%02v:%02v:%02v", int(hours), int(minutes), int(sec))
+	} else {
+		result = fmt.Sprintf("%02v:%02v", int(minutes), int(sec))
+	}
+	return fmt.Sprintf("up: %v", result)
 }

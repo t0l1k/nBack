@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -11,13 +9,14 @@ import (
 )
 
 type SceneToday struct {
-	name                                      string
-	lblName, lblPeriodResult, lblDt, lblIntro *ui.Label
-	lblsResult                                *ResultLbls
-	plotResult                                *ResultPlot
-	toggleResults                             bool
-	rect                                      *ui.Rect
-	container                                 []ui.Drawable
+	name                                                        string
+	lblName, lblPeriodResult, lblDt, lblHelper                  *ui.Label
+	btnScore, btnStart, btnQuit, btnPlot, btnFullScreen, btnOpt *ui.Button
+	lblsResult                                                  *ResultLbls
+	plotResult                                                  *ResultPlot
+	toggleResults                                               bool
+	rect                                                        *ui.Rect
+	container                                                   []ui.Drawable
 }
 
 func NewSceneToday() *SceneToday {
@@ -25,7 +24,13 @@ func NewSceneToday() *SceneToday {
 		rect: getApp().rect,
 	}
 	rect := []int{0, 0, 1, 1}
-	s.name = "Games for Today"
+	s.btnStart = ui.NewButton("Play", rect, getApp().theme.gameActiveColor, getApp().theme.gameBg, func(b *ui.Button) { getApp().Push(NewSceneGame()) })
+	s.Add(s.btnStart)
+	s.btnScore = ui.NewButton("Score", rect, getApp().theme.error, getApp().theme.fg, func(b *ui.Button) { getApp().Push(NewSceneScore()) })
+	s.Add(s.btnScore)
+	s.btnQuit = ui.NewButton("<", rect, getApp().theme.correct, getApp().theme.fg, func(b *ui.Button) { getApp().Pop() })
+	s.Add(s.btnQuit)
+	s.name = "N-Back"
 	s.lblName = ui.NewLabel(s.name, rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblName)
 	s.lblPeriodResult = ui.NewLabel(getApp().db.todayData.String(), rect, getApp().theme.correct, getApp().theme.fg)
@@ -34,12 +39,18 @@ func NewSceneToday() *SceneToday {
 	s.Add(s.lblDt)
 	s.lblsResult = NewResultLbls(rect)
 	s.Add(s.lblsResult)
-	s.lblIntro = ui.NewLabel("Press <SPACE> to start the game,<P> plot, <S> score,<F11> toggle fullscreen, <O> Options, <Esc> quit", rect, getApp().theme.correct, getApp().theme.fg)
-	s.Add(s.lblIntro)
+	s.lblHelper = ui.NewLabel("Press <SPACE> to start the game,<P> plot, <S> score,<F11> toggle fullscreen, <O> Options, <Esc> quit", rect, getApp().theme.correct, getApp().theme.fg)
+	s.Add(s.lblHelper)
 	s.plotResult = NewResultPlot(rect)
 	s.plotResult.Visibe = false
 	s.Add(s.plotResult)
 	s.toggleResults = false
+	s.btnPlot = ui.NewButton("{P}", rect, getApp().theme.correct, getApp().theme.fg, func(b *ui.Button) { s.togglePlot() })
+	s.Add(s.btnPlot)
+	s.btnFullScreen = ui.NewButton("[ ]", rect, getApp().theme.regular, getApp().theme.fg, func(b *ui.Button) { getApp().toggleFullscreen() })
+	s.Add(s.btnFullScreen)
+	s.btnOpt = ui.NewButton("Options", rect, getApp().theme.warning, getApp().theme.fg, func(b *ui.Button) { getApp().Push(NewSceneOptions()) })
+	s.Add(s.btnOpt)
 	return s
 }
 
@@ -53,7 +64,7 @@ func (s *SceneToday) Add(item ui.Drawable) {
 	s.container = append(s.container, item)
 }
 func (s *SceneToday) Update(dt int) {
-	s.updateDt()
+	s.lblDt.SetText(getApp().updateUpTime())
 	for _, value := range s.container {
 		value.Update(dt)
 	}
@@ -61,15 +72,7 @@ func (s *SceneToday) Update(dt int) {
 		getApp().Push(NewSceneGame())
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyP) {
-		s.toggleResults = !s.toggleResults
-		if s.toggleResults {
-			s.plotResult.Dirty = true
-			s.plotResult.Visibe = true
-			s.lblsResult.Visibe = false
-		} else {
-			s.plotResult.Visibe = false
-			s.lblsResult.Visibe = true
-		}
+		s.togglePlot()
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyS) {
 		getApp().Push(NewSceneScore())
@@ -79,22 +82,16 @@ func (s *SceneToday) Update(dt int) {
 	}
 }
 
-func (s *SceneToday) updateDt() {
-	durration := time.Since(getApp().startDt)
-	d := durration.Round(time.Second)
-	hours := d / time.Hour
-	d -= hours * time.Hour
-	minutes := d / time.Minute
-	d -= minutes * time.Minute
-	sec := d / time.Second
-	result := ""
-	if hours > 0 {
-		result = fmt.Sprintf("%02v:%02v:%02v", int(hours), int(minutes), int(sec))
+func (s *SceneToday) togglePlot() {
+	s.toggleResults = !s.toggleResults
+	if s.toggleResults {
+		s.plotResult.Dirty = true
+		s.plotResult.Visibe = true
+		s.lblsResult.Visibe = false
 	} else {
-		result = fmt.Sprintf("%02v:%02v", int(minutes), int(sec))
+		s.plotResult.Visibe = false
+		s.lblsResult.Visibe = true
 	}
-	ss := fmt.Sprintf("up: %v", result)
-	s.lblDt.SetText(ss)
 }
 
 func (s *SceneToday) Draw(surface *ebiten.Image) {
@@ -105,20 +102,39 @@ func (s *SceneToday) Draw(surface *ebiten.Image) {
 
 func (s *SceneToday) Resize() {
 	s.rect = getApp().rect
-	x, y, w, h := 0, 0, int(float64(getApp().rect.W)*0.25), int(float64(getApp().rect.H)*0.05)
+	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)*0.05)
+	s.btnQuit.Resize([]int{x, y, w, h})
+	x, w = h, int(float64(s.rect.W)*0.20)
 	s.lblName.Resize([]int{x, y, w, h})
+	x = w + h
+	s.btnScore.Resize([]int{x, y, w, h})
 	x = s.rect.Right() - w
 	s.lblDt.Resize([]int{x, y, w, h})
-	w, h = int(float64(getApp().rect.W)*0.9), int(float64(getApp().rect.H)*0.1)
-	x, y = (s.rect.W-w)/2, int(float64(h)*0.8)
+	x -= w
+	s.btnOpt.Resize([]int{x, y, w, h})
+	w = int(float64(s.rect.H) * 0.05)
+	x = x - w
+	s.btnFullScreen.Resize([]int{x, y, w, h})
+
+	w = int(float64(s.rect.H) * 0.8)
+	x = (s.rect.W - w) / 2
+	y = int(float64(h) * 1.2)
+	s.btnStart.Resize([]int{x, y, w, h})
+	w = int(float64(s.rect.W) * 0.9)
+	x, y = (s.rect.W-w)/2, int(float64(h)*2.4)
 	s.lblPeriodResult.Resize([]int{x, y, w, h})
+	y = int(float64(h) * 3.6)
 	w, h = int(float64(s.rect.W)*0.9), int(float64(s.rect.H)*0.75)
-	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*1.08)
+	x = (s.rect.W - w) / 2
 	s.lblsResult.Resize([]int{x, y, w, h})
 	s.plotResult.Resize([]int{x, y, w, h})
-	w, h = s.rect.Right(), int(float64(getApp().rect.H)*0.05)
+	w = (s.rect.W - w) / 2
+	h = w
+	x = s.rect.W - w
+	s.btnPlot.Resize([]int{x, y, w, h})
+	w, h = s.rect.Right(), int(float64(s.rect.H)*0.05)
 	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h))
-	s.lblIntro.Resize([]int{x, y, w, h})
+	s.lblHelper.Resize([]int{x, y, w, h})
 }
 
 func (s *SceneToday) Quit() {}

@@ -12,6 +12,7 @@ type SceneOptions struct {
 	rect                                                              *ui.Rect
 	container                                                         []ui.Drawable
 	lblName                                                           *ui.Label
+	btnQuit                                                           *ui.Button
 	optTheme                                                          *OptTheme
 	btnReset, btnApply                                                *ui.Button
 	optFullScr, optCenterCell, optFeeback, optResetOnWrong, optManual *ui.Checkbox
@@ -29,6 +30,8 @@ func NewSceneOptions() *SceneOptions {
 		newSets: getApp().preferences.Load(),
 	}
 	rect := []int{0, 0, 1, 1}
+	s.btnQuit = ui.NewButton("<", rect, getApp().theme.correct, getApp().theme.fg, func(b *ui.Button) { getApp().Pop() })
+	s.Add(s.btnQuit)
 	s.name = "N-Back Options"
 	s.lblName = ui.NewLabel(s.name, rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblName)
@@ -238,13 +241,15 @@ func (s *SceneOptions) Draw(surface *ebiten.Image) {
 
 func (s *SceneOptions) Resize() {
 	s.rect = getApp().rect
-	x, y, w, h := 0, 0, int(float64(getApp().rect.W)*0.25), int(float64(getApp().rect.H)*0.05)
+	x, y, w, h := 0, 0, int(float64(getApp().rect.H)*0.05), int(float64(getApp().rect.H)*0.05)
+	s.btnQuit.Resize([]int{x, y, w, h})
+	x, w = h, int(float64(getApp().rect.W)*0.20)
 	s.lblName.Resize([]int{x, y, w, h})
 	s.btnReset.Resize([]int{s.rect.W - w*2, y, w, h})
 	s.btnApply.Resize([]int{s.rect.W - w, y, w, h})
 	y = s.rect.H - (h * 3)
 	w, h1 := s.rect.W, h*3
-	rect := []int{x, y, w, h1}
+	rect := []int{0, y, w, h1}
 	s.optTheme.Resize(rect)
 	cellWidth, cellHeight := w, h
 	x, y = 0, int(float64(cellHeight)*1.2)

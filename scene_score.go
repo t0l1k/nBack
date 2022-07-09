@@ -34,12 +34,13 @@ func (p period) String() string {
 }
 
 type SceneScore struct {
-	name                     string
-	lblName, lblPeriodResult *ui.Label
-	plotScore                *ScorePlot
-	scorePeriod              period
-	rect                     *ui.Rect
-	container                []ui.Drawable
+	name                            string
+	lblName, lblPeriodResult, lblDt *ui.Label
+	btnQuit                         *ui.Button
+	plotScore                       *ScorePlot
+	scorePeriod                     period
+	rect                            *ui.Rect
+	container                       []ui.Drawable
 }
 
 func NewSceneScore() *SceneScore {
@@ -48,6 +49,8 @@ func NewSceneScore() *SceneScore {
 		scorePeriod: all,
 	}
 	rect := []int{0, 0, 1, 1}
+	s.btnQuit = ui.NewButton("<", rect, getApp().theme.correct, getApp().theme.fg, func(b *ui.Button) { getApp().Pop() })
+	s.Add(s.btnQuit)
 	s.name = fmt.Sprintf("Games for the period %v", s.scorePeriod)
 	s.lblName = ui.NewLabel(s.name, rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblName)
@@ -55,6 +58,8 @@ func NewSceneScore() *SceneScore {
 	s.Add(s.lblPeriodResult)
 	s.plotScore = NewScorePlot(rect)
 	s.Add(s.plotScore)
+	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getApp().theme.correct, getApp().theme.fg)
+	s.Add(s.lblDt)
 	return s
 }
 
@@ -71,6 +76,7 @@ func (s *SceneScore) Add(item ui.Drawable) {
 }
 
 func (s *SceneScore) Update(dt int) {
+	s.lblDt.SetText(getApp().updateUpTime())
 	for _, value := range s.container {
 		value.Update(dt)
 	}
@@ -94,13 +100,18 @@ func (s *SceneScore) Draw(surface *ebiten.Image) {
 
 func (s *SceneScore) Resize() {
 	s.rect = getApp().rect
-	x, y, w, h := 0, 0, int(float64(getApp().rect.W)*0.25), int(float64(getApp().rect.H)*0.05)
+	x, y, w, h := 0, 0, int(float64(getApp().rect.H)*0.05), int(float64(getApp().rect.H)*0.05)
+	s.btnQuit.Resize([]int{x, y, w, h})
+	x, w = h, int(float64(getApp().rect.W)*0.20)
 	s.lblName.Resize([]int{x, y, w, h})
-	w, h = int(float64(getApp().rect.W)*0.9), int(float64(getApp().rect.H)*0.1)
-	x, y = (s.rect.W-w)/2, int(float64(h)*0.8)
+	x = s.rect.Right() - w
+	s.lblDt.Resize([]int{x, y, w, h})
+	w = int(float64(s.rect.W) * 0.9)
+	x, y = (s.rect.W-w)/2, int(float64(h)*1.2)
 	s.lblPeriodResult.Resize([]int{x, y, w, h})
-	w, h = int(float64(s.rect.W)*0.9), int(float64(s.rect.H)*0.75)
-	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*1.05)
+	y = int(float64(h) * 2.4)
+	w, h = int(float64(s.rect.W)*0.9), int(float64(s.rect.H)*0.85)
+	x = (s.rect.W - w) / 2
 	s.plotScore.Resize([]int{x, y, w, h})
 }
 

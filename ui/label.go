@@ -14,11 +14,11 @@ import (
 )
 
 type Label struct {
-	text                    string
-	rect                    *Rect
-	Image                   *ebiten.Image
-	Dirty, Visibe, drawRect bool
-	bg, fg                  color.Color
+	text                     string
+	rect                     *Rect
+	Image                    *ebiten.Image
+	Dirty, Visible, drawRect bool
+	bg, fg                   color.Color
 }
 
 func NewLabel(text string, rect []int, bg, fg color.Color) *Label {
@@ -27,7 +27,7 @@ func NewLabel(text string, rect []int, bg, fg color.Color) *Label {
 		rect:     NewRect(rect),
 		Image:    nil,
 		Dirty:    true,
-		Visibe:   true,
+		Visible:  true,
 		drawRect: false,
 		bg:       bg,
 		fg:       fg}
@@ -125,7 +125,7 @@ func (l *Label) Draw(surface *ebiten.Image) {
 	if l.Dirty {
 		l.Image = l.Layout()
 	}
-	if l.Visibe {
+	if l.Visible {
 		op := &ebiten.DrawImageOptions{}
 		x, y := l.rect.Pos()
 		op.GeoM.Translate(float64(x), float64(y))
