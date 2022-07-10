@@ -112,7 +112,7 @@ func (t *TodayGamesData) getWinCountInManual() (bool, bool, int) {
 	for i := len(keys); i > 0; i-- {
 		v := getApp().db.todayData[i]
 		if adv == 0 || !v.manual && count < adv {
-			return false, ok, count
+			return false, false, count
 		} else if v.manual && v.percent == 100 && v.level == lastLvl {
 			count++
 			ok = true
@@ -120,12 +120,13 @@ func (t *TodayGamesData) getWinCountInManual() (bool, bool, int) {
 				return true, ok, count
 			}
 		} else if v.manual && v.percent < 100 && v.level == lastLvl {
-			count = 0
+			ok = true
 			return false, ok, count
 		}
 		if v.level != lastLvl {
 			return false, ok, count
 		}
+		lastLvl = v.level
 	}
 	return count >= adv, ok, count
 }
@@ -160,6 +161,7 @@ func (d *GameData) NextLevel() (int, int, string) {
 	if manual {
 		win, ok, count := getApp().db.todayData.getWinCountInManual()
 		if !win && !ok {
+			motiv = "Manual game mode. Level default."
 			level = getApp().preferences.defaultLevel
 			lives = count
 		} else if !win && ok {
@@ -168,7 +170,7 @@ func (d *GameData) NextLevel() (int, int, string) {
 		} else if win && ok {
 			motiv = "Manual game mode. Excellent result! Level up!"
 			level += 1
-			lives = count
+			lives = 0
 		}
 	} else if d.percent >= adv {
 		level += 1
