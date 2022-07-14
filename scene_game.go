@@ -130,6 +130,7 @@ func (s *SceneGame) Update(dt int) {
 			log.Printf("Game Result is: %v", ss)
 			s.count += 1
 			s.lblMotiv.SetText(motiv)
+			s.lblMotiv.SetBg(getApp().db.todayData[count].BgColor())
 			s.lblName.SetRect(true)
 			s.lblName.SetText(s.name)
 			s.lblName.SetBg(getApp().theme.correct)

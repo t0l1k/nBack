@@ -131,6 +131,19 @@ func (t *TodayGamesData) getWinCountInManual() (bool, bool, int) {
 	return count >= adv, ok, count
 }
 
+func (t *TodayGamesData) ListShortStr() (strs []string, clrs []color.Color) {
+	keys := make([]int, 0)
+	for k := range *t {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+	for _, v := range keys {
+		strs = append(strs, getApp().db.todayData[v].ShortStr())
+		clrs = append(clrs, getApp().db.todayData[v].BgColor())
+	}
+	return
+}
+
 func (t *TodayGamesData) String() string {
 	s := fmt.Sprintf("%v", t.getToday())
 	if t.getCount() > 0 {

@@ -71,7 +71,7 @@ func fitWindowSize() (w int, h int) {
 }
 
 func (a *App) GetScreenSize() (w, h int) {
-	return a.rect.W, a.rect.H
+	return a.rect.Right(), a.rect.Bottom()
 }
 
 func (a *App) Update() error {
@@ -99,6 +99,7 @@ func (a *App) toggleFullscreen() {
 	for _, scene := range a.scenes {
 		scene.Resize()
 	}
+	log.Println("Toggle FullScreen:", a.rect)
 }
 
 func (a *App) Draw(screen *ebiten.Image) {

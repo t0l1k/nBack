@@ -12,7 +12,7 @@ type SceneToday struct {
 	name                                                        string
 	lblName, lblPeriodResult, lblDt, lblHelper                  *ui.Label
 	btnScore, btnStart, btnQuit, btnPlot, btnFullScreen, btnOpt *ui.Button
-	lblsResult                                                  *ResultLbls
+	lblsResult                                                  *ui.List
 	plotResult                                                  *ResultPlot
 	toggleResults                                               bool
 	rect                                                        *ui.Rect
@@ -37,7 +37,7 @@ func NewSceneToday() *SceneToday {
 	s.Add(s.lblPeriodResult)
 	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblDt)
-	s.lblsResult = NewResultLbls(rect)
+	s.lblsResult = ui.NewList(nil, nil, rect, getApp().theme.bg, getApp().theme.fg, s.getRows())
 	s.Add(s.lblsResult)
 	s.lblHelper = ui.NewLabel("Press <SPACE> to start the game,<P> plot, <S> score,<F11> toggle fullscreen, <O> Options, <Esc> quit", rect, getApp().theme.correct, getApp().theme.fg)
 	s.Add(s.lblHelper)
@@ -57,6 +57,8 @@ func NewSceneToday() *SceneToday {
 func (s *SceneToday) Entered() {
 	getApp().db.ReadTodayGames()
 	s.lblPeriodResult.SetText(getApp().db.todayData.String())
+	a, b := getApp().db.todayData.ListShortStr()
+	s.lblsResult.SetList(a, b)
 	s.Resize()
 	log.Println("Entered SceneToday")
 }
@@ -87,10 +89,11 @@ func (s *SceneToday) togglePlot() {
 	if s.toggleResults {
 		s.plotResult.Dirty = true
 		s.plotResult.Visibe = true
-		s.lblsResult.Visibe = false
+		s.lblsResult.Visible = false
 	} else {
 		s.plotResult.Visibe = false
-		s.lblsResult.Visibe = true
+		s.lblsResult.Visible = true
+		s.lblsResult.Dirty = true
 	}
 }
 
@@ -126,6 +129,7 @@ func (s *SceneToday) Resize() {
 	y = int(float64(h) * 3.6)
 	w, h = int(float64(s.rect.W)*0.9), int(float64(s.rect.H)*0.75)
 	x = (s.rect.W - w) / 2
+	s.lblsResult.SetRows(s.getRows())
 	s.lblsResult.Resize([]int{x, y, w, h})
 	s.plotResult.Resize([]int{x, y, w, h})
 	w = (s.rect.W - w) / 2
@@ -138,3 +142,19 @@ func (s *SceneToday) Resize() {
 }
 
 func (s *SceneToday) Quit() {}
+
+func (s *SceneToday) getRows() (rows int) {
+	switch w := s.rect.Right(); {
+	case w <= 360:
+		rows = 2
+	case w <= 640:
+		rows = 3
+	case w <= 800:
+		rows = 4
+	case w <= 1024:
+		rows = 5
+	default:
+		rows = 6
+	}
+	return
+}
