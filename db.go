@@ -219,7 +219,7 @@ func (d GameData) BgColor() (result color.Color) {
 	} else if d.percent >= fall && d.percent < adv {
 		result = colorCorrect
 	} else if d.percent < fall {
-		if d.lives == 1 {
+		if d.lives <= 1 {
 			result = colorError
 		} else if d.lives > 1 {
 			result = colorWarning
