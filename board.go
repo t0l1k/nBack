@@ -59,7 +59,7 @@ func (b *Board) Reset(gameCount, level int) {
 	b.moves = make([]int, 0)
 	b.move = 0
 	pref := getApp().preferences
-	b.totalMoves = pref.trials*pref.trialsFactor + int(math.Pow(float64(b.level), float64(pref.trialsExponent)))
+	b.totalMoves = pref.trials + pref.trialsFactor*int(math.Pow(float64(b.level), float64(pref.trialsExponent)))
 	b.arr = getArr(b.level, b.totalMoves)
 	b.countCorrect, b.countWrong = 0, 0
 	b.dtBeg = time.Now()

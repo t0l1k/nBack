@@ -153,7 +153,7 @@ func NewSceneOptions() *SceneOptions {
 	s.optTrials = ui.NewCombobox("Trials", rect, getApp().theme.bg, getApp().theme.fg, arrTrials, idx, func(b *ui.Combobox) { s.newSets.trials = s.optTrials.Value().(int) })
 	s.Add(s.optTrials)
 
-	arrFactor := []interface{}{1, 2}
+	arrFactor := []interface{}{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	idx = 0
 	s.optFactor = ui.NewCombobox("Factor", rect, getApp().theme.bg, getApp().theme.fg, arrFactor, idx, func(b *ui.Combobox) { s.newSets.trialsFactor = s.optFactor.Value().(int) })
 	s.Add(s.optFactor)
