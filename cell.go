@@ -17,7 +17,7 @@ type Cell struct {
 	margin                                    float64
 }
 
-func NewCell(rect []int, isCenter bool) *Cell {
+func NewCell(rect []int, isCenter bool, bg, fg, activeColor color.Color) *Cell {
 	return &Cell{
 		rect:        ui.NewRect(rect),
 		Image:       nil,
@@ -27,9 +27,9 @@ func NewCell(rect []int, isCenter bool) *Cell {
 		DrawRect:    true,
 		Active:      false,
 		margin:      0.1,
-		bg:          getApp().theme.gameBg,
-		fg:          getApp().theme.gameFg,
-		activeColor: getApp().theme.gameActiveColor,
+		bg:          bg,
+		fg:          fg,
+		activeColor: activeColor,
 	}
 }
 

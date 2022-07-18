@@ -21,8 +21,8 @@ type ResultPlot struct {
 func NewResultPlot(rect []int) *ResultPlot {
 	return &ResultPlot{
 		rect:   ui.NewRect(rect),
-		bg:     getApp().theme.bg,
-		fg:     getApp().theme.fg,
+		bg:     getApp().theme.Bg,
+		fg:     getApp().theme.Fg,
 		Dirty:  true,
 		Visibe: true,
 	}
@@ -169,15 +169,15 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 		}
 		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 { // level line
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
-			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.correct)
+			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.CorrectColor)
 		}
 		for i, j := 0, 1; j < len(results2); i, j = i+2, j+2 { // total moves line
 			x1, y1, x2, y2 := results1[i], results1[j], results2[i], results2[j]
-			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.correct)
+			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.CorrectColor)
 		}
 		for i, j := 0, 1; j < len(results3); i, j = i+2, j+2 { // moves line
 			x1, y1, x2, y2 := results1[i], results1[j], results3[i], results3[j]
-			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.error)
+			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.ErrorColor)
 		}
 
 	}
@@ -201,7 +201,7 @@ func (r *ResultPlot) Layout() *ebiten.Image {
 		}
 		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 { // max line
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
-			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.regular)
+			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.RegularColor)
 		}
 		k := 0
 		for i, j := 0, 1; j < len(results1); i, j = i+2, j+2 {

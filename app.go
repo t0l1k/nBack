@@ -32,19 +32,19 @@ func getApp() (a *App) {
 		pref := NewSettings()
 		db.ReadSettings(pref)
 		var w, h int
-		if pref.fullScreen {
+		if pref.FullScreen {
 			w, h = ebiten.ScreenSizeInFullscreen()
 		} else {
 			w, h = fitWindowSize()
 		}
 		ebiten.SetWindowTitle("nBack")
-		ebiten.SetFullscreen(pref.fullScreen)
+		ebiten.SetFullscreen(pref.FullScreen)
 		ebiten.SetWindowSize(w, h)
 		rect := ui.NewRect([]int{0, 0, w, h})
 		scns := []ui.Scene{}
 		a = &App{
 			startDt:     time.Now(),
-			fullScreen:  pref.fullScreen,
+			fullScreen:  pref.FullScreen,
 			rect:        rect,
 			lastDt:      -1,
 			scenes:      scns,
@@ -103,7 +103,7 @@ func (a *App) toggleFullscreen() {
 }
 
 func (a *App) Draw(screen *ebiten.Image) {
-	screen.Fill(a.theme.bg)
+	screen.Fill(a.theme.Bg)
 	a.currentScene.Draw(screen)
 }
 

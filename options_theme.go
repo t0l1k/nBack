@@ -17,8 +17,8 @@ type OptTheme struct {
 func NewOptTheme(rect []int) *OptTheme {
 	return &OptTheme{
 		rect:   ui.NewRect(rect),
-		bg:     getApp().theme.bg,
-		fg:     getApp().theme.fg,
+		bg:     getApp().theme.Bg,
+		fg:     getApp().theme.Fg,
 		Dirty:  true,
 		Visibe: true,
 	}
@@ -33,50 +33,50 @@ func (r *OptTheme) Layout() *ebiten.Image {
 	image.Fill(r.bg)
 	x, y := 0, 0
 	rect := []int{x, y, cellWidth / 2, cellHeight}
-	bgLbl := ui.NewLabel("background", rect, app.theme.bg, app.theme.fg)
+	bgLbl := ui.NewLabel("background", rect, app.theme.Bg, app.theme.Fg)
 	bgLbl.SetRect(true)
 	bgLbl.Draw(image)
 	x, y = cellWidth/2, 0
 	rect = []int{x, y, cellWidth / 2, cellHeight}
-	fgLbl := ui.NewLabel("foreground", rect, app.theme.fg, app.theme.bg)
+	fgLbl := ui.NewLabel("foreground", rect, app.theme.Fg, app.theme.Bg)
 	fgLbl.SetRect(true)
 	fgLbl.Draw(image)
 
 	x, y = 0, cellHeight
 	rect = []int{x, y, cellWidth / 3, cellHeight}
-	gameBgLbl := ui.NewLabel("game background", rect, app.theme.gameBg, app.theme.gameFg)
+	gameBgLbl := ui.NewLabel("game background", rect, app.theme.GameBg, app.theme.GameFg)
 	gameBgLbl.SetRect(true)
 	gameBgLbl.Draw(image)
 	x, y = cellWidth/3, cellHeight
 	rect = []int{x, y, cellWidth / 3, cellHeight}
-	gameFgLbl := ui.NewLabel("game foreground", rect, app.theme.gameFg, app.theme.gameBg)
+	gameFgLbl := ui.NewLabel("game foreground", rect, app.theme.GameFg, app.theme.GameBg)
 	gameFgLbl.SetRect(true)
 	gameFgLbl.Draw(image)
 	x, y = cellWidth/3*2, cellHeight
 	rect = []int{x, y, cellWidth / 3, cellHeight}
-	gameActiveLbl := ui.NewLabel("game active color", rect, app.theme.gameActiveColor, app.theme.gameBg)
+	gameActiveLbl := ui.NewLabel("game active color", rect, app.theme.GameActiveColor, app.theme.GameBg)
 	gameActiveLbl.SetRect(true)
 	gameActiveLbl.Draw(image)
 
 	x, y = 0, cellHeight*2
 	w, h = cellWidth/4, cellHeight
 	rect = []int{x, y, w, h}
-	regularLbl := ui.NewLabel("color regular", rect, app.theme.regular, app.theme.fg)
+	regularLbl := ui.NewLabel("color regular", rect, app.theme.RegularColor, app.theme.Fg)
 	regularLbl.SetRect(true)
 	regularLbl.Draw(image)
 	x = cellWidth / 4
 	rect = []int{x, y, w, h}
-	correctLbl := ui.NewLabel("color correct", rect, app.theme.correct, app.theme.fg)
+	correctLbl := ui.NewLabel("color correct", rect, app.theme.CorrectColor, app.theme.Fg)
 	correctLbl.SetRect(true)
 	correctLbl.Draw(image)
 	x = cellWidth / 4 * 2
 	rect = []int{x, y, w, h}
-	warningLbl := ui.NewLabel("color warning", rect, app.theme.warning, app.theme.fg)
+	warningLbl := ui.NewLabel("color warning", rect, app.theme.WarningColor, app.theme.Fg)
 	warningLbl.SetRect(true)
 	warningLbl.Draw(image)
 	x = cellWidth / 4 * 3
 	rect = []int{x, y, w, h}
-	errorLbl := ui.NewLabel("color error", rect, app.theme.error, app.theme.fg)
+	errorLbl := ui.NewLabel("color error", rect, app.theme.ErrorColor, app.theme.Fg)
 	errorLbl.SetRect(true)
 	errorLbl.Draw(image)
 	r.Dirty = false

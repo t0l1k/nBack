@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func getArr(level, moves int) (arr []int) {
+func getArr(level, moves int, pref *Setting) (arr []int) {
 	start := time.Now()
 	pause := 3
 	count := 0
@@ -15,9 +15,9 @@ func getArr(level, moves int) (arr []int) {
 	best := make([]int, 0)
 	elapsed := time.Since(start)
 	for (int(elapsed.Seconds()) < pause) && count < 100000 && !check {
-		arr = genArr(moves)
+		arr = genArr(moves, pref)
 		var percent int
-		check, percent = checkRR(arr, level)
+		check, percent = checkRR(arr, level, pref)
 		if percent > max {
 			max = int(percent)
 			best = arr
@@ -33,19 +33,19 @@ func getArr(level, moves int) (arr []int) {
 	return arr
 }
 
-func genArr(moves int) (a []int) {
-	dim := getApp().preferences.gridSize
+func genArr(moves int, pref *Setting) (a []int) {
+	dim := pref.GridSize
 	for len(a) < moves {
 		num := rand.Intn((dim * dim) - 1)
-		if num != (dim*dim-1)/2 && !getApp().preferences.usecentercell || getApp().preferences.usecentercell {
+		if num != (dim*dim-1)/2 && !pref.Usecentercell || pref.Usecentercell {
 			a = append(a, num)
 		}
 	}
 	return a
 }
 
-func checkRR(a []int, level int) (bool, int) {
-	RR := getApp().preferences.rr
+func checkRR(a []int, level int, pref *Setting) (bool, int) {
+	RR := pref.RR
 	count := 0
 	for i, v := range a {
 		nextMove := i + level

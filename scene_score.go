@@ -49,16 +49,16 @@ func NewSceneScore() *SceneScore {
 		scorePeriod: all,
 	}
 	rect := []int{0, 0, 1, 1}
-	s.btnQuit = ui.NewButton("<", rect, getApp().theme.correct, getApp().theme.fg, func(b *ui.Button) { getApp().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, getApp().theme.CorrectColor, getApp().theme.Fg, func(b *ui.Button) { getApp().Pop() })
 	s.Add(s.btnQuit)
 	s.name = fmt.Sprintf("Games for the period %v", s.scorePeriod)
-	s.lblName = ui.NewLabel(s.name, rect, getApp().theme.correct, getApp().theme.fg)
+	s.lblName = ui.NewLabel(s.name, rect, getApp().theme.CorrectColor, getApp().theme.Fg)
 	s.Add(s.lblName)
-	s.lblPeriodResult = ui.NewLabel(getApp().db.todayData.String(), rect, getApp().theme.correct, getApp().theme.fg)
+	s.lblPeriodResult = ui.NewLabel(getApp().db.todayData.String(), rect, getApp().theme.CorrectColor, getApp().theme.Fg)
 	s.Add(s.lblPeriodResult)
 	s.plotScore = NewScorePlot(rect)
 	s.Add(s.plotScore)
-	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getApp().theme.correct, getApp().theme.fg)
+	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getApp().theme.CorrectColor, getApp().theme.Fg)
 	s.Add(s.lblDt)
 	return s
 }

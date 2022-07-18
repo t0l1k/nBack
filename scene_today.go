@@ -24,32 +24,32 @@ func NewSceneToday() *SceneToday {
 		rect: getApp().rect,
 	}
 	rect := []int{0, 0, 1, 1}
-	s.btnStart = ui.NewButton("Play", rect, getApp().theme.gameActiveColor, getApp().theme.gameBg, func(b *ui.Button) { getApp().Push(NewSceneGame()) })
+	s.btnStart = ui.NewButton("Play", rect, getApp().theme.GameActiveColor, getApp().theme.GameBg, func(b *ui.Button) { getApp().Push(NewSceneGame()) })
 	s.Add(s.btnStart)
-	s.btnScore = ui.NewButton("Score", rect, getApp().theme.error, getApp().theme.fg, func(b *ui.Button) { getApp().Push(NewSceneScore()) })
+	s.btnScore = ui.NewButton("Score", rect, getApp().theme.ErrorColor, getApp().theme.Fg, func(b *ui.Button) { getApp().Push(NewSceneScore()) })
 	s.Add(s.btnScore)
-	s.btnQuit = ui.NewButton("<", rect, getApp().theme.correct, getApp().theme.fg, func(b *ui.Button) { getApp().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, getApp().theme.CorrectColor, getApp().theme.Fg, func(b *ui.Button) { getApp().Pop() })
 	s.Add(s.btnQuit)
 	s.name = "N-Back"
-	s.lblName = ui.NewLabel(s.name, rect, getApp().theme.correct, getApp().theme.fg)
+	s.lblName = ui.NewLabel(s.name, rect, getApp().theme.CorrectColor, getApp().theme.Fg)
 	s.Add(s.lblName)
-	s.lblPeriodResult = ui.NewLabel(getApp().db.todayData.String(), rect, getApp().theme.correct, getApp().theme.fg)
+	s.lblPeriodResult = ui.NewLabel(getApp().db.todayData.String(), rect, getApp().theme.CorrectColor, getApp().theme.Fg)
 	s.Add(s.lblPeriodResult)
-	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getApp().theme.correct, getApp().theme.fg)
+	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getApp().theme.CorrectColor, getApp().theme.Fg)
 	s.Add(s.lblDt)
-	s.lblsResult = ui.NewList(nil, nil, rect, getApp().theme.bg, getApp().theme.fg, s.getRows())
+	s.lblsResult = ui.NewList(nil, nil, rect, getApp().theme.Bg, getApp().theme.Fg, s.getRows())
 	s.Add(s.lblsResult)
-	s.lblHelper = ui.NewLabel("Press <SPACE> to start the game,<P> plot, <S> score,<F11> toggle fullscreen, <O> Options, <Esc> quit", rect, getApp().theme.correct, getApp().theme.fg)
+	s.lblHelper = ui.NewLabel("Press <SPACE> to start the game,<P> plot, <S> score,<F11> toggle fullscreen, <O> Options, <Esc> quit", rect, getApp().theme.CorrectColor, getApp().theme.Fg)
 	s.Add(s.lblHelper)
 	s.plotResult = NewResultPlot(rect)
 	s.plotResult.Visibe = false
 	s.Add(s.plotResult)
 	s.toggleResults = false
-	s.btnPlot = ui.NewButton("{P}", rect, getApp().theme.correct, getApp().theme.fg, func(b *ui.Button) { s.togglePlot() })
+	s.btnPlot = ui.NewButton("{P}", rect, getApp().theme.CorrectColor, getApp().theme.Fg, func(b *ui.Button) { s.togglePlot() })
 	s.Add(s.btnPlot)
-	s.btnFullScreen = ui.NewButton("[ ]", rect, getApp().theme.regular, getApp().theme.fg, func(b *ui.Button) { getApp().toggleFullscreen() })
+	s.btnFullScreen = ui.NewButton("[ ]", rect, getApp().theme.RegularColor, getApp().theme.Fg, func(b *ui.Button) { getApp().toggleFullscreen() })
 	s.Add(s.btnFullScreen)
-	s.btnOpt = ui.NewButton("Options", rect, getApp().theme.warning, getApp().theme.fg, func(b *ui.Button) { getApp().Push(NewSceneOptions()) })
+	s.btnOpt = ui.NewButton("Options", rect, getApp().theme.WarningColor, getApp().theme.Fg, func(b *ui.Button) { getApp().Push(NewSceneOptions()) })
 	s.Add(s.btnOpt)
 	return s
 }

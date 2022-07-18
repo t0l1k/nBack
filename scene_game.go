@@ -43,11 +43,11 @@ func (s *SceneGame) initGame() {
 		s.level, s.lives, _ = getApp().db.todayData[s.count].NextLevel()
 	} else {
 		s.count = 1
-		s.level = getApp().preferences.defaultLevel
-		s.lives = getApp().preferences.thresholdFallbackSessions
+		s.level = getApp().preferences.DefaultLevel
+		s.lives = getApp().preferences.ThresholdFallbackSessions
 	}
 	ss := fmt.Sprintf("#%v level:%v", s.count, s.level)
-	if getApp().preferences.manual {
+	if getApp().preferences.Manual {
 		ss += " Manual game mode."
 	} else {
 		ss += " Classic game mode."
@@ -55,8 +55,8 @@ func (s *SceneGame) initGame() {
 	s.lblResult.SetText(ss)
 }
 func (s *SceneGame) initGameTimers() {
-	s.timeToNextCell = int(getApp().preferences.timeToNextCell * 1000)
-	s.timeShowCell = int(getApp().preferences.timeShowCell * 1000)
+	s.timeToNextCell = int(getApp().preferences.TimeToNextCell * 1000)
+	s.timeShowCell = int(getApp().preferences.TimeShowCell * 1000)
 	s.stopper = 0
 	delay := (s.timeToNextCell - s.timeShowCell) / 2
 	s.delayBeginCellShow = delay
@@ -65,28 +65,28 @@ func (s *SceneGame) initGameTimers() {
 
 func (s *SceneGame) initUi() {
 	rect := []int{0, 0, 1, 1}
-	s.btnStart = ui.NewButton("New Session", rect, getApp().theme.correct, getApp().theme.fg, func(b *ui.Button) {
+	s.btnStart = ui.NewButton("New Session", rect, getApp().theme.CorrectColor, getApp().theme.Fg, func(b *ui.Button) {
 		log.Println("Button new session pressed")
 		s.paused = false
 		s.newSession()
 	})
 	s.Add(s.btnStart)
-	s.btnQuit = ui.NewButton("<", rect, getApp().theme.correct, getApp().theme.fg, func(b *ui.Button) { getApp().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, getApp().theme.CorrectColor, getApp().theme.Fg, func(b *ui.Button) { getApp().Pop() })
 	s.Add(s.btnQuit)
 	s.name = "Game N-Back result"
-	s.lblName = ui.NewLabel(s.name, rect, getApp().theme.correct, getApp().theme.fg)
+	s.lblName = ui.NewLabel(s.name, rect, getApp().theme.CorrectColor, getApp().theme.Fg)
 	s.Add(s.lblName)
-	s.board = NewBoard(rect)
+	s.board = NewBoard(rect, getApp().preferences, getApp().theme)
 	s.Add(s.board)
-	s.lblResult = ui.NewLabel(" ", rect, getApp().theme.correct, getApp().theme.fg)
+	s.lblResult = ui.NewLabel(" ", rect, getApp().theme.CorrectColor, getApp().theme.Fg)
 	s.Add(s.lblResult)
-	s.lblMotiv = ui.NewLabel("Motivation", rect, getApp().theme.correct, getApp().theme.fg)
+	s.lblMotiv = ui.NewLabel("Motivation", rect, getApp().theme.CorrectColor, getApp().theme.Fg)
 	s.Add(s.lblMotiv)
 	s.lblMotiv.Visible = false
-	s.lblTimer = ui.NewLabel(s.name, rect, getApp().theme.correct, getApp().theme.fg)
+	s.lblTimer = ui.NewLabel(s.name, rect, getApp().theme.CorrectColor, getApp().theme.Fg)
 	s.Add(s.lblTimer)
 	s.lblTimer.Visible = false
-	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getApp().theme.correct, getApp().theme.fg)
+	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getApp().theme.CorrectColor, getApp().theme.Fg)
 	s.Add(s.lblDt)
 }
 
@@ -133,15 +133,15 @@ func (s *SceneGame) Update(dt int) {
 			s.lblMotiv.SetBg(getApp().db.todayData[count].BgColor())
 			s.lblName.SetRect(true)
 			s.lblName.SetText(s.name)
-			s.lblName.SetBg(getApp().theme.correct)
+			s.lblName.SetBg(getApp().theme.CorrectColor)
 			x, y, w, h := int(float64(getApp().rect.H)*0.05), 0, int(float64(getApp().rect.W)*0.20), int(float64(getApp().rect.H)*0.05)
 			s.lblName.Resize([]int{x, y, w, h})
 			s.lblResult.Visible = true
 			s.lblMotiv.Visible = true
 			s.lblTimer.Visible = true
 			s.btnQuit.Visible = true
-			s.lblTimer.SetBg(getApp().theme.error)
-			s.pauseTimer = getApp().preferences.pauseRest * 1000
+			s.lblTimer.SetBg(getApp().theme.ErrorColor)
+			s.pauseTimer = getApp().preferences.PauseRest * 1000
 			s.paused = true
 			s.lblDt.Visible = true
 		}
@@ -157,8 +157,8 @@ func (s *SceneGame) Update(dt int) {
 		} else if s.pauseTimer <= 0 {
 			if s.paused {
 				s.paused = false
-				s.pauseTimer += getApp().preferences.pauseRest * 1000
-				s.lblTimer.SetBg(getApp().theme.correct)
+				s.pauseTimer += getApp().preferences.PauseRest * 1000
+				s.lblTimer.SetBg(getApp().theme.CorrectColor)
 			}
 		}
 	}
@@ -172,7 +172,7 @@ func (s *SceneGame) newSession() {
 	s.lblTimer.Visible = false
 	s.btnQuit.Visible = false
 	s.lblDt.Visible = false
-	if getApp().preferences.feedbackOnUserMove {
+	if getApp().preferences.FeedbackOnUserMove {
 		x, y, w, h := 0, 0, int(float64(getApp().rect.W)*0.20), int(float64(getApp().rect.H)*0.05)
 		s.lblName.Resize([]int{x, y, w, h})
 		s.lblName.SetRect(true)
@@ -188,18 +188,18 @@ func (s *SceneGame) newSession() {
 }
 
 func (s *SceneGame) moveStatus() {
-	if getApp().preferences.feedbackOnUserMove {
+	if getApp().preferences.FeedbackOnUserMove {
 		switch s.board.moveStatus {
 		case Correct:
-			s.lblName.SetBg(getApp().theme.correct)
+			s.lblName.SetBg(getApp().theme.CorrectColor)
 		case Error:
-			s.lblName.SetBg(getApp().theme.error)
+			s.lblName.SetBg(getApp().theme.ErrorColor)
 		case Warning:
-			s.lblName.SetBg(getApp().theme.warning)
+			s.lblName.SetBg(getApp().theme.WarningColor)
 		case Regular:
-			s.lblName.SetBg(getApp().theme.regular)
+			s.lblName.SetBg(getApp().theme.RegularColor)
 		default:
-			s.lblName.SetBg(getApp().theme.gameBg)
+			s.lblName.SetBg(getApp().theme.GameBg)
 		}
 	}
 	str := fmt.Sprintf("Pos %v (%v) (%v/%v)", s.level, s.lives, s.board.move, s.board.totalMoves)
@@ -219,17 +219,17 @@ func (s *SceneGame) SaveGame() {
 		wrong:        s.board.countWrong,
 		moves:        s.board.move,
 		totalmoves:   s.board.totalMoves,
-		manual:       getApp().preferences.manual,
-		advance:      getApp().preferences.thresholdAdvance,
-		fallback:     getApp().preferences.thresholdFallback,
-		resetonerror: getApp().preferences.resetOnFirstWrong,
+		manual:       getApp().preferences.Manual,
+		advance:      getApp().preferences.ThresholdAdvance,
+		fallback:     getApp().preferences.ThresholdFallback,
+		resetonerror: getApp().preferences.ResetOnFirstWrong,
 	}
 	getApp().db.InsertGame(values)
 	log.Println("Game Saved in DB.")
 }
 
 func (s *SceneGame) Draw(surface *ebiten.Image) {
-	surface.Fill(getApp().theme.gameBg)
+	surface.Fill(getApp().theme.GameBg)
 	for _, value := range s.container {
 		value.Draw(surface)
 	}
