@@ -21,8 +21,8 @@ type ScorePlot struct {
 func NewScorePlot(rect []int) *ScorePlot {
 	return &ScorePlot{
 		rect:   ui.NewRect(rect),
-		bg:     getApp().theme.Bg,
-		fg:     getApp().theme.Fg,
+		bg:     getTheme().Bg,
+		fg:     getTheme().Fg,
 		Dirty:  true,
 		Visibe: true,
 	}
@@ -31,9 +31,9 @@ func (r *ScorePlot) Layout() *ebiten.Image {
 	if !r.Dirty {
 		return r.Image
 	}
-	xArr, yArr, avgArr, strsArr := getApp().db.scoresData.PlotData()
+	xArr, yArr, avgArr, strsArr := getDb().scoresData.PlotData()
 	axisXMax := xArr.Len()
-	score, _ := getApp().db.ReadAllGamesScore()
+	score, _ := getDb().ReadAllGamesScore()
 	axisYMax := score.max + 1
 	w0, h0 := r.rect.Size()
 	image := ebiten.NewImage(w0, h0)
@@ -161,9 +161,9 @@ func (r *ScorePlot) Layout() *ebiten.Image {
 		}
 		// for i, j := 0, 1; j < len(results2); i, j = i+2, j+2 {
 		// 	x1, y1, x2, y2 := results1[i], results1[j], results2[i], results2[j]
-		// 	// ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.active)
-		// 	image.Set(int(x1), int(y1), getApp().theme.error)
-		// 	image.Set(int(x2), int(y2), getApp().theme.bg2)
+		// 	// ebitenutil.DrawLine(image, x1, y1, x2, y2, getTheme().active)
+		// 	image.Set(int(x1), int(y1), getTheme().error)
+		// 	image.Set(int(x2), int(y2), getTheme().bg2)
 		// }
 		k := 0
 		for i, j := 0, 1; j < len(results1); i, j = i+2, j+2 {
@@ -174,7 +174,7 @@ func (r *ScorePlot) Layout() *ebiten.Image {
 			x, y = 0, 0
 			w, h = results2[j]-results1[j], boxSize
 			rect := []int{int(x), int(y), int(w), int(h)}
-			lbl := ui.NewLabel(strs[k], rect, getApp().theme.CorrectColor, fg)
+			lbl := ui.NewLabel(strs[k], rect, getTheme().CorrectColor, fg)
 			lblImage := lbl.Layout()
 			w1, h1 := lblImage.Size()
 			op := ebiten.DrawImageOptions{}
@@ -205,7 +205,7 @@ func (r *ScorePlot) Layout() *ebiten.Image {
 		}
 		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 {
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
-			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.RegularColor)
+			ebitenutil.DrawLine(image, x1, y1, x2, y2, getTheme().RegularColor)
 		}
 	}
 	{ // parse data - average line
@@ -223,7 +223,7 @@ func (r *ScorePlot) Layout() *ebiten.Image {
 		}
 		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 {
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
-			ebitenutil.DrawLine(image, x1, y1, x2, y2, getApp().theme.WarningColor)
+			ebitenutil.DrawLine(image, x1, y1, x2, y2, getTheme().WarningColor)
 		}
 	}
 

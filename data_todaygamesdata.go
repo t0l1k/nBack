@@ -79,7 +79,7 @@ func (t *TodayGamesData) PlotTodayData() (gameNr, level, levelValue, percents, m
 	}
 	sort.Ints(keys)
 	for _, k := range keys {
-		v := getApp().db.todayData[k]
+		v := getDb().todayData[k]
 		gameNr.PushBack(k)
 		level.PushBack(v.level)
 		result := float64(v.percent)*0.01 + float64(v.level)
@@ -102,11 +102,11 @@ func (t *TodayGamesData) getWinCountInManual() (bool, bool, int) {
 	}
 	sort.Ints(keys)
 	count := 0
-	adv := getApp().preferences.ManualAdv
-	lastLvl := getApp().db.todayData[len(keys)].level
+	adv := getPreferences().ManualAdv
+	lastLvl := getDb().todayData[len(keys)].level
 	ok := false
 	for i := len(keys); i > 0; i-- {
-		v := getApp().db.todayData[i]
+		v := getDb().todayData[i]
 		if adv == 0 || !v.manual && count < adv {
 			return false, false, count
 		} else if v.manual && v.percent == 100 && v.level == lastLvl {
@@ -134,8 +134,8 @@ func (t *TodayGamesData) ListShortStr() (strs []string, clrs []color.Color) {
 	}
 	sort.Ints(keys)
 	for _, v := range keys {
-		strs = append(strs, getApp().db.todayData[v].ShortStr())
-		clrs = append(clrs, getApp().db.todayData[v].BgColor())
+		strs = append(strs, getDb().todayData[v].ShortStr())
+		clrs = append(clrs, getDb().todayData[v].BgColor())
 	}
 	return
 }

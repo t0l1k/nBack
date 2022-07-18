@@ -29,7 +29,7 @@ func (s *ScoresData) PlotData() (idx, maxs, averages, strs list.List) {
 	sort.Ints(keys)
 	i := 1
 	for _, k := range keys {
-		v := getApp().db.scoresData[k]
+		v := getDb().scoresData[k]
 		idx.PushBack(i)
 		maxs.PushBack(v.max)
 		averages.PushBack(v.avg)

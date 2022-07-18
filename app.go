@@ -25,6 +25,12 @@ type App struct {
 
 var app *App
 
+func NewGame() *App {
+	app = getApp()
+	app.Push(NewSceneToday())
+	return app
+}
+
 func getApp() (a *App) {
 	if app == nil {
 		db := &Db{}
@@ -57,6 +63,18 @@ func getApp() (a *App) {
 		a = app
 	}
 	return a
+}
+
+func getDb() *Db {
+	return getApp().db
+}
+
+func getTheme() *Theme {
+	return getApp().theme
+}
+
+func getPreferences() *Setting {
+	return getApp().preferences
 }
 
 func fitWindowSize() (w int, h int) {

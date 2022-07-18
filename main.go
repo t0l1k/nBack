@@ -8,9 +8,7 @@ import (
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
-	app = getApp()
-	app.Push(NewSceneToday())
-	if err := ebiten.RunGame(app); err != nil {
+	if err := ebiten.RunGame(NewGame()); err != nil {
 		log.Fatal(err)
 	}
 }

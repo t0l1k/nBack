@@ -25,7 +25,8 @@ type SceneGame struct {
 
 func NewSceneGame() *SceneGame {
 	s := &SceneGame{
-		rect: getApp().rect}
+		rect: ui.NewRect([]int{0, 0, 1, 1}),
+	}
 	s.initUi()
 	return s
 }
@@ -38,16 +39,16 @@ func (s *SceneGame) Entered() {
 }
 
 func (s *SceneGame) initGame() {
-	s.count = getApp().db.todayGamesCount
+	s.count = getDb().todayGamesCount
 	if s.count > 0 {
-		s.level, s.lives, _ = getApp().db.todayData[s.count].NextLevel()
+		s.level, s.lives, _ = getDb().todayData[s.count].NextLevel()
 	} else {
 		s.count = 1
-		s.level = getApp().preferences.DefaultLevel
-		s.lives = getApp().preferences.ThresholdFallbackSessions
+		s.level = getPreferences().DefaultLevel
+		s.lives = getPreferences().ThresholdFallbackSessions
 	}
 	ss := fmt.Sprintf("#%v level:%v", s.count, s.level)
-	if getApp().preferences.Manual {
+	if getPreferences().Manual {
 		ss += " Manual game mode."
 	} else {
 		ss += " Classic game mode."
@@ -55,8 +56,8 @@ func (s *SceneGame) initGame() {
 	s.lblResult.SetText(ss)
 }
 func (s *SceneGame) initGameTimers() {
-	s.timeToNextCell = int(getApp().preferences.TimeToNextCell * 1000)
-	s.timeShowCell = int(getApp().preferences.TimeShowCell * 1000)
+	s.timeToNextCell = int(getPreferences().TimeToNextCell * 1000)
+	s.timeShowCell = int(getPreferences().TimeShowCell * 1000)
 	s.stopper = 0
 	delay := (s.timeToNextCell - s.timeShowCell) / 2
 	s.delayBeginCellShow = delay
@@ -65,28 +66,28 @@ func (s *SceneGame) initGameTimers() {
 
 func (s *SceneGame) initUi() {
 	rect := []int{0, 0, 1, 1}
-	s.btnStart = ui.NewButton("New Session", rect, getApp().theme.CorrectColor, getApp().theme.Fg, func(b *ui.Button) {
+	s.btnStart = ui.NewButton("New Session", rect, getTheme().CorrectColor, getTheme().Fg, func(b *ui.Button) {
 		log.Println("Button new session pressed")
 		s.paused = false
 		s.newSession()
 	})
 	s.Add(s.btnStart)
-	s.btnQuit = ui.NewButton("<", rect, getApp().theme.CorrectColor, getApp().theme.Fg, func(b *ui.Button) { getApp().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, getTheme().CorrectColor, getTheme().Fg, func(b *ui.Button) { getApp().Pop() })
 	s.Add(s.btnQuit)
 	s.name = "Game N-Back result"
-	s.lblName = ui.NewLabel(s.name, rect, getApp().theme.CorrectColor, getApp().theme.Fg)
+	s.lblName = ui.NewLabel(s.name, rect, getTheme().CorrectColor, getTheme().Fg)
 	s.Add(s.lblName)
-	s.board = NewBoard(rect, getApp().preferences, getApp().theme)
+	s.board = NewBoard(rect, getPreferences(), getTheme())
 	s.Add(s.board)
-	s.lblResult = ui.NewLabel(" ", rect, getApp().theme.CorrectColor, getApp().theme.Fg)
+	s.lblResult = ui.NewLabel(" ", rect, getTheme().CorrectColor, getTheme().Fg)
 	s.Add(s.lblResult)
-	s.lblMotiv = ui.NewLabel("Motivation", rect, getApp().theme.CorrectColor, getApp().theme.Fg)
+	s.lblMotiv = ui.NewLabel("Motivation", rect, getTheme().CorrectColor, getTheme().Fg)
 	s.Add(s.lblMotiv)
 	s.lblMotiv.Visible = false
-	s.lblTimer = ui.NewLabel(s.name, rect, getApp().theme.CorrectColor, getApp().theme.Fg)
+	s.lblTimer = ui.NewLabel(s.name, rect, getTheme().CorrectColor, getTheme().Fg)
 	s.Add(s.lblTimer)
 	s.lblTimer.Visible = false
-	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getApp().theme.CorrectColor, getApp().theme.Fg)
+	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getTheme().CorrectColor, getTheme().Fg)
 	s.Add(s.lblDt)
 }
 
@@ -123,25 +124,25 @@ func (s *SceneGame) Update(dt int) {
 		if !s.lblResult.Visible {
 			s.SaveGame()
 			var motiv string
-			count := getApp().db.todayGamesCount
-			s.level, s.lives, motiv = getApp().db.todayData[count].NextLevel()
-			ss := getApp().db.todayData[count].String()
+			count := getDb().todayGamesCount
+			s.level, s.lives, motiv = getDb().todayData[count].NextLevel()
+			ss := getDb().todayData[count].String()
 			s.lblResult.SetText(ss)
 			log.Printf("Game Result is: %v", ss)
 			s.count += 1
 			s.lblMotiv.SetText(motiv)
-			s.lblMotiv.SetBg(getApp().db.todayData[count].BgColor())
+			s.lblMotiv.SetBg(getDb().todayData[count].BgColor())
 			s.lblName.SetRect(true)
 			s.lblName.SetText(s.name)
-			s.lblName.SetBg(getApp().theme.CorrectColor)
-			x, y, w, h := int(float64(getApp().rect.H)*0.05), 0, int(float64(getApp().rect.W)*0.20), int(float64(getApp().rect.H)*0.05)
+			s.lblName.SetBg(getTheme().CorrectColor)
+			x, y, w, h := int(float64(s.rect.H)*0.05), 0, int(float64(s.rect.W)*0.20), int(float64(s.rect.H)*0.05)
 			s.lblName.Resize([]int{x, y, w, h})
 			s.lblResult.Visible = true
 			s.lblMotiv.Visible = true
 			s.lblTimer.Visible = true
 			s.btnQuit.Visible = true
-			s.lblTimer.SetBg(getApp().theme.ErrorColor)
-			s.pauseTimer = getApp().preferences.PauseRest * 1000
+			s.lblTimer.SetBg(getTheme().ErrorColor)
+			s.pauseTimer = getPreferences().PauseRest * 1000
 			s.paused = true
 			s.lblDt.Visible = true
 		}
@@ -157,8 +158,8 @@ func (s *SceneGame) Update(dt int) {
 		} else if s.pauseTimer <= 0 {
 			if s.paused {
 				s.paused = false
-				s.pauseTimer += getApp().preferences.PauseRest * 1000
-				s.lblTimer.SetBg(getApp().theme.CorrectColor)
+				s.pauseTimer += getPreferences().PauseRest * 1000
+				s.lblTimer.SetBg(getTheme().CorrectColor)
 			}
 		}
 	}
@@ -172,8 +173,8 @@ func (s *SceneGame) newSession() {
 	s.lblTimer.Visible = false
 	s.btnQuit.Visible = false
 	s.lblDt.Visible = false
-	if getApp().preferences.FeedbackOnUserMove {
-		x, y, w, h := 0, 0, int(float64(getApp().rect.W)*0.20), int(float64(getApp().rect.H)*0.05)
+	if getPreferences().FeedbackOnUserMove {
+		x, y, w, h := 0, 0, int(float64(s.rect.W)*0.20), int(float64(s.rect.H)*0.05)
 		s.lblName.Resize([]int{x, y, w, h})
 		s.lblName.SetRect(true)
 	} else {
@@ -188,18 +189,18 @@ func (s *SceneGame) newSession() {
 }
 
 func (s *SceneGame) moveStatus() {
-	if getApp().preferences.FeedbackOnUserMove {
+	if getPreferences().FeedbackOnUserMove {
 		switch s.board.moveStatus {
 		case Correct:
-			s.lblName.SetBg(getApp().theme.CorrectColor)
+			s.lblName.SetBg(getTheme().CorrectColor)
 		case Error:
-			s.lblName.SetBg(getApp().theme.ErrorColor)
+			s.lblName.SetBg(getTheme().ErrorColor)
 		case Warning:
-			s.lblName.SetBg(getApp().theme.WarningColor)
+			s.lblName.SetBg(getTheme().WarningColor)
 		case Regular:
-			s.lblName.SetBg(getApp().theme.RegularColor)
+			s.lblName.SetBg(getTheme().RegularColor)
 		default:
-			s.lblName.SetBg(getApp().theme.GameBg)
+			s.lblName.SetBg(getTheme().GameBg)
 		}
 	}
 	str := fmt.Sprintf("Pos %v (%v) (%v/%v)", s.level, s.lives, s.board.move, s.board.totalMoves)
@@ -219,17 +220,17 @@ func (s *SceneGame) SaveGame() {
 		wrong:        s.board.countWrong,
 		moves:        s.board.move,
 		totalmoves:   s.board.totalMoves,
-		manual:       getApp().preferences.Manual,
-		advance:      getApp().preferences.ThresholdAdvance,
-		fallback:     getApp().preferences.ThresholdFallback,
-		resetonerror: getApp().preferences.ResetOnFirstWrong,
+		manual:       getPreferences().Manual,
+		advance:      getPreferences().ThresholdAdvance,
+		fallback:     getPreferences().ThresholdFallback,
+		resetonerror: getPreferences().ResetOnFirstWrong,
 	}
-	getApp().db.InsertGame(values)
+	getDb().InsertGame(values)
 	log.Println("Game Saved in DB.")
 }
 
 func (s *SceneGame) Draw(surface *ebiten.Image) {
-	surface.Fill(getApp().theme.GameBg)
+	surface.Fill(getTheme().GameBg)
 	for _, value := range s.container {
 		value.Draw(surface)
 	}
@@ -240,10 +241,11 @@ func (s *SceneGame) Add(item ui.Drawable) {
 }
 
 func (s *SceneGame) Resize() {
-	s.rect = getApp().rect
-	x, y, w, h := 0, 0, int(float64(getApp().rect.H)*0.05), int(float64(getApp().rect.H)*0.05)
+	w, h := getApp().GetScreenSize()
+	s.rect = ui.NewRect([]int{0, 0, w, h})
+	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)*0.05)
 	s.btnQuit.Resize([]int{x, y, w, h})
-	x, w = h, int(float64(getApp().rect.W)*0.20)
+	x, w = h, int(float64(s.rect.W)*0.20)
 	s.lblName.Resize([]int{x, y, w, h})
 	x = s.rect.Right() - w
 	s.lblDt.Resize([]int{x, y, w, h})
@@ -253,16 +255,16 @@ func (s *SceneGame) Resize() {
 	marginY := float64(s.rect.H)/2 - cellSize*3/2
 	x, y = int(marginX), int(marginY)+h/2
 	s.board.Resize([]int{x, y, int(cellSize) * 3, int(cellSize) * 3})
-	w, h = int(float64(getApp().rect.W)*0.5), int(float64(getApp().rect.H)*0.15)
+	w, h = int(float64(s.rect.W)*0.5), int(float64(s.rect.H)*0.15)
 	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*1)
 	s.btnStart.Resize([]int{x, y, w, h})
-	w, h = int(float64(getApp().rect.W)*0.9), int(float64(getApp().rect.H)*0.08)
+	w, h = int(float64(s.rect.W)*0.9), int(float64(s.rect.H)*0.08)
 	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*3.5)
 	s.lblResult.Resize([]int{x, y, w, h})
-	w, h = int(float64(getApp().rect.W)*0.7), int(float64(getApp().rect.H)*0.08)
+	w, h = int(float64(s.rect.W)*0.7), int(float64(s.rect.H)*0.08)
 	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*5.5)
 	s.lblMotiv.Resize([]int{x, y, w, h})
-	w, h = int(float64(getApp().rect.W)*0.5), int(float64(getApp().rect.H)*0.2)
+	w, h = int(float64(s.rect.W)*0.5), int(float64(s.rect.H)*0.2)
 	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*4)
 	s.lblTimer.Resize([]int{x, y, w, h})
 }

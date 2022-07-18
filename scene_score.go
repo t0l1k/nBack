@@ -45,27 +45,27 @@ type SceneScore struct {
 
 func NewSceneScore() *SceneScore {
 	s := &SceneScore{
-		rect:        getApp().rect,
+		rect:        ui.NewRect([]int{0, 0, 1, 1}),
 		scorePeriod: all,
 	}
 	rect := []int{0, 0, 1, 1}
-	s.btnQuit = ui.NewButton("<", rect, getApp().theme.CorrectColor, getApp().theme.Fg, func(b *ui.Button) { getApp().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, getTheme().CorrectColor, getTheme().Fg, func(b *ui.Button) { getApp().Pop() })
 	s.Add(s.btnQuit)
 	s.name = fmt.Sprintf("Games for the period %v", s.scorePeriod)
-	s.lblName = ui.NewLabel(s.name, rect, getApp().theme.CorrectColor, getApp().theme.Fg)
+	s.lblName = ui.NewLabel(s.name, rect, getTheme().CorrectColor, getTheme().Fg)
 	s.Add(s.lblName)
-	s.lblPeriodResult = ui.NewLabel(getApp().db.todayData.String(), rect, getApp().theme.CorrectColor, getApp().theme.Fg)
+	s.lblPeriodResult = ui.NewLabel(getDb().todayData.String(), rect, getTheme().CorrectColor, getTheme().Fg)
 	s.Add(s.lblPeriodResult)
 	s.plotScore = NewScorePlot(rect)
 	s.Add(s.plotScore)
-	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getApp().theme.CorrectColor, getApp().theme.Fg)
+	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getTheme().CorrectColor, getTheme().Fg)
 	s.Add(s.lblDt)
 	return s
 }
 
 func (s *SceneScore) Entered() {
-	getApp().db.ReadAllGamesForScoresByDays()
-	_, str := getApp().db.ReadAllGamesScore()
+	getDb().ReadAllGamesForScoresByDays()
+	_, str := getDb().ReadAllGamesScore()
 	s.lblPeriodResult.SetText(str)
 	s.Resize()
 	log.Println("Entered SceneScore")
@@ -99,10 +99,11 @@ func (s *SceneScore) Draw(surface *ebiten.Image) {
 }
 
 func (s *SceneScore) Resize() {
-	s.rect = getApp().rect
-	x, y, w, h := 0, 0, int(float64(getApp().rect.H)*0.05), int(float64(getApp().rect.H)*0.05)
+	w, h := getApp().GetScreenSize()
+	s.rect = ui.NewRect([]int{0, 0, w, h})
+	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)*0.05)
 	s.btnQuit.Resize([]int{x, y, w, h})
-	x, w = h, int(float64(getApp().rect.W)*0.20)
+	x, w = h, int(float64(s.rect.W)*0.20)
 	s.lblName.Resize([]int{x, y, w, h})
 	x = s.rect.Right() - w
 	s.lblDt.Resize([]int{x, y, w, h})

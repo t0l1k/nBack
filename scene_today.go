@@ -21,43 +21,43 @@ type SceneToday struct {
 
 func NewSceneToday() *SceneToday {
 	s := &SceneToday{
-		rect: getApp().rect,
+		rect: ui.NewRect([]int{0, 0, 1, 1}),
 	}
 	rect := []int{0, 0, 1, 1}
-	s.btnStart = ui.NewButton("Play", rect, getApp().theme.GameActiveColor, getApp().theme.GameBg, func(b *ui.Button) { getApp().Push(NewSceneGame()) })
+	s.btnStart = ui.NewButton("Play", rect, getTheme().GameActiveColor, getTheme().GameBg, func(b *ui.Button) { getApp().Push(NewSceneGame()) })
 	s.Add(s.btnStart)
-	s.btnScore = ui.NewButton("Score", rect, getApp().theme.ErrorColor, getApp().theme.Fg, func(b *ui.Button) { getApp().Push(NewSceneScore()) })
+	s.btnScore = ui.NewButton("Score", rect, getTheme().ErrorColor, getTheme().Fg, func(b *ui.Button) { getApp().Push(NewSceneScore()) })
 	s.Add(s.btnScore)
-	s.btnQuit = ui.NewButton("<", rect, getApp().theme.CorrectColor, getApp().theme.Fg, func(b *ui.Button) { getApp().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, getTheme().CorrectColor, getTheme().Fg, func(b *ui.Button) { getApp().Pop() })
 	s.Add(s.btnQuit)
 	s.name = "N-Back"
-	s.lblName = ui.NewLabel(s.name, rect, getApp().theme.CorrectColor, getApp().theme.Fg)
+	s.lblName = ui.NewLabel(s.name, rect, getTheme().CorrectColor, getTheme().Fg)
 	s.Add(s.lblName)
-	s.lblPeriodResult = ui.NewLabel(getApp().db.todayData.String(), rect, getApp().theme.CorrectColor, getApp().theme.Fg)
+	s.lblPeriodResult = ui.NewLabel(getDb().todayData.String(), rect, getTheme().CorrectColor, getTheme().Fg)
 	s.Add(s.lblPeriodResult)
-	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getApp().theme.CorrectColor, getApp().theme.Fg)
+	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getTheme().CorrectColor, getTheme().Fg)
 	s.Add(s.lblDt)
-	s.lblsResult = ui.NewList(nil, nil, rect, getApp().theme.Bg, getApp().theme.Fg, s.getRows())
+	s.lblsResult = ui.NewList(nil, nil, rect, getTheme().Bg, getTheme().Fg, s.getRows())
 	s.Add(s.lblsResult)
-	s.lblHelper = ui.NewLabel("Press <SPACE> to start the game,<P> plot, <S> score,<F11> toggle fullscreen, <O> Options, <Esc> quit", rect, getApp().theme.CorrectColor, getApp().theme.Fg)
+	s.lblHelper = ui.NewLabel("Press <SPACE> to start the game,<P> plot, <S> score,<F11> toggle fullscreen, <O> Options, <Esc> quit", rect, getTheme().CorrectColor, getTheme().Fg)
 	s.Add(s.lblHelper)
 	s.plotResult = NewResultPlot(rect)
 	s.plotResult.Visibe = false
 	s.Add(s.plotResult)
 	s.toggleResults = false
-	s.btnPlot = ui.NewButton("{P}", rect, getApp().theme.CorrectColor, getApp().theme.Fg, func(b *ui.Button) { s.togglePlot() })
+	s.btnPlot = ui.NewButton("{P}", rect, getTheme().CorrectColor, getTheme().Fg, func(b *ui.Button) { s.togglePlot() })
 	s.Add(s.btnPlot)
-	s.btnFullScreen = ui.NewButton("[ ]", rect, getApp().theme.RegularColor, getApp().theme.Fg, func(b *ui.Button) { getApp().toggleFullscreen() })
+	s.btnFullScreen = ui.NewButton("[ ]", rect, getTheme().RegularColor, getTheme().Fg, func(b *ui.Button) { getApp().toggleFullscreen() })
 	s.Add(s.btnFullScreen)
-	s.btnOpt = ui.NewButton("Options", rect, getApp().theme.WarningColor, getApp().theme.Fg, func(b *ui.Button) { getApp().Push(NewSceneOptions()) })
+	s.btnOpt = ui.NewButton("Options", rect, getTheme().WarningColor, getTheme().Fg, func(b *ui.Button) { getApp().Push(NewSceneOptions()) })
 	s.Add(s.btnOpt)
 	return s
 }
 
 func (s *SceneToday) Entered() {
-	getApp().db.ReadTodayGames()
-	s.lblPeriodResult.SetText(getApp().db.todayData.String())
-	a, b := getApp().db.todayData.ListShortStr()
+	getDb().ReadTodayGames()
+	s.lblPeriodResult.SetText(getDb().todayData.String())
+	a, b := getDb().todayData.ListShortStr()
 	s.lblsResult.SetList(a, b)
 	s.Resize()
 	log.Println("Entered SceneToday")
@@ -104,7 +104,8 @@ func (s *SceneToday) Draw(surface *ebiten.Image) {
 }
 
 func (s *SceneToday) Resize() {
-	s.rect = getApp().rect
+	w, h := getApp().GetScreenSize()
+	s.rect = ui.NewRect([]int{0, 0, w, h})
 	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)*0.05)
 	s.btnQuit.Resize([]int{x, y, w, h})
 	x, w = h, int(float64(s.rect.W)*0.20)
