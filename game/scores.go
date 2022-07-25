@@ -21,8 +21,8 @@ type ScorePlot struct {
 func NewScorePlot(rect []int) *ScorePlot {
 	return &ScorePlot{
 		rect:   ui.NewRect(rect),
-		bg:     getTheme().Bg,
-		fg:     getTheme().Fg,
+		bg:     (*ui.GetTheme())["bg"],
+		fg:     (*ui.GetTheme())["fg"],
 		Dirty:  true,
 		Visibe: true,
 	}
@@ -159,33 +159,23 @@ func (r *ScorePlot) Layout() *ebiten.Image {
 		for e := strsArr.Front(); e != nil; e = e.Next() {
 			strs = append(strs, e.Value.(string))
 		}
-		// for i, j := 0, 1; j < len(results2); i, j = i+2, j+2 {
-		// 	x1, y1, x2, y2 := results1[i], results1[j], results2[i], results2[j]
-		// 	// ebitenutil.DrawLine(image, x1, y1, x2, y2, getTheme().active)
-		// 	image.Set(int(x1), int(y1), getTheme().error)
-		// 	image.Set(int(x2), int(y2), getTheme().bg2)
-		// }
 		k := 0
 		for i, j := 0, 1; j < len(results1); i, j = i+2, j+2 {
 			x1, y1 := results2[i], results2[j]
-			// x1, y1 := results1[i], results1[j]
 			var x, y, w, h, boxSize float64
 			boxSize = float64(gridWidth) / 2
 			x, y = 0, 0
 			w, h = results2[j]-results1[j], boxSize
 			rect := []int{int(x), int(y), int(w), int(h)}
-			lbl := ui.NewLabel(strs[k], rect, getTheme().CorrectColor, fg)
+			lbl := ui.NewLabel(strs[k], rect, (*ui.GetTheme())["correct color"], fg)
 			lblImage := lbl.Layout()
 			w1, h1 := lblImage.Size()
 			op := ebiten.DrawImageOptions{}
 			op.GeoM.Translate(-float64(w1)/2, -float64(h1)/2)
 			count := -90
 			op.GeoM.Rotate(float64(count%360) * 2 * math.Pi / 360)
-			// x, y = x1-float64(boxSize)/2, y1-float64(boxSize)/2
 			op.GeoM.Translate(x1, y1-float64(w1)/2)
-			// lblImage.DrawImage(image, &op)
 			image.DrawImage(lblImage, &op)
-			// lbl.Draw(image)
 			k++
 		}
 	}
@@ -205,7 +195,7 @@ func (r *ScorePlot) Layout() *ebiten.Image {
 		}
 		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 {
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
-			ebitenutil.DrawLine(image, x1, y1, x2, y2, getTheme().RegularColor)
+			ebitenutil.DrawLine(image, x1, y1, x2, y2, (*ui.GetTheme())["regular color"])
 		}
 	}
 	{ // parse data - average line
@@ -223,7 +213,7 @@ func (r *ScorePlot) Layout() *ebiten.Image {
 		}
 		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 {
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
-			ebitenutil.DrawLine(image, x1, y1, x2, y2, getTheme().WarningColor)
+			ebitenutil.DrawLine(image, x1, y1, x2, y2, (*ui.GetTheme())["warning color"])
 		}
 	}
 

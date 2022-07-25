@@ -35,7 +35,6 @@ func (s *ScoresData) PlotData() (idx, maxs, averages, strs list.List) {
 		averages.PushBack(v.avg)
 		strs.PushBack(v.String())
 		i++
-		fmt.Println(v)
 	}
 	return
 }

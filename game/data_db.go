@@ -7,6 +7,7 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/t0l1k/nBack/ui"
 )
 
 type Db struct {
@@ -14,6 +15,21 @@ type Db struct {
 	todayData       TodayGamesData
 	todayGamesCount int
 	scoresData      ScoresData
+}
+
+var dbInstance *Db = nil
+
+func init() {
+	dbInstance = getDb()
+}
+
+func getDb() (db *Db) {
+	if dbInstance == nil {
+		db = &Db{}
+	} else {
+		db = dbInstance
+	}
+	return db
 }
 
 func (d *Db) Setup() {
@@ -37,7 +53,10 @@ func (d *Db) Setup() {
 	cur.Exec()
 }
 
-func (d *Db) InsertSettings(values *Setting) {
+func (d *Db) InsertSettings(values *ui.Preferences) {
+	if d.conn == nil {
+		d.Setup()
+	}
 	var empthyPreviousSettings = "DELETE from settings WHERE id>0"
 	cur, err := d.conn.Prepare(empthyPreviousSettings)
 	if err != nil {
@@ -52,28 +71,111 @@ func (d *Db) InsertSettings(values *Setting) {
 		log.Println("Error in DB:", insStr, values)
 		panic(err)
 	}
-	cur.Exec(values.TimeToNextCell, values.TimeShowCell, values.RR, values.DefaultLevel, values.ManualAdv, values.Manual, values.ThresholdAdvance, values.ThresholdFallback, values.ThresholdFallbackSessions, values.Trials, values.TrialsFactor, values.TrialsExponent, values.FeedbackOnUserMove, values.Usecentercell, values.ResetOnFirstWrong, values.FullScreen, values.PauseRest, values.GridSize)
+	cur.Exec(
+		(*values)["time to next cell"].(float64),
+		(*values)["time to show cell"].(float64),
+		(*values)["random repition"].(float64),
+		(*values)["default level"].(int),
+		(*values)["manual advance"].(int),
+		(*values)["manual mode"].(bool),
+		(*values)["threshold advance"].(int),
+		(*values)["threshold fallback"].(int),
+		(*values)["threshold fallback sessions"].(int),
+		(*values)["trials"].(int),
+		(*values)["trials factor"].(int),
+		(*values)["trials exponent"].(int),
+		(*values)["feedback on user move"].(bool),
+		(*values)["use center cell"].(bool),
+		(*values)["reset on first wrong"].(bool),
+		(*values)["fullscreen"].(bool),
+		(*values)["pause to rest"].(int),
+		(*values)["grid size"].(int))
 	log.Println("DB: Inserted settings.")
 }
 
-func (d *Db) ReadSettings(values *Setting) {
-	if values.DefaultLevel == 0 {
-		values.Reset()
+func (d *Db) ReadSettings() (values *ui.Preferences) {
+	if d.conn == nil {
+		d.Setup()
 	}
 	rows, err := d.conn.Query("SELECT * FROM settings")
 	if err != nil {
 		panic(err)
 	}
+	v := ui.NewPreferences()
 	for rows.Next() {
 		id := 0
-		err = rows.Scan(&id, &values.TimeToNextCell, &values.TimeShowCell, &values.RR, &values.DefaultLevel, &values.ManualAdv, &values.Manual, &values.ThresholdAdvance, &values.ThresholdFallback, &values.ThresholdFallbackSessions, &values.Trials, &values.TrialsFactor, &values.TrialsExponent, &values.FeedbackOnUserMove, &values.Usecentercell, &values.ResetOnFirstWrong, &values.FullScreen, &values.PauseRest, &values.GridSize)
+		tmnc := 0.1
+		tmsnc := 0.1
+		rr := 0.1
+		dfl := 0
+		madv := 0
+		mm := false
+		tda := 0
+		tdaa := 0
+		tfadvs := 0
+		tr := 0
+		trf := 0
+		tre := 0
+		fb := false
+		ucc := false
+		rfw := false
+		fsc := false
+		pr := 0
+		gs := 0
+		err = rows.Scan(
+			&id,
+			&tmnc,
+			&tmsnc,
+			&rr,
+			&dfl,
+			&madv,
+			&mm,
+			&tda,
+			&tdaa,
+			&tfadvs,
+			&tr,
+			&trf,
+			&tre,
+			&fb,
+			&ucc,
+			&rfw,
+			&fsc,
+			&pr,
+			&gs,
+		)
 		if err != nil && err != sql.ErrNoRows {
 			panic(err)
 		}
+		v.Set("time to next cell", tmnc)
+		v.Set("time to show cell", tmsnc)
+		v.Set("random repition", rr)
+		v.Set("default level", dfl)
+		v.Set("manual advance", madv)
+		v.Set("manual mode", mm)
+		v.Set("threshold advance", tda)
+		v.Set("threshold fallback", tdaa)
+		v.Set("threshold fallback sessions", tfadvs)
+		v.Set("trials", tr)
+		v.Set("trials factor", trf)
+		v.Set("trials exponent", tre)
+		v.Set("feedback on user move", fb)
+		v.Set("use center cell", ucc)
+		v.Set("reset on first wrong", rfw)
+		v.Set("fullscreen", fsc)
+		v.Set("pause to rest", pr)
+		v.Set("grid size", gs)
 	}
+	log.Println("Read settings from db:", v, len(v))
+	if len(v) > 0 {
+		return &v
+	}
+	return nil
 }
 
 func (d *Db) InsertGame(values *GameData) {
+	if d.conn == nil {
+		d.Setup()
+	}
 	insStr := "INSERT INTO simple(dtBeg, dtEnd, level, lives, percent, correct, wrong, moves, totalmoves, manual, advance, fallback, resetonerror) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	cur, err := d.conn.Prepare(insStr)
 	if err != nil {
@@ -102,6 +204,9 @@ func (d *Db) InsertGame(values *GameData) {
 func (d *Db) ReadTodayGames() {
 	d.todayData = make(map[int]*GameData)
 	d.todayGamesCount = 0
+	if d.conn == nil {
+		return
+	}
 	rows, err := d.conn.Query("SELECT * FROM simple")
 	if err != nil {
 		panic(err)
@@ -127,13 +232,16 @@ func (d *Db) ReadTodayGames() {
 }
 
 func (d *Db) ReadAllGamesScore() (*ScoreData, string) {
+	values := &ScoreData{}
+	resultStr := "Ещё нет результата, что показать."
+	if d.conn == nil {
+		return values, resultStr
+	}
 	qry := "SELECT count(level) games, max(level) max, round(avg(level),2) average FROM simple;"
 	rows, err := d.conn.Query(qry)
 	if err != nil {
 		panic(err)
 	}
-	values := &ScoreData{}
-	resultStr := ""
 	for rows.Next() {
 		err = rows.Scan(&values.games, &values.max, &values.avg)
 		if values.games == 0 {
@@ -142,12 +250,15 @@ func (d *Db) ReadAllGamesScore() (*ScoreData, string) {
 		if err != nil && err != sql.ErrNoRows {
 			panic(err)
 		}
-		resultStr = fmt.Sprintf("Games: %v Max:%v Average:%v", values.games, values.max, values.avg)
+		resultStr = fmt.Sprintf("Всего игр: %v Максимально:%v Среднее:%v", values.games, values.max, values.avg)
 	}
 	return values, resultStr
 }
 
 func (d *Db) ReadAllGamesForScoresByDays() {
+	if d.conn == nil {
+		return
+	}
 	qry := "SELECT count() games,max(level)max,round( avg(level),2)average, strftime('%Y-%m-%d',datetime(dtBeg)) day FROM simple GROUP BY day;"
 	d.scoresData = make(ScoresData)
 	rows, err := d.conn.Query(qry)

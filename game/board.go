@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"log"
+	"math"
 	"math/rand"
 	"time"
 
@@ -32,11 +33,11 @@ type Board struct {
 	countCorrect, countWrong           int
 	dtBeg, dtEnd                       time.Time
 	moveStatus                         status
-	pref                               *Setting
-	theme                              *Theme
+	pref                               *ui.Preferences
+	theme                              *ui.Theme
 }
 
-func NewBoard(rect []int, pref *Setting, theme *Theme) *Board {
+func NewBoard(rect []int, pref *ui.Preferences, theme *ui.Theme) *Board {
 	rand.Seed(time.Now().UnixNano())
 	b := &Board{
 		rect:   ui.NewRect(rect),
@@ -44,7 +45,7 @@ func NewBoard(rect []int, pref *Setting, theme *Theme) *Board {
 		pref:   pref,
 		theme:  theme,
 	}
-	b.grid = ui.NewGridView(rect, 3, b.theme.GameBg, b.theme.GameFg)
+	b.grid = ui.NewGridView(rect, 3, (*b.theme)["game bg"], (*b.theme)["game fg"])
 	b.Add(b.grid)
 	b.field = b.initCells()
 	b.Resize(rect)
@@ -61,7 +62,7 @@ func (b *Board) Reset(gameCount, level int) {
 	b.level = level
 	b.moves = make([]int, 0)
 	b.move = 0
-	b.totalMoves = b.pref.TotalMoves(b.level)
+	b.totalMoves = TotalMoves(b.level)
 	b.arr = getArr(b.level, b.totalMoves, b.pref)
 	b.countCorrect, b.countWrong = 0, 0
 	b.dtBeg = time.Now()
@@ -109,7 +110,7 @@ func (b *Board) CheckMoveRegular() {
 			s += " analyze early"
 		}
 	}
-	if b.countWrong > 0 && b.pref.ResetOnFirstWrong {
+	if b.countWrong > 0 && (*b.pref)["reset on first wrong"].(bool) {
 		b.reset = true
 	}
 	b.userMoved = false
@@ -167,15 +168,15 @@ func (b *Board) getPercent() int {
 }
 
 func (b *Board) initCells() (field []*Cell) {
-	dim := b.pref.GridSize
-	cellBg := b.theme.GameBg
-	cellFg := b.theme.GameFg
-	cellActiveColor := b.theme.GameActiveColor
+	dim := (*b.pref)["grid size"].(int)
+	cellBg := (*b.theme)["game bg"]
+	cellFg := (*b.theme)["game fg"]
+	cellActiveColor := (*b.theme)["game active color"]
 	for i := 0; i < dim*dim; i++ {
 		isCenter := false
 		aX := i % dim
 		aY := i / dim
-		if aX == dim/2 && aY == dim/2 && !b.pref.Usecentercell && dim%2 != 0 {
+		if aX == dim/2 && aY == dim/2 && !(*b.pref)["use center cell"].(bool) && dim%2 != 0 {
 			isCenter = true
 		}
 		cell := NewCell([]int{0, 0, 1, 1}, isCenter, cellBg, cellFg, cellActiveColor)
@@ -214,7 +215,7 @@ func (b *Board) Resize(rect []int) {
 }
 
 func (b *Board) resizeCells() {
-	dim := b.pref.GridSize
+	dim := (*b.pref)["grid size"].(int)
 	x, y := b.rect.Pos()
 	cellSize, _ := b.rect.Size()
 	cellSize /= dim
@@ -225,4 +226,10 @@ func (b *Board) resizeCells() {
 		cellY := aY*cellSize + y
 		b.field[i].Resize([]int{cellX, cellY, cellSize, cellSize})
 	}
+}
+
+func TotalMoves(level int) int {
+	return (*ui.GetPreferences())["trials"].(int) +
+		(*ui.GetPreferences())["trials factor"].(int)*
+			int(math.Pow(float64(level), float64((*ui.GetPreferences())["trials exponent"].(int))))
 }

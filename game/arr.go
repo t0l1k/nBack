@@ -4,9 +4,11 @@ import (
 	"log"
 	"math/rand"
 	"time"
+
+	"github.com/t0l1k/nBack/ui"
 )
 
-func getArr(level, moves int, pref *Setting) (arr []int) {
+func getArr(level, moves int, pref *ui.Preferences) (arr []int) {
 	start := time.Now()
 	pause := 3
 	count := 0
@@ -33,19 +35,19 @@ func getArr(level, moves int, pref *Setting) (arr []int) {
 	return arr
 }
 
-func genArr(moves int, pref *Setting) (a []int) {
-	dim := pref.GridSize
+func genArr(moves int, pref *ui.Preferences) (a []int) {
+	dim := (*pref)["grid size"].(int)
 	for len(a) < moves {
 		num := rand.Intn((dim * dim) - 1)
-		if num != (dim*dim-1)/2 && !pref.Usecentercell || pref.Usecentercell {
+		if num != (dim*dim-1)/2 && !(*pref)["use center cell"].(bool) || (*pref)["use center cell"].(bool) {
 			a = append(a, num)
 		}
 	}
 	return a
 }
 
-func checkRR(a []int, level int, pref *Setting) (bool, int) {
-	RR := pref.RR
+func checkRR(a []int, level int, pref *ui.Preferences) (bool, int) {
+	RR := (*pref)["random repition"].(float64)
 	count := 0
 	for i, v := range a {
 		nextMove := i + level

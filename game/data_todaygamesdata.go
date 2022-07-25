@@ -7,6 +7,8 @@ import (
 	"math"
 	"sort"
 	"time"
+
+	"github.com/t0l1k/nBack/ui"
 )
 
 type TodayGamesData map[int]*GameData
@@ -102,7 +104,7 @@ func (t *TodayGamesData) getWinCountInManual() (bool, bool, int) {
 	}
 	sort.Ints(keys)
 	count := 0
-	adv := getPreferences().ManualAdv
+	adv := (*ui.GetPreferences())["manual advance"].(int)
 	lastLvl := getDb().todayData[len(keys)].level
 	ok := false
 	for i := len(keys); i > 0; i-- {

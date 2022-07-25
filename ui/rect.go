@@ -4,6 +4,18 @@ import (
 	"fmt"
 )
 
+type Point struct {
+	X, Y float64
+}
+
+func (p Point) Get() (float64, float64) {
+	return p.X, p.Y
+}
+
+func (p Point) String() string {
+	return fmt.Sprintf("[%.2f, %.2f]", p.X, p.Y)
+}
+
 type Rect struct {
 	X, Y, W, H int
 }
@@ -44,11 +56,11 @@ func (r Rect) Bottom() int {
 	return r.Y + r.H
 }
 func (r Rect) CenterX() int {
-	return (r.W - r.X) / 2
+	return (r.Right() - r.X) / 2
 }
 
 func (r Rect) CenterY() int {
-	return (r.H - r.Y) / 2
+	return (r.Bottom() - r.Y) / 2
 }
 func (r Rect) Center() (int, int) {
 	return r.CenterX(), r.CenterY()

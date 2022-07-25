@@ -49,16 +49,16 @@ func NewSceneScore() *SceneScore {
 		scorePeriod: all,
 	}
 	rect := []int{0, 0, 1, 1}
-	s.btnQuit = ui.NewButton("<", rect, getTheme().CorrectColor, getTheme().Fg, func(b *ui.Button) { getApp().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Pop() })
 	s.Add(s.btnQuit)
 	s.name = fmt.Sprintf("Games for the period %v", s.scorePeriod)
-	s.lblName = ui.NewLabel(s.name, rect, getTheme().CorrectColor, getTheme().Fg)
+	s.lblName = ui.NewLabel(s.name, rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblName)
-	s.lblPeriodResult = ui.NewLabel(getDb().todayData.String(), rect, getTheme().CorrectColor, getTheme().Fg)
+	s.lblPeriodResult = ui.NewLabel(getDb().todayData.String(), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblPeriodResult)
 	s.plotScore = NewScorePlot(rect)
 	s.Add(s.plotScore)
-	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getTheme().CorrectColor, getTheme().Fg)
+	s.lblDt = ui.NewLabel("up: 00:00 ", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblDt)
 	return s
 }
@@ -76,12 +76,12 @@ func (s *SceneScore) Add(item ui.Drawable) {
 }
 
 func (s *SceneScore) Update(dt int) {
-	s.lblDt.SetText(getApp().updateUpTime())
+	s.lblDt.SetText(ui.GetApp().UpdateUpTime())
 	for _, value := range s.container {
 		value.Update(dt)
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
-		getApp().Push(NewSceneGame())
+		ui.GetApp().Push(NewSceneGame())
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyP) {
 		s.scorePeriod++
@@ -99,7 +99,7 @@ func (s *SceneScore) Draw(surface *ebiten.Image) {
 }
 
 func (s *SceneScore) Resize() {
-	w, h := getApp().GetScreenSize()
+	w, h := ui.GetApp().GetScreenSize()
 	s.rect = ui.NewRect([]int{0, 0, w, h})
 	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)*0.05)
 	s.btnQuit.Resize([]int{x, y, w, h})

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"image/color"
 	"time"
+
+	"github.com/t0l1k/nBack/ui"
 )
 
 type GameData struct {
@@ -14,16 +16,16 @@ type GameData struct {
 
 func (d *GameData) NextLevel() (int, int, string) {
 	motiv := ""
-	manual := getPreferences().Manual
-	adv := getPreferences().ThresholdAdvance
-	fall := getPreferences().ThresholdFallback
+	manual := (*ui.GetPreferences())["manual mode"].(bool)
+	adv := (*ui.GetPreferences())["threshold advance"].(int)
+	fall := (*ui.GetPreferences())["threshold fallback"].(int)
 	level := d.level
 	lives := d.lives
 	if manual {
 		win, ok, count := getDb().todayData.getWinCountInManual()
 		if !win && !ok {
 			motiv = "Manual game mode. Level default."
-			level = getPreferences().DefaultLevel
+			level = (*ui.GetPreferences())["default level"].(int)
 			lives = count
 		} else if !win && ok {
 			motiv = "Manual game mode. Good result! One more time this level!"
@@ -35,7 +37,7 @@ func (d *GameData) NextLevel() (int, int, string) {
 		}
 	} else if d.percent >= adv {
 		level += 1
-		lives = getPreferences().ThresholdFallbackSessions
+		lives = (*ui.GetPreferences())["threshold fallback sessions"].(int)
 		motiv = "Classic game mode. Excellent result! Level up!"
 	} else if d.percent >= fall && d.percent < adv {
 		motiv = "Classic game mode. Good result! One more time this level!"
@@ -44,7 +46,7 @@ func (d *GameData) NextLevel() (int, int, string) {
 			motiv = "Classic game mode. Let's improve the results! Level down!"
 			if level > 1 {
 				level -= 1
-				lives = getPreferences().ThresholdFallbackSessions
+				lives = (*ui.GetPreferences())["threshold fallback sessions"].(int)
 			}
 		} else if lives > 1 {
 			motiv = "Classic game mode. Let's improve the results! Let's have an extra try!"
@@ -55,13 +57,13 @@ func (d *GameData) NextLevel() (int, int, string) {
 }
 
 func (d GameData) BgColor() (result color.Color) {
-	theme := getTheme()
-	colorRegular := theme.RegularColor
-	colorCorrect := theme.CorrectColor
-	colorError := theme.ErrorColor
-	colorWarning := theme.WarningColor
-	adv := getPreferences().ThresholdAdvance
-	fall := getPreferences().ThresholdFallback
+	theme := ui.GetTheme()
+	colorRegular := (*theme)["regular color"]
+	colorCorrect := (*theme)["correct color"]
+	colorError := (*theme)["error color"]
+	colorWarning := (*theme)["warning color"]
+	adv := (*ui.GetPreferences())["threshold advance"].(int)
+	fall := (*ui.GetPreferences())["threshold fallback"].(int)
 	if d.percent >= adv {
 		result = colorRegular
 	} else if d.percent >= fall && d.percent < adv {
@@ -105,7 +107,7 @@ func (q GameData) String() string {
 		q.wrong,
 		q.moves,
 		dStr)
-	if getPreferences().ResetOnFirstWrong {
+	if (*ui.GetPreferences())["reset on first wrong"].(bool) {
 		ss = fmt.Sprintf("#%v nB%v %v%% correct:%v wrong:%v moves:(%v/%v) [%v]",
 			getDb().todayGamesCount,
 			q.level,

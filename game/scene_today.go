@@ -24,32 +24,32 @@ func NewSceneToday() *SceneToday {
 		rect: ui.NewRect([]int{0, 0, 1, 1}),
 	}
 	rect := []int{0, 0, 1, 1}
-	s.btnStart = ui.NewButton("Play", rect, getTheme().GameActiveColor, getTheme().GameBg, func(b *ui.Button) { getApp().Push(NewSceneGame()) })
+	s.btnStart = ui.NewButton("Play", rect, (*ui.GetTheme())["game active color"], (*ui.GetTheme())["game bg"], func(b *ui.Button) { ui.GetApp().Push(NewSceneGame()) })
 	s.Add(s.btnStart)
-	s.btnScore = ui.NewButton("Score", rect, getTheme().ErrorColor, getTheme().Fg, func(b *ui.Button) { getApp().Push(NewSceneScore()) })
+	s.btnScore = ui.NewButton("Score", rect, (*ui.GetTheme())["error color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Push(NewSceneScore()) })
 	s.Add(s.btnScore)
-	s.btnQuit = ui.NewButton("<", rect, getTheme().CorrectColor, getTheme().Fg, func(b *ui.Button) { getApp().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Pop() })
 	s.Add(s.btnQuit)
 	s.name = "N-Back"
-	s.lblName = ui.NewLabel(s.name, rect, getTheme().CorrectColor, getTheme().Fg)
+	s.lblName = ui.NewLabel(s.name, rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblName)
-	s.lblPeriodResult = ui.NewLabel(getDb().todayData.String(), rect, getTheme().CorrectColor, getTheme().Fg)
+	s.lblPeriodResult = ui.NewLabel(getDb().todayData.String(), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblPeriodResult)
-	s.lblDt = ui.NewLabel("up: 00:00 ", rect, getTheme().CorrectColor, getTheme().Fg)
+	s.lblDt = ui.NewLabel("up: 00:00 ", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblDt)
-	s.lblsResult = ui.NewList(nil, nil, rect, getTheme().Bg, getTheme().Fg, s.getRows())
+	s.lblsResult = ui.NewList(nil, nil, rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], s.getRows())
 	s.Add(s.lblsResult)
-	s.lblHelper = ui.NewLabel("Press <SPACE> to start the game,<P> plot, <S> score,<F11> toggle fullscreen, <O> Options, <Esc> quit", rect, getTheme().CorrectColor, getTheme().Fg)
+	s.lblHelper = ui.NewLabel("Press <SPACE> to start the game,<P> plot, <S> score,<F11> toggle fullscreen, <O> Options, <Esc> quit", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblHelper)
 	s.plotResult = NewResultPlot(rect)
 	s.plotResult.Visibe = false
 	s.Add(s.plotResult)
 	s.toggleResults = false
-	s.btnPlot = ui.NewButton("{P}", rect, getTheme().CorrectColor, getTheme().Fg, func(b *ui.Button) { s.togglePlot() })
+	s.btnPlot = ui.NewButton("{P}", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { s.togglePlot() })
 	s.Add(s.btnPlot)
-	s.btnFullScreen = ui.NewButton("[ ]", rect, getTheme().RegularColor, getTheme().Fg, func(b *ui.Button) { getApp().toggleFullscreen() })
+	s.btnFullScreen = ui.NewButton("[ ]", rect, (*ui.GetTheme())["regular color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().ToggleFullscreen() })
 	s.Add(s.btnFullScreen)
-	s.btnOpt = ui.NewButton("Options", rect, getTheme().WarningColor, getTheme().Fg, func(b *ui.Button) { getApp().Push(NewSceneOptions()) })
+	s.btnOpt = ui.NewButton("Options", rect, (*ui.GetTheme())["warning color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Push(NewSceneOptions()) })
 	s.Add(s.btnOpt)
 	return s
 }
@@ -66,21 +66,21 @@ func (s *SceneToday) Add(item ui.Drawable) {
 	s.container = append(s.container, item)
 }
 func (s *SceneToday) Update(dt int) {
-	s.lblDt.SetText(getApp().updateUpTime())
+	s.lblDt.SetText(ui.GetApp().UpdateUpTime())
 	for _, value := range s.container {
 		value.Update(dt)
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
-		getApp().Push(NewSceneGame())
+		ui.GetApp().Push(NewSceneGame())
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyP) {
 		s.togglePlot()
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyS) {
-		getApp().Push(NewSceneScore())
+		ui.GetApp().Push(NewSceneScore())
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyO) {
-		getApp().Push(NewSceneOptions())
+		ui.GetApp().Push(NewSceneOptions())
 	}
 }
 
@@ -104,7 +104,7 @@ func (s *SceneToday) Draw(surface *ebiten.Image) {
 }
 
 func (s *SceneToday) Resize() {
-	w, h := getApp().GetScreenSize()
+	w, h := ui.GetApp().GetScreenSize()
 	s.rect = ui.NewRect([]int{0, 0, w, h})
 	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)*0.05)
 	s.btnQuit.Resize([]int{x, y, w, h})

@@ -21,58 +21,58 @@ type SceneOptions struct {
 	optAdv, optFall, optFallSessions                                  *ui.Combobox
 	optTrials, optFactor, optExponent                                 *ui.Combobox
 	optTmNextCell, optTmShowCell                                      *ui.Combobox
-	newSets                                                           *Setting
+	newSets                                                           *ui.Preferences
 }
 
 func NewSceneOptions() *SceneOptions {
 	s := &SceneOptions{
-		rect:    ui.NewRect([]int{0, 0, 1, 1}),
-		newSets: getPreferences().Load(),
+		rect: ui.NewRect([]int{0, 0, 1, 1}),
 	}
+	s.newSets = LoadPreferences()
 	rect := []int{0, 0, 1, 1}
-	s.btnQuit = ui.NewButton("<", rect, getTheme().CorrectColor, getTheme().Fg, func(b *ui.Button) { getApp().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Pop() })
 	s.Add(s.btnQuit)
 	s.name = "N-Back Options"
-	s.lblName = ui.NewLabel(s.name, rect, getTheme().CorrectColor, getTheme().Fg)
+	s.lblName = ui.NewLabel(s.name, rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblName)
 	s.optTheme = NewOptTheme(rect)
 	s.Add(s.optTheme)
-	s.btnReset = ui.NewButton("Reset", rect, getTheme().CorrectColor, getTheme().Fg, s.Reset)
+	s.btnReset = ui.NewButton("Reset", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], s.Reset)
 	s.Add(s.btnReset)
-	s.btnApply = ui.NewButton("Apply", rect, getTheme().CorrectColor, getTheme().Fg, s.Apply)
+	s.btnApply = ui.NewButton("Apply", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], s.Apply)
 	s.Add(s.btnApply)
-	s.optFullScr = ui.NewCheckbox("Fullscreen on app start", rect, getTheme().Bg, getTheme().Fg, func(c *ui.Checkbox) {
-		s.newSets.FullScreen = s.optFullScr.Checked()
-		log.Printf("fullscreen checked: %v", s.newSets.FullScreen)
+	s.optFullScr = ui.NewCheckbox("Fullscreen on app start", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
+		(*s.newSets)["fullscreen"] = s.optFullScr.Checked()
+		log.Printf("fullscreen checked: %v", (*s.newSets)["fullscreen"].(bool))
 	})
 	s.Add(s.optFullScr)
-	s.optCenterCell = ui.NewCheckbox("Use center cell", rect, getTheme().Bg, getTheme().Fg, func(c *ui.Checkbox) {
-		s.newSets.Usecentercell = s.optCenterCell.Checked()
-		log.Printf("Use center cell: %v", s.newSets.Usecentercell)
+	s.optCenterCell = ui.NewCheckbox("Use center cell", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
+		(*s.newSets)["use center cell"] = s.optCenterCell.Checked()
+		log.Printf("Use center cell: %v", (*s.newSets)["use center cell"].(bool))
 	})
 	s.Add(s.optCenterCell)
-	s.optFeeback = ui.NewCheckbox("Feedback on move", rect, getTheme().Bg, getTheme().Fg, func(c *ui.Checkbox) {
-		s.newSets.FeedbackOnUserMove = s.optFeeback.Checked()
-		log.Printf("Feedback on mpve: %v", s.newSets.FeedbackOnUserMove)
+	s.optFeeback = ui.NewCheckbox("Feedback on move", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
+		(*s.newSets)["feedback on user move"] = s.optFeeback.Checked()
+		log.Printf("Feedback on mpve: %v", (*s.newSets)["feedback on user move"].(bool))
 	})
 	s.Add(s.optFeeback)
 
-	s.optResetOnWrong = ui.NewCheckbox("Reset on wrong", rect, getTheme().Bg, getTheme().Fg, func(c *ui.Checkbox) {
-		s.newSets.ResetOnFirstWrong = s.optResetOnWrong.Checked()
-		log.Printf("Reset on wrong: %v", s.newSets.ResetOnFirstWrong)
+	s.optResetOnWrong = ui.NewCheckbox("Reset on wrong", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
+		(*s.newSets)["reset on first wrong"] = s.optResetOnWrong.Checked()
+		log.Printf("Reset on wrong: %v", (*s.newSets)["reset on first wrong"].(bool))
 	})
 	s.Add(s.optResetOnWrong)
 
-	s.optManual = ui.NewCheckbox("Manual", rect, getTheme().Bg, getTheme().Fg, func(c *ui.Checkbox) {
-		s.newSets.Manual = s.optManual.Checked()
-		log.Printf("Manual: %v", s.newSets.Manual)
+	s.optManual = ui.NewCheckbox("Manual", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
+		(*s.newSets)["manual mode"] = s.optManual.Checked()
+		log.Printf("Manual: %v", (*s.newSets)["manual mode"].(bool))
 	})
 	s.Add(s.optManual)
 
 	data := []interface{}{2, 3, 4, 5}
 	idx := 1
-	s.optGridSize = ui.NewCombobox("Grid size", rect, getTheme().Bg, getTheme().Fg, data, idx, func(c *ui.Combobox) {
-		s.newSets.GridSize = s.optGridSize.Value().(int)
+	s.optGridSize = ui.NewCombobox("Grid size", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], data, idx, func(c *ui.Combobox) {
+		(*s.newSets)["grid size"] = s.optGridSize.Value().(int)
 		log.Println("Grid Size changed")
 	})
 	s.Add(s.optGridSize)
@@ -84,15 +84,15 @@ func NewSceneOptions() *SceneOptions {
 	)
 	for i, j = 5, 0; i < 50; i, j = i+0.5, j+1 {
 		rrData = append(rrData, i)
-		if i == s.newSets.RR {
+		if i == (*s.newSets)["random repition"].(float64) {
 			idx = j
 		}
 	}
-	s.optRR = ui.NewCombobox("Random Repition", rect, getTheme().Bg, getTheme().Fg, rrData, idx, func(c *ui.Combobox) { s.newSets.RR = s.optRR.Value().(float64) })
+	s.optRR = ui.NewCombobox("Random Repition", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], rrData, idx, func(c *ui.Combobox) { (*s.newSets)["random repition"] = s.optRR.Value().(float64) })
 	s.Add(s.optRR)
 
 	arrPauses := []interface{}{3, 5, 10, 15, 20, 30, 45, 60, 90, 180}
-	s.optPause = ui.NewCombobox("Pause after game", rect, getTheme().Bg, getTheme().Fg, arrPauses, 2, func(c *ui.Combobox) { s.newSets.PauseRest = s.optPause.Value().(int) })
+	s.optPause = ui.NewCombobox("Pause after game", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrPauses, 2, func(c *ui.Combobox) { (*s.newSets)["pause to rest"] = s.optPause.Value().(int) })
 	s.Add(s.optPause)
 
 	values, _ := getDb().ReadAllGamesScore()
@@ -104,19 +104,19 @@ func NewSceneOptions() *SceneOptions {
 	var arr []interface{}
 	for i := 1; i <= max; i++ {
 		arr = append(arr, i)
-		if s.newSets.DefaultLevel == i {
+		if (*s.newSets)["default level"] == i {
 			current = i - 1
 		}
 	}
-	s.optDefLevel = ui.NewCombobox("Default level", rect, getTheme().Bg, getTheme().Fg, arr, current, func(c *ui.Combobox) {
-		s.newSets.DefaultLevel = s.optDefLevel.Value().(int)
+	s.optDefLevel = ui.NewCombobox("Default level", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arr, current, func(c *ui.Combobox) {
+		(*s.newSets)["default level"] = s.optDefLevel.Value().(int)
 	})
 	s.Add(s.optDefLevel)
 
 	arrAdvManual := []interface{}{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	idx = 0
-	s.optManualAdv = ui.NewCombobox("Manual advance", rect, getTheme().Bg, getTheme().Fg, arrAdvManual, idx, func(b *ui.Combobox) {
-		s.newSets.ManualAdv = s.optManualAdv.Value().(int)
+	s.optManualAdv = ui.NewCombobox("Manual advance", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrAdvManual, idx, func(b *ui.Combobox) {
+		(*s.newSets)["manual advance"] = s.optManualAdv.Value().(int)
 	})
 	s.Add(s.optManualAdv)
 
@@ -124,101 +124,99 @@ func NewSceneOptions() *SceneOptions {
 		var arrAdv []interface{}
 		for i, j := 5, 0; i <= 100; i, j = i+5, j+1 {
 			arrAdv = append(arrAdv, i)
-			if s.newSets.ThresholdAdvance == int(i) {
+			if (*s.newSets)["threshold advance"] == int(i) {
 				idx = j
 			}
 		}
-		s.optAdv = ui.NewCombobox("Advance", rect, getTheme().Bg, getTheme().Fg, arrAdv, idx, func(b *ui.Combobox) { s.newSets.ThresholdAdvance = s.optAdv.Value().(int) })
+		s.optAdv = ui.NewCombobox("Advance", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrAdv, idx, func(b *ui.Combobox) { (*s.newSets)["threshold advance"] = s.optAdv.Value().(int) })
 		s.Add(s.optAdv)
 	}
 	{
 		var arrFall []interface{}
 		for i, j := 5, 0; i <= 100; i, j = i+5, j+1 {
 			arrFall = append(arrFall, i)
-			if s.newSets.ThresholdFallback == int(i) {
+			if (*s.newSets)["threshold fallback"].(int) == int(i) {
 				idx = j
 			}
 		}
-		s.optFall = ui.NewCombobox("Fallback", rect, getTheme().Bg, getTheme().Fg, arrFall, idx, func(b *ui.Combobox) { s.newSets.ThresholdFallback = s.optFall.Value().(int) })
+		s.optFall = ui.NewCombobox("Fallback", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrFall, idx, func(b *ui.Combobox) { (*s.newSets)["threshold fallback"] = s.optFall.Value().(int) })
 		s.Add(s.optFall)
 	}
 
 	arrFallSessions := []interface{}{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	idx = 3
-	s.optFallSessions = ui.NewCombobox("Fallback sessions", rect, getTheme().Bg, getTheme().Fg, arrFallSessions, idx, func(b *ui.Combobox) { s.newSets.ThresholdFallbackSessions = s.optFallSessions.Value().(int) })
+	s.optFallSessions = ui.NewCombobox("Fallback sessions", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrFallSessions, idx, func(b *ui.Combobox) { (*s.newSets)["threshold fallback sessions"] = s.optFallSessions.Value().(int) })
 	s.Add(s.optFallSessions)
 
 	arrTrials := []interface{}{5, 10, 20, 30, 50}
 	idx = 0
-	s.optTrials = ui.NewCombobox("Trials", rect, getTheme().Bg, getTheme().Fg, arrTrials, idx, func(b *ui.Combobox) { s.newSets.Trials = s.optTrials.Value().(int) })
+	s.optTrials = ui.NewCombobox("Trials", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrTrials, idx, func(b *ui.Combobox) { (*s.newSets)["trials"] = s.optTrials.Value().(int) })
 	s.Add(s.optTrials)
 
 	arrFactor := []interface{}{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	idx = 0
-	s.optFactor = ui.NewCombobox("Factor", rect, getTheme().Bg, getTheme().Fg, arrFactor, idx, func(b *ui.Combobox) { s.newSets.TrialsFactor = s.optFactor.Value().(int) })
+	s.optFactor = ui.NewCombobox("Factor", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrFactor, idx, func(b *ui.Combobox) { (*s.newSets)["trials factor"] = s.optFactor.Value().(int) })
 	s.Add(s.optFactor)
 
 	arrExp := []interface{}{1, 2, 3}
 	idx = 1
-	s.optExponent = ui.NewCombobox("Exponent", rect, getTheme().Bg, getTheme().Fg, arrExp, idx, func(b *ui.Combobox) { s.newSets.TrialsExponent = s.optExponent.Value().(int) })
+	s.optExponent = ui.NewCombobox("Exponent", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrExp, idx, func(b *ui.Combobox) { (*s.newSets)["trials exponent"] = s.optExponent.Value().(int) })
 	s.Add(s.optExponent)
 
 	var arrTimeNextCell []interface{}
 	for i, j = 1.5, 0; i <= 5; i, j = i+0.5, j+1 {
 		arrTimeNextCell = append(arrTimeNextCell, i)
-		if s.newSets.TimeToNextCell == i {
+		if (*s.newSets)["time to next cell"].(float64) == i {
 			idx = j
 		}
 	}
-	s.optTmNextCell = ui.NewCombobox("Time to next cell", rect, getTheme().Bg, getTheme().Fg, arrTimeNextCell, idx, func(b *ui.Combobox) {
-		s.newSets.TimeToNextCell = s.optTmNextCell.Value().(float64)
+	s.optTmNextCell = ui.NewCombobox("Time to next cell", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrTimeNextCell, idx, func(b *ui.Combobox) {
+		(*s.newSets)["time to next cell"] = s.optTmNextCell.Value().(float64)
 	})
 	s.Add(s.optTmNextCell)
 
 	arrShow := []interface{}{0.5, 1.0}
 	idx = 0
-	s.optTmShowCell = ui.NewCombobox("Time to show cell", rect, getTheme().Bg, getTheme().Fg, arrShow, idx, func(b *ui.Combobox) { s.newSets.TimeShowCell = s.optTmShowCell.Value().(float64) })
+	s.optTmShowCell = ui.NewCombobox("Time to show cell", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrShow, idx, func(b *ui.Combobox) { (*s.newSets)["time to show cell"] = s.optTmShowCell.Value().(float64) })
 	s.Add(s.optTmShowCell)
 	return s
 }
 
-func (s *SceneOptions) Setup() {
-	sets := getPreferences().Load()
-	s.optFullScr.SetChecked(sets.FullScreen)
-	s.optCenterCell.SetChecked(sets.Usecentercell)
-	s.optFeeback.SetChecked(sets.FeedbackOnUserMove)
-	s.optResetOnWrong.SetChecked(sets.ResetOnFirstWrong)
-	s.optManual.SetChecked(sets.Manual)
-	s.optRR.SetValue(sets.RR)
-	s.optPause.SetValue(sets.PauseRest)
-	s.optGridSize.SetValue(sets.GridSize)
-	s.optDefLevel.SetValue(sets.DefaultLevel)
-	s.optManualAdv.SetValue(sets.ManualAdv)
-	s.optAdv.SetValue(sets.ThresholdAdvance)
-	s.optFall.SetValue(sets.ThresholdFallback)
-	s.optFallSessions.SetValue(sets.ThresholdFallbackSessions)
-	s.optTrials.SetValue(sets.Trials)
-	s.optFactor.SetValue(sets.TrialsFactor)
-	s.optExponent.SetValue(sets.TrialsExponent)
-	s.optTmNextCell.SetValue(sets.TimeToNextCell)
-	s.optTmShowCell.SetValue(sets.TimeShowCell)
+func (s *SceneOptions) Setup(sets *ui.Preferences) {
+	s.optFullScr.SetChecked((*sets)["fullscreen"].(bool))
+	s.optCenterCell.SetChecked((*sets)["use center cell"].(bool))
+	s.optFeeback.SetChecked((*sets)["feedback on user move"].(bool))
+	s.optResetOnWrong.SetChecked((*sets)["reset on first wrong"].(bool))
+	s.optManual.SetChecked((*sets)["manual mode"].(bool))
+	s.optRR.SetValue((*sets)["random repition"].(float64))
+	s.optPause.SetValue((*sets)["pause to rest"].(int))
+	s.optGridSize.SetValue((*sets)["grid size"].(int))
+	s.optDefLevel.SetValue((*sets)["default level"].(int))
+	s.optManualAdv.SetValue((*sets)["manual advance"].(int))
+	s.optAdv.SetValue((*sets)["threshold advance"].(int))
+	s.optFall.SetValue((*sets)["threshold fallback"].(int))
+	s.optFallSessions.SetValue((*sets)["threshold fallback sessions"].(int))
+	s.optTrials.SetValue((*sets)["trials"].(int))
+	s.optFactor.SetValue((*sets)["trials factor"].(int))
+	s.optExponent.SetValue((*sets)["trials exponent"].(int))
+	s.optTmNextCell.SetValue((*sets)["time to next cell"].(float64))
+	s.optTmShowCell.SetValue((*sets)["time to show cell"].(float64))
 }
 
 func (s *SceneOptions) Reset(b *ui.Button) {
-	getPreferences().Reset()
-	s.Setup()
+	s.Setup(NewPref())
 	log.Println("Reset All Options to Defaults")
 }
 
 func (s *SceneOptions) Apply(b *ui.Button) {
-	sets := getPreferences().Apply(s.newSets)
+	sets := ApplyPreferences(s.newSets)
 	getDb().InsertSettings(sets)
 	log.Println("Apply Settings")
-	getApp().Pop()
+	ui.GetApp().Pop()
 }
 
 func (s *SceneOptions) Entered() {
-	s.Setup()
+	s.Setup(LoadPreferences())
 	s.Resize()
 	log.Println("Entered SceneOptions")
 }
@@ -234,14 +232,14 @@ func (s *SceneOptions) Update(dt int) {
 }
 
 func (s *SceneOptions) Draw(surface *ebiten.Image) {
-	surface.Fill(getTheme().GameBg)
+	surface.Fill((*ui.GetTheme())["game bg"])
 	for _, value := range s.container {
 		value.Draw(surface)
 	}
 }
 
 func (s *SceneOptions) Resize() {
-	w, h := getApp().GetScreenSize()
+	w, h := ui.GetApp().GetScreenSize()
 	s.rect = ui.NewRect([]int{0, 0, w, h})
 	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)*0.05)
 	s.btnQuit.Resize([]int{x, y, w, h})
