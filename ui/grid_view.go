@@ -22,7 +22,7 @@ func NewGridView(rect []int, spacing int, bg, fg color.Color) *GridView {
 		Image:    nil,
 		Dirty:    true,
 		Visibe:   false,
-		DrawRect: true,
+		DrawRect: false,
 		bg:       bg,
 		fg:       fg}
 }
@@ -33,7 +33,7 @@ func (g *GridView) Layout() *ebiten.Image {
 	}
 	w, h := g.rect.Size()
 	image := ebiten.NewImage(w, h)
-	spacing := int(g.rect.GetLowestSize()/g.spacing + 1)
+	spacing := int(g.rect.GetLowestSize() / g.spacing)
 	if g.DrawRect {
 		ebitenutil.DrawRect(image, 0, 0, float64(w), float64(h), g.fg)
 		ebitenutil.DrawRect(image, 2, 2, float64(w)-4, float64(h)-4, g.bg)
@@ -41,7 +41,7 @@ func (g *GridView) Layout() *ebiten.Image {
 	for y := spacing; y <= g.rect.H; y += spacing {
 		ebitenutil.DrawLine(image, 0, float64(y), float64(g.rect.W), float64(y), g.fg)
 	}
-	for x := spacing; x <= g.rect.W; x += spacing {
+	for x := spacing; x <= g.rect.W-spacing; x += spacing {
 		ebitenutil.DrawLine(image, float64(x), 0, float64(x), float64(g.rect.H), g.fg)
 	}
 	g.Dirty = false

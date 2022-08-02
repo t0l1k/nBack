@@ -62,6 +62,8 @@ func NewPref() *ui.Preferences {
 	p["reset on first wrong"] = true
 	p["random repition"] = 12.5 // Random Repition
 	p["use center cell"] = false
+	p["show grid"] = true
+	p["show crosshair"] = true
 	p["feedback on user move"] = true
 	p["grid size"] = 3
 	p["pause to rest"] = 5
@@ -69,16 +71,22 @@ func NewPref() *ui.Preferences {
 	return &p
 }
 
+var (
+	black    = color.RGBA{0, 0, 0, 255}
+	white    = color.RGBA{255, 255, 255, 255}
+	gray     = color.RGBA{192, 192, 192, 255}
+	darkBlue = color.RGBA{64, 0, 128, 255}
+	magenta  = color.RGBA{255, 0, 255, 255}
+	blue     = color.RGBA{0, 0, 255, 255}
+	green    = color.RGBA{0, 192, 0, 255}
+	yellow   = color.RGBA{255, 255, 0, 255}
+	orange   = color.RGBA{255, 165, 0, 255}
+	red      = color.RGBA{255, 0, 0, 255}
+)
+var colors = []color.Color{red, orange, yellow, green, blue, magenta, darkBlue, gray, white}
+
 func NewTheme() *ui.Theme {
 	theme := ui.NewTheme()
-	black := color.RGBA{0, 0, 0, 255}
-	white := color.RGBA{255, 255, 255, 255}
-	gray := color.RGBA{192, 192, 192, 255}
-	yellow := color.RGBA{255, 255, 0, 255}
-	blue := color.RGBA{0, 0, 192, 255}
-	green := color.RGBA{0, 192, 0, 255}
-	orange := color.RGBA{255, 165, 0, 255}
-	red := color.RGBA{255, 0, 0, 255}
 	theme.Set("bg", gray)
 	theme.Set("fg", white)
 	theme.Set("game bg", black)

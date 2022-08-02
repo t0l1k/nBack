@@ -26,7 +26,7 @@ func NewCell(rect []int, isCenter bool, bg, fg, activeColor color.Color) *Cell {
 		Visibe:      false,
 		DrawRect:    true,
 		Active:      false,
-		margin:      0.1,
+		margin:      0.05,
 		bg:          bg,
 		fg:          fg,
 		activeColor: activeColor,
@@ -42,8 +42,6 @@ func (c *Cell) Layout() *ebiten.Image {
 	}
 	m := float64(w) * c.margin
 	if c.DrawRect {
-		ebitenutil.DrawRect(image, 0, 0, float64(w), float64(h), c.fg)
-		ebitenutil.DrawRect(image, 2, 2, float64(w)-4, float64(h)-4, c.bg)
 		ebitenutil.DrawRect(image, m, m, float64(w)-m*2, float64(h)-m*2, bg)
 
 	}
@@ -59,6 +57,15 @@ func (c *Cell) Layout() *ebiten.Image {
 	c.Dirty = false
 	return image
 }
+
+func (c *Cell) SetActiveColor(value color.Color) {
+	if c.activeColor == value {
+		return
+	}
+	c.activeColor = value
+	c.Dirty = true
+}
+
 func (c *Cell) SetActive(value bool) {
 	c.Active = value
 	c.Dirty = true

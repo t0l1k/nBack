@@ -16,6 +16,7 @@ type SceneOptions struct {
 	optTheme                                                          *OptTheme
 	btnReset, btnApply                                                *ui.Button
 	optFullScr, optCenterCell, optFeeback, optResetOnWrong, optManual *ui.Checkbox
+	optShowGrid, optShowCross                                         *ui.Checkbox
 	optRR, optPause                                                   *ui.Combobox
 	optGridSize, optDefLevel, optManualAdv                            *ui.Combobox
 	optAdv, optFall, optFallSessions                                  *ui.Combobox
@@ -68,6 +69,18 @@ func NewSceneOptions() *SceneOptions {
 		log.Printf("Manual: %v", (*s.newSets)["manual mode"].(bool))
 	})
 	s.Add(s.optManual)
+
+	s.optShowGrid = ui.NewCheckbox("Show Grid", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
+		(*s.newSets)["show grid"] = s.optShowGrid.Checked()
+		log.Printf("Show Grid: %v", (*s.newSets)["show grid"].(bool))
+	})
+	s.Add(s.optShowGrid)
+
+	s.optShowCross = ui.NewCheckbox("Show Crosshair", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
+		(*s.newSets)["show crosshair"] = s.optShowCross.Checked()
+		log.Printf("Show crosshair: %v", (*s.newSets)["show crosshair"].(bool))
+	})
+	s.Add(s.optShowCross)
 
 	data := []interface{}{2, 3, 4, 5}
 	idx := 1
@@ -188,6 +201,8 @@ func (s *SceneOptions) Setup(sets *ui.Preferences) {
 	s.optFeeback.SetChecked((*sets)["feedback on user move"].(bool))
 	s.optResetOnWrong.SetChecked((*sets)["reset on first wrong"].(bool))
 	s.optManual.SetChecked((*sets)["manual mode"].(bool))
+	s.optShowGrid.SetChecked((*sets)["show grid"].(bool))
+	s.optShowCross.SetChecked((*sets)["show crosshair"].(bool))
 	s.optRR.SetValue((*sets)["random repition"].(float64))
 	s.optPause.SetValue((*sets)["pause to rest"].(int))
 	s.optGridSize.SetValue((*sets)["grid size"].(int))
@@ -314,6 +329,14 @@ func (s *SceneOptions) Resize() {
 	x = int(h2 * 1.1)
 	rect = []int{x, y, int(h2), cellHeight}
 	s.optTmShowCell.Resize(rect)
+
+	x, y = 0, int(float64(cellHeight)*9.6)
+	h2 = float64(cellWidth) / 2.1
+	rect = []int{x, y, int(h2), cellHeight}
+	s.optShowGrid.Resize(rect)
+	x = int(h2 * 1.1)
+	rect = []int{x, y, int(h2), cellHeight}
+	s.optShowCross.Resize(rect)
 }
 
 func (s *SceneOptions) Quit() {}

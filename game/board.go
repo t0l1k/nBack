@@ -45,8 +45,12 @@ func NewBoard(rect []int, pref *ui.Preferences, theme *ui.Theme) *Board {
 		pref:   pref,
 		theme:  theme,
 	}
-	b.grid = ui.NewGridView(rect, 3, (*b.theme)["game bg"], (*b.theme)["game fg"])
-	b.Add(b.grid)
+	if b.pref.Get("show grid").(bool) {
+		fmt.Println("show grid", b.pref.Get("show grid"))
+		gridSz := b.pref.Get("grid size").(int)
+		b.grid = ui.NewGridView(rect, gridSz, (*b.theme)["game bg"], (*b.theme)["game fg"])
+		b.Add(b.grid)
+	}
 	b.field = b.initCells()
 	b.Resize(rect)
 	return b
@@ -56,7 +60,9 @@ func (b *Board) Reset(gameCount, level int) {
 	b.inGame = true
 	b.reset = false
 	b.userMoved = false
-	b.grid.Visibe = true
+	if b.pref.Get("show grid").(bool) {
+		b.grid.Visibe = true
+	}
 	b.setFieldVisible(true)
 	b.gameCount = gameCount
 	b.level = level
@@ -121,7 +127,9 @@ func (b *Board) MakeMove() {
 	if b.move == b.totalMoves || b.reset {
 		b.inGame = false
 		b.CheckMoveRegular()
-		b.grid.Visibe = false
+		if b.pref.Get("show grid").(bool) {
+			b.grid.Visibe = false
+		}
 		b.setFieldVisible(false)
 		b.dtEnd = time.Now()
 		return
@@ -172,11 +180,12 @@ func (b *Board) initCells() (field []*Cell) {
 	cellBg := (*b.theme)["game bg"]
 	cellFg := (*b.theme)["game fg"]
 	cellActiveColor := (*b.theme)["game active color"]
+	showCrossHair := b.pref.Get("show crosshair").(bool)
 	for i := 0; i < dim*dim; i++ {
 		isCenter := false
 		aX := i % dim
 		aY := i / dim
-		if aX == dim/2 && aY == dim/2 && !(*b.pref)["use center cell"].(bool) && dim%2 != 0 {
+		if aX == dim/2 && aY == dim/2 && !(*b.pref)["use center cell"].(bool) && dim%2 != 0 && showCrossHair {
 			isCenter = true
 		}
 		cell := NewCell([]int{0, 0, 1, 1}, isCenter, cellBg, cellFg, cellActiveColor)
@@ -210,7 +219,9 @@ func (b *Board) String() string {
 
 func (b *Board) Resize(rect []int) {
 	b.rect = ui.NewRect(rect)
-	b.grid.Resize(rect)
+	if b.pref.Get("show grid").(bool) {
+		b.grid.Resize(rect)
+	}
 	b.resizeCells()
 }
 
