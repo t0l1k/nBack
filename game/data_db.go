@@ -33,6 +33,11 @@ func getDb() (db *Db) {
 }
 
 func (d *Db) Setup() {
+	d.createGamesTable()
+	d.createSettingsTable()
+}
+
+func (d *Db) createGamesTable() {
 	var err error
 	d.conn, err = sql.Open("sqlite3", "games.db")
 	if err != nil {
@@ -44,13 +49,19 @@ func (d *Db) Setup() {
 		panic(err)
 	}
 	cur.Exec()
+	cur.Close()
+	log.Println("Created table for games.")
+}
 
+func (d *Db) createSettingsTable() {
 	var createSettingsDB string = "CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY AUTOINCREMENT,timetonextcell REAL, timeshowcell REAL, rr REAL, level INTEGER, manualadv INTEGER,manual INTEGER, thresholdadv INTEGER, thresholdfall INTEGER, threshholssessions INTEGER, trials INTEGER, factor INTEGER, exponent INTEGER, feedbackmove INTEGER, usecenter INTEGER, resetonwrong INTEGER, fullscreen INTEGER, pauserest INTEGER, grid INTEGER, showgrid INTEGER,showcrosshair INTEGER)"
-	cur, err = d.conn.Prepare(createSettingsDB)
+	cur, err := d.conn.Prepare(createSettingsDB)
 	if err != nil {
 		panic(err)
 	}
 	cur.Exec()
+	cur.Close()
+	log.Println("Created table for settings.")
 }
 
 func (d *Db) InsertSettings(values *ui.Preferences) {
@@ -68,7 +79,8 @@ func (d *Db) InsertSettings(values *ui.Preferences) {
 	insStr := "INSERT INTO settings(timetonextcell, timeshowcell, rr, level, manualadv, manual, thresholdadv, thresholdfall, threshholssessions, trials, factor, exponent, feedbackmove, usecenter, resetonwrong, fullscreen, pauserest, grid, showgrid, showcrosshair) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	cur, err = d.conn.Prepare(insStr)
 	if err != nil {
-		log.Println("Error in DB:", insStr, values)
+		log.Println("Error insert settings in DB:", insStr, values)
+		d.dropSettingsTable()
 		panic(err)
 	}
 	cur.Exec(
@@ -93,6 +105,18 @@ func (d *Db) InsertSettings(values *ui.Preferences) {
 		(*values)["show grid"].(bool),
 		(*values)["show crosshair"].(bool))
 	log.Println("DB: Inserted settings.")
+}
+
+func (d *Db) dropSettingsTable() {
+	log.Println("Old settings found in db!")
+	var createSettingsDB string = "DROP TABLE settings;"
+	cur, err := d.conn.Prepare(createSettingsDB)
+	if err != nil {
+		panic(err)
+	}
+	cur.Exec()
+	cur.Close()
+	log.Println("Drop table settings done.")
 }
 
 func (d *Db) ReadSettings() (values *ui.Preferences) {
@@ -150,7 +174,8 @@ func (d *Db) ReadSettings() (values *ui.Preferences) {
 			&shch,
 		)
 		if err != nil && err != sql.ErrNoRows {
-			panic(err)
+			d.dropSettingsTable()
+			return nil
 		}
 		v.Set("time to next cell", tmnc)
 		v.Set("time to show cell", tmsnc)
