@@ -54,6 +54,8 @@ func (c *Combobox) Layout() *ebiten.Image {
 		result = strconv.Itoa(value)
 	case float64:
 		result = fmt.Sprintf("%.1f", value)
+	case string:
+		result = fmt.Sprintf("%v", value)
 	}
 	lblValue := NewLabel(result, []int{0, 0, boxHeight, h}, c.bg, c.fg)
 	x, y, w, h = boxHeight+m, m, boxHeight-m*2, (boxHeight-m*2)/2

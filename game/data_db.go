@@ -43,7 +43,7 @@ func (d *Db) createGamesTable() {
 	if err != nil {
 		panic(err)
 	}
-	var createGameDB string = "CREATE TABLE IF NOT EXISTS simple(id INTEGER PRIMARY KEY AUTOINCREMENT,dtBeg TEXT, dtEnd TEXT, level INTEGER, lives INTEGER, percent INTEGER, correct INTEGER, wrong NTEGER, moves INTEGER, totalmoves INTEGER, manual INTEGER, advance INTEGER, fallback INTEGER, resetonerror INTEGER)"
+	var createGameDB string = "CREATE TABLE IF NOT EXISTS simple(id INTEGER PRIMARY KEY AUTOINCREMENT,gametype TEXT, dtBeg TEXT, dtEnd TEXT, level INTEGER, lives INTEGER, percent INTEGER, correct INTEGER, wrong NTEGER, moves INTEGER, totalmoves INTEGER, manual INTEGER, advance INTEGER, fallback INTEGER, resetonerror INTEGER)"
 	cur, err := d.conn.Prepare(createGameDB)
 	if err != nil {
 		panic(err)
@@ -54,7 +54,7 @@ func (d *Db) createGamesTable() {
 }
 
 func (d *Db) createSettingsTable() {
-	var createSettingsDB string = "CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY AUTOINCREMENT,timetonextcell REAL, timeshowcell REAL, rr REAL, level INTEGER, manualadv INTEGER,manual INTEGER, thresholdadv INTEGER, thresholdfall INTEGER, threshholssessions INTEGER, trials INTEGER, factor INTEGER, exponent INTEGER, feedbackmove INTEGER, usecenter INTEGER, resetonwrong INTEGER, fullscreen INTEGER, pauserest INTEGER, grid INTEGER, showgrid INTEGER,showcrosshair INTEGER)"
+	var createSettingsDB string = "CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY AUTOINCREMENT,timetonextcell REAL, timeshowcell REAL, rr REAL, level INTEGER, manualadv INTEGER,manual INTEGER, thresholdadv INTEGER, thresholdfall INTEGER, threshholssessions INTEGER, trials INTEGER, factor INTEGER, exponent INTEGER, feedbackmove INTEGER, usecenter INTEGER, resetonwrong INTEGER, fullscreen INTEGER, pauserest INTEGER, grid INTEGER, showgrid INTEGER,showcrosshair INTEGER, gametype TEXT)"
 	cur, err := d.conn.Prepare(createSettingsDB)
 	if err != nil {
 		panic(err)
@@ -76,7 +76,7 @@ func (d *Db) InsertSettings(values *ui.Preferences) {
 	cur.Exec()
 	log.Println("Deleted previous settings")
 
-	insStr := "INSERT INTO settings(timetonextcell, timeshowcell, rr, level, manualadv, manual, thresholdadv, thresholdfall, threshholssessions, trials, factor, exponent, feedbackmove, usecenter, resetonwrong, fullscreen, pauserest, grid, showgrid, showcrosshair) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	insStr := "INSERT INTO settings(timetonextcell, timeshowcell, rr, level, manualadv, manual, thresholdadv, thresholdfall, threshholssessions, trials, factor, exponent, feedbackmove, usecenter, resetonwrong, fullscreen, pauserest, grid, showgrid, showcrosshair, gametype) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	cur, err = d.conn.Prepare(insStr)
 	if err != nil {
 		log.Println("Error insert settings in DB:", insStr, values)
@@ -103,7 +103,8 @@ func (d *Db) InsertSettings(values *ui.Preferences) {
 		(*values)["pause to rest"].(int),
 		(*values)["grid size"].(int),
 		(*values)["show grid"].(bool),
-		(*values)["show crosshair"].(bool))
+		(*values)["show crosshair"].(bool),
+		(*values)["game type"].(string))
 	log.Println("DB: Inserted settings.")
 }
 
@@ -150,6 +151,7 @@ func (d *Db) ReadSettings() (values *ui.Preferences) {
 		gs := 0
 		shgz := false
 		shch := false
+		gt := ""
 		err = rows.Scan(
 			&id,
 			&tmnc,
@@ -172,6 +174,7 @@ func (d *Db) ReadSettings() (values *ui.Preferences) {
 			&gs,
 			&shgz,
 			&shch,
+			&gt,
 		)
 		if err != nil && err != sql.ErrNoRows {
 			d.dropSettingsTable()
@@ -197,6 +200,7 @@ func (d *Db) ReadSettings() (values *ui.Preferences) {
 		v.Set("grid size", gs)
 		v.Set("show grid", shgz)
 		v.Set("show crosshair", shch)
+		v.Set("game type", gt)
 	}
 	log.Println("Read settings from db:", v, len(v))
 	if len(v) > 0 {
@@ -209,12 +213,13 @@ func (d *Db) InsertGame(values *GameData) {
 	if d.conn == nil {
 		d.Setup()
 	}
-	insStr := "INSERT INTO simple(dtBeg, dtEnd, level, lives, percent, correct, wrong, moves, totalmoves, manual, advance, fallback, resetonerror) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	insStr := "INSERT INTO simple(gametype, dtBeg, dtEnd, level, lives, percent, correct, wrong, moves, totalmoves, manual, advance, fallback, resetonerror) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	cur, err := d.conn.Prepare(insStr)
 	if err != nil {
 		log.Println("Error in DB:", insStr, values)
 		panic(err)
 	}
+	gametype := values.gameType
 	dtBeg := values.dtBeg
 	dtEnd := values.dtEnd
 	level := values.level
@@ -228,10 +233,10 @@ func (d *Db) InsertGame(values *GameData) {
 	advance := values.advance
 	fallback := values.fallback
 	resetonerror := values.resetonerror
-	cur.Exec(dtBeg, dtEnd, level, lives, percent, correct, wrong, moves, totalmoves, manual, advance, fallback, resetonerror)
+	cur.Exec(gametype, dtBeg, dtEnd, level, lives, percent, correct, wrong, moves, totalmoves, manual, advance, fallback, resetonerror)
 	d.todayGamesCount += 1
 	d.todayData[d.todayGamesCount] = values
-	log.Println("DB: Inserted:", dtBeg, dtEnd, level, lives, percent, correct, wrong, moves, totalmoves, manual, advance, fallback, resetonerror)
+	log.Println("DB: Inserted:", gametype, dtBeg, dtEnd, level, lives, percent, correct, wrong, moves, totalmoves, manual, advance, fallback, resetonerror)
 }
 
 func (d *Db) ReadTodayGames() {
@@ -249,7 +254,7 @@ func (d *Db) ReadTodayGames() {
 	dtFormat := "2006-01-02 15:04:05.000"
 	for rows.Next() {
 		values := &GameData{}
-		err = rows.Scan(&values.id, &values.dtBeg, &values.dtEnd, &values.level, &values.lives, &values.percent, &values.correct, &values.wrong, &values.moves, &values.totalmoves, &values.manual, &values.advance, &values.fallback, &values.resetonerror)
+		err = rows.Scan(&values.id, &values.gameType, &values.dtBeg, &values.dtEnd, &values.level, &values.lives, &values.percent, &values.correct, &values.wrong, &values.moves, &values.totalmoves, &values.manual, &values.advance, &values.fallback, &values.resetonerror)
 		if err != nil && err != sql.ErrNoRows {
 			panic(err)
 		}

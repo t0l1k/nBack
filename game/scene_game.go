@@ -48,10 +48,20 @@ func (s *SceneGame) initGame() {
 		s.lives = (*ui.GetPreferences())["threshold fallback sessions"].(int)
 	}
 	ss := fmt.Sprintf("#%v level:%v", s.count, s.level)
+	res := ""
+	tp := ui.GetPreferences().Get("game type").(string)
+	switch tp {
+	case pos:
+		res = "position"
+	case col:
+		res = "color"
+	default:
+		res = tp
+	}
 	if (*ui.GetPreferences())["manual mode"].(bool) {
-		ss += " Manual game mode."
+		ss += fmt.Sprintf(" Manual game(%v) mode.", res)
 	} else {
-		ss += " Classic game mode."
+		ss += fmt.Sprintf(" Classic game(%v) mode.", res)
 	}
 	s.lblResult.SetText(ss)
 }
@@ -203,7 +213,14 @@ func (s *SceneGame) moveStatus() {
 			s.lblName.SetBg((*ui.GetTheme())["game bg"])
 		}
 	}
-	str := fmt.Sprintf("Pos %v (%v) (%v/%v)", s.level, s.lives, s.board.move, s.board.totalMoves)
+	str1 := ""
+	switch ui.GetPreferences().Get("game type").(string) {
+	case pos:
+		str1 = "Pos"
+	case col:
+		str1 = "Col"
+	}
+	str := fmt.Sprintf("%v %v (%v) (%v/%v)", str1, s.level, s.lives, s.board.move, s.board.totalMoves)
 	s.lblName.SetText(str)
 }
 
@@ -211,6 +228,7 @@ func (s *SceneGame) SaveGame() {
 	dtBeg := s.board.dtBeg.Format("2006-01-02 15:04:05.000")
 	dtEnd := s.board.dtEnd.Format("2006-01-02 15:04:05.000")
 	values := &GameData{
+		gameType:     ui.GetPreferences().Get("game type").(string),
 		dtBeg:        dtBeg,
 		dtEnd:        dtEnd,
 		level:        s.level,

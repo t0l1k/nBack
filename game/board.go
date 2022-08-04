@@ -45,8 +45,7 @@ func NewBoard(rect []int, pref *ui.Preferences, theme *ui.Theme) *Board {
 		pref:   pref,
 		theme:  theme,
 	}
-	if b.pref.Get("show grid").(bool) {
-		fmt.Println("show grid", b.pref.Get("show grid"))
+	if b.pref.Get("show grid").(bool) && b.pref.Get("game type").(string) == pos {
 		gridSz := b.pref.Get("grid size").(int)
 		b.grid = ui.NewGridView(rect, gridSz, (*b.theme)["game bg"], (*b.theme)["game fg"])
 		b.Add(b.grid)
@@ -60,7 +59,7 @@ func (b *Board) Reset(gameCount, level int) {
 	b.inGame = true
 	b.reset = false
 	b.userMoved = false
-	if b.pref.Get("show grid").(bool) {
+	if b.pref.Get("show grid").(bool) && b.pref.Get("game type").(string) == pos {
 		b.grid.Visibe = true
 	}
 	b.setFieldVisible(true)
@@ -127,7 +126,7 @@ func (b *Board) MakeMove() {
 	if b.move == b.totalMoves || b.reset {
 		b.inGame = false
 		b.CheckMoveRegular()
-		if b.pref.Get("show grid").(bool) {
+		if b.pref.Get("show grid").(bool) && b.pref.Get("game type").(string) == pos {
 			b.grid.Visibe = false
 		}
 		b.setFieldVisible(false)
@@ -146,15 +145,34 @@ func (b *Board) setFieldVisible(value bool) {
 }
 
 func (b *Board) ShowActiveCell() {
-	b.field[b.moveNumber].SetActive(true)
+	var mv int
+	if (*b.pref)["game type"].(string) == pos {
+		mv = b.moveNumber
+	} else {
+		mv = 0
+		b.field[mv].SetActiveColor(colors[b.moveNumber])
+	}
+	b.field[mv].SetActive(true)
 }
 
 func (b *Board) HideActiveCell() {
-	b.field[b.moveNumber].SetActive(false)
+	var mv int
+	if (*b.pref)["game type"].(string) == pos {
+		mv = b.moveNumber
+	} else {
+		mv = 0
+	}
+	b.field[mv].SetActive(false)
 }
 
 func (b *Board) IsShowActiveCell() bool {
-	return b.field[b.moveNumber].Active
+	var mv int
+	if (*b.pref)["game type"].(string) == pos {
+		mv = b.moveNumber
+	} else {
+		mv = 0
+	}
+	return b.field[mv].Active
 }
 
 func (b *Board) getPercent() int {
@@ -176,7 +194,12 @@ func (b *Board) getPercent() int {
 }
 
 func (b *Board) initCells() (field []*Cell) {
-	dim := (*b.pref)["grid size"].(int)
+	var dim int
+	if (*b.pref)["game type"].(string) == pos {
+		dim = (*b.pref)["grid size"].(int)
+	} else {
+		dim = 1
+	}
 	cellBg := (*b.theme)["game bg"]
 	cellFg := (*b.theme)["game fg"]
 	cellActiveColor := (*b.theme)["game active color"]
@@ -214,28 +237,35 @@ func (b *Board) Draw(surface *ebiten.Image) {
 }
 
 func (b *Board) String() string {
-	return fmt.Sprintf("#%v nB%v %v/%v", b.gameCount, b.level, b.move, b.totalMoves)
+	tp := b.pref.Get("game type").(string)
+	return fmt.Sprintf("#%v %vB%v %v/%v", b.gameCount, tp, b.level, b.move, b.totalMoves)
 }
 
 func (b *Board) Resize(rect []int) {
 	b.rect = ui.NewRect(rect)
-	if b.pref.Get("show grid").(bool) {
+	if b.pref.Get("show grid").(bool) && b.pref.Get("game type").(string) == pos {
 		b.grid.Resize(rect)
 	}
 	b.resizeCells()
 }
 
 func (b *Board) resizeCells() {
-	dim := (*b.pref)["grid size"].(int)
+	var dim int
+	if (*b.pref)["game type"].(string) == pos {
+		dim = (*b.pref)["grid size"].(int)
+	} else {
+		dim = 1
+	}
 	x, y := b.rect.Pos()
 	cellSize, _ := b.rect.Size()
 	cellSize /= dim
-	for i := 0; i < dim*dim; i++ {
+	for i, v := range b.field {
 		aX := i % dim
 		aY := i / dim
 		cellX := aX*cellSize + x
 		cellY := aY*cellSize + y
-		b.field[i].Resize([]int{cellX, cellY, cellSize, cellSize})
+		fmt.Println(i, aX, aY, cellX, cellY)
+		v.Resize([]int{cellX, cellY, cellSize, cellSize})
 	}
 }
 

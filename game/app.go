@@ -9,6 +9,11 @@ import (
 	"github.com/t0l1k/nBack/ui"
 )
 
+const (
+	pos string = "p"
+	col string = "c"
+)
+
 func NewGame() *ui.App {
 	app := ui.GetApp()
 	app.SetupSettings(LoadPreferences())
@@ -48,6 +53,7 @@ func LoadPreferences() *ui.Preferences {
 
 func NewPref() *ui.Preferences {
 	p := ui.NewPreferences()
+	p["game type"] = pos
 	p["time to next cell"] = 2.0
 	p["time to show cell"] = 0.5
 	p["trials"] = 5 //20 classic = trials+factor*level**exponent
@@ -75,15 +81,15 @@ var (
 	black    = color.RGBA{0, 0, 0, 255}
 	white    = color.RGBA{255, 255, 255, 255}
 	gray     = color.RGBA{192, 192, 192, 255}
-	darkBlue = color.RGBA{64, 0, 128, 255}
-	magenta  = color.RGBA{255, 0, 255, 255}
+	purple   = color.RGBA{148, 0, 221, 255}
+	darkBlue = color.RGBA{75, 0, 130, 255}
 	blue     = color.RGBA{0, 0, 255, 255}
 	green    = color.RGBA{0, 192, 0, 255}
 	yellow   = color.RGBA{255, 255, 0, 255}
-	orange   = color.RGBA{255, 165, 0, 255}
+	orange   = color.RGBA{255, 127, 0, 255}
 	red      = color.RGBA{255, 0, 0, 255}
 )
-var colors = []color.Color{red, orange, yellow, green, blue, magenta, darkBlue, gray, white}
+var colors = []color.Color{red, orange, yellow, green, blue, darkBlue, purple, gray, white}
 
 func NewTheme() *ui.Theme {
 	theme := ui.NewTheme()

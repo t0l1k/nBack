@@ -9,7 +9,7 @@ import (
 )
 
 type GameData struct {
-	dtBeg, dtEnd                                                                    string
+	gameType, dtBeg, dtEnd                                                          string
 	id, level, lives, percent, correct, wrong, moves, totalmoves, advance, fallback int
 	manual, resetonerror                                                            bool
 }
@@ -79,7 +79,7 @@ func (d GameData) BgColor() (result color.Color) {
 }
 
 func (q GameData) ShortStr() string {
-	return fmt.Sprintf("nB%v %v%% ", q.level, q.percent)
+	return fmt.Sprintf("%vB%v %v%% ", q.gameType, q.level, q.percent)
 
 }
 func (q GameData) String() string {
@@ -99,8 +99,9 @@ func (q GameData) String() string {
 	m := int(sec / 60)
 	seconds := int(sec) % 60
 	dStr := fmt.Sprintf("%02v:%02v.%03v", m, seconds, int(mSec))
-	ss := fmt.Sprintf("#%v nB%v %v%% correct:%v wrong:%v moves:%v [%v]",
+	ss := fmt.Sprintf("#%v %vB%v %v%% correct:%v wrong:%v moves:%v [%v]",
 		getDb().todayGamesCount,
+		q.gameType,
 		q.level,
 		q.percent,
 		q.correct,
@@ -108,8 +109,9 @@ func (q GameData) String() string {
 		q.moves,
 		dStr)
 	if (*ui.GetPreferences())["reset on first wrong"].(bool) {
-		ss = fmt.Sprintf("#%v nB%v %v%% correct:%v wrong:%v moves:(%v/%v) [%v]",
+		ss = fmt.Sprintf("#%v %vB%v %v%% correct:%v wrong:%v moves:(%v/%v) [%v]",
 			getDb().todayGamesCount,
+			q.gameType,
 			q.level,
 			q.percent,
 			q.correct,

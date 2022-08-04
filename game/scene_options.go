@@ -22,6 +22,7 @@ type SceneOptions struct {
 	optAdv, optFall, optFallSessions                                  *ui.Combobox
 	optTrials, optFactor, optExponent                                 *ui.Combobox
 	optTmNextCell, optTmShowCell                                      *ui.Combobox
+	optGameType                                                       *ui.Combobox
 	newSets                                                           *ui.Preferences
 }
 
@@ -192,6 +193,13 @@ func NewSceneOptions() *SceneOptions {
 	idx = 0
 	s.optTmShowCell = ui.NewCombobox("Time to show cell", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrShow, idx, func(b *ui.Combobox) { (*s.newSets)["time to show cell"] = s.optTmShowCell.Value().(float64) })
 	s.Add(s.optTmShowCell)
+
+	gamesType := []interface{}{pos, col}
+	idx = 0
+	s.optGameType = ui.NewCombobox("Game Type", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], gamesType, idx, func(b *ui.Combobox) {
+		(*s.newSets)["game type"] = s.optGameType.Value().(string)
+	})
+	s.Add(s.optGameType)
 	return s
 }
 
@@ -216,6 +224,7 @@ func (s *SceneOptions) Setup(sets *ui.Preferences) {
 	s.optExponent.SetValue((*sets)["trials exponent"].(int))
 	s.optTmNextCell.SetValue((*sets)["time to next cell"].(float64))
 	s.optTmShowCell.SetValue((*sets)["time to show cell"].(float64))
+	s.optGameType.SetValue((*sets)["game type"].(string))
 }
 
 func (s *SceneOptions) Reset(b *ui.Button) {
@@ -337,6 +346,11 @@ func (s *SceneOptions) Resize() {
 	x = int(h2 * 1.1)
 	rect = []int{x, y, int(h2), cellHeight}
 	s.optShowCross.Resize(rect)
+
+	cellWidth, cellHeight = w, h
+	x, y = 0, int(float64(cellHeight)*10.8)
+	rect = []int{x, y, cellWidth, cellHeight}
+	s.optGameType.Resize(rect)
 }
 
 func (s *SceneOptions) Quit() {}
