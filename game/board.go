@@ -148,9 +148,12 @@ func (b *Board) ShowActiveCell() {
 	var mv int
 	if (*b.pref)["game type"].(string) == pos {
 		mv = b.moveNumber
-	} else {
+	} else if (*b.pref)["game type"].(string) == col {
 		mv = 0
 		b.field[mv].SetActiveColor(colors[b.moveNumber])
+	} else if (*b.pref)["game type"].(string) == sym {
+		mv = 0
+		b.field[mv].SetSymbol(b.moveNumber)
 	}
 	b.field[mv].SetActive(true)
 }
@@ -159,7 +162,9 @@ func (b *Board) HideActiveCell() {
 	var mv int
 	if (*b.pref)["game type"].(string) == pos {
 		mv = b.moveNumber
-	} else {
+	} else if (*b.pref)["game type"].(string) == col {
+		mv = 0
+	} else if (*b.pref)["game type"].(string) == sym {
 		mv = 0
 	}
 	b.field[mv].SetActive(false)
@@ -169,7 +174,9 @@ func (b *Board) IsShowActiveCell() bool {
 	var mv int
 	if (*b.pref)["game type"].(string) == pos {
 		mv = b.moveNumber
-	} else {
+	} else if (*b.pref)["game type"].(string) == col {
+		mv = 0
+	} else if (*b.pref)["game type"].(string) == sym {
 		mv = 0
 	}
 	return b.field[mv].Active
@@ -264,7 +271,6 @@ func (b *Board) resizeCells() {
 		aY := i / dim
 		cellX := aX*cellSize + x
 		cellY := aY*cellSize + y
-		fmt.Println(i, aX, aY, cellX, cellY)
 		v.Resize([]int{cellX, cellY, cellSize, cellSize})
 	}
 }

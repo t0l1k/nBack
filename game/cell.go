@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"image/color"
+	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -15,6 +16,7 @@ type Cell struct {
 	Dirty, Visibe, DrawRect, IsCenter, Active bool
 	bg, fg, activeColor                       color.Color
 	margin                                    float64
+	sym                                       int
 }
 
 func NewCell(rect []int, isCenter bool, bg, fg, activeColor color.Color) *Cell {
@@ -30,6 +32,7 @@ func NewCell(rect []int, isCenter bool, bg, fg, activeColor color.Color) *Cell {
 		bg:          bg,
 		fg:          fg,
 		activeColor: activeColor,
+		sym:         0,
 	}
 }
 
@@ -41,9 +44,14 @@ func (c *Cell) Layout() *ebiten.Image {
 		bg = c.activeColor
 	}
 	m := float64(w) * c.margin
-	if c.DrawRect {
+	if c.DrawRect && c.sym == 0 {
 		ebitenutil.DrawRect(image, m, m, float64(w)-m*2, float64(h)-m*2, bg)
 
+	}
+	if c.sym > 0 && c.Active {
+		res := fmt.Sprintf("%v", strconv.Itoa(c.sym))
+		l := ui.NewLabel(res, []int{0, 0, w, h}, c.bg, c.activeColor)
+		l.Draw(image)
 	}
 	if c.IsCenter {
 		m := float64(c.rect.H) * 0.4
@@ -63,6 +71,14 @@ func (c *Cell) SetActiveColor(value color.Color) {
 		return
 	}
 	c.activeColor = value
+	c.Dirty = true
+}
+
+func (c *Cell) SetSymbol(value int) {
+	if c.sym == value {
+		return
+	}
+	c.sym = value
 	c.Dirty = true
 }
 

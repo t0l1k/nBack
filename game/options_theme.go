@@ -4,6 +4,7 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/t0l1k/nBack/ui"
 )
 
@@ -17,7 +18,7 @@ type OptTheme struct {
 func NewOptTheme(rect []int) *OptTheme {
 	return &OptTheme{
 		rect:   ui.NewRect(rect),
-		bg:     (*ui.GetTheme())["bg"],
+		bg:     (*ui.GetTheme())["game bg"],
 		fg:     (*ui.GetTheme())["fg"],
 		Dirty:  true,
 		Visibe: true,
@@ -28,7 +29,7 @@ func (r *OptTheme) Layout() *ebiten.Image {
 		return r.Image
 	}
 	w, h := r.rect.Size()
-	cellWidth, cellHeight := w, h/3
+	cellWidth, cellHeight := w, h/4
 	image := ebiten.NewImage(w, h)
 	image.Fill(r.bg)
 	x, y := 0, 0
@@ -79,6 +80,15 @@ func (r *OptTheme) Layout() *ebiten.Image {
 	errorLbl := ui.NewLabel("color error", rect, (*ui.GetTheme())["error color"], (*ui.GetTheme())["fg"])
 	errorLbl.SetRect(true)
 	errorLbl.Draw(image)
+
+	x, y = 0, cellHeight*3
+	w, h = cellWidth/len(colors), cellHeight
+	sz := len(colors)
+	for i, v := range colors {
+		cellX := i % sz * w
+		ebitenutil.DrawRect(image, float64(cellX), float64(y), float64(w), float64(h), v)
+	}
+
 	r.Dirty = false
 	return image
 }

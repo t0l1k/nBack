@@ -12,6 +12,7 @@ import (
 const (
 	pos string = "p"
 	col string = "c"
+	sym string = "s"
 )
 
 func NewGame() *ui.App {
@@ -53,7 +54,8 @@ func LoadPreferences() *ui.Preferences {
 
 func NewPref() *ui.Preferences {
 	p := ui.NewPreferences()
-	p["game type"] = pos
+	p["game type"] = sym
+	p["symbols count"] = 99
 	p["time to next cell"] = 2.0
 	p["time to show cell"] = 0.5
 	p["trials"] = 5 //20 classic = trials+factor*level**exponent
@@ -78,18 +80,21 @@ func NewPref() *ui.Preferences {
 }
 
 var (
-	black    = color.RGBA{0, 0, 0, 255}
-	white    = color.RGBA{255, 255, 255, 255}
-	gray     = color.RGBA{192, 192, 192, 255}
-	purple   = color.RGBA{148, 0, 221, 255}
-	darkBlue = color.RGBA{75, 0, 130, 255}
-	blue     = color.RGBA{0, 0, 255, 255}
-	green    = color.RGBA{0, 192, 0, 255}
-	yellow   = color.RGBA{255, 255, 0, 255}
-	orange   = color.RGBA{255, 127, 0, 255}
-	red      = color.RGBA{255, 0, 0, 255}
+	black       = color.RGBA{0, 0, 0, 255}
+	gray        = color.RGBA{192, 192, 192, 255}
+	white       = color.RGBA{255, 255, 255, 255}
+	purple      = color.RGBA{148, 0, 221, 255}
+	darkBlue    = color.RGBA{0, 0, 139, 255}
+	blue        = color.RGBA{0, 0, 255, 255}
+	green       = color.RGBA{0, 192, 0, 255}
+	greenYellow = color.RGBA{173, 255, 47, 255}
+	yellow      = color.RGBA{255, 255, 0, 255}
+	orange      = color.RGBA{255, 127, 0, 255}
+	chocolate   = color.RGBA{210, 105, 30, 255}
+	red         = color.RGBA{255, 0, 0, 255}
+	brown       = color.RGBA{165, 42, 42, 255}
 )
-var colors = []color.Color{red, orange, yellow, green, blue, darkBlue, purple, gray, white}
+var colors = []color.Color{brown, red, chocolate, orange, yellow, greenYellow, green, blue, darkBlue, purple, white}
 
 func NewTheme() *ui.Theme {
 	theme := ui.NewTheme()

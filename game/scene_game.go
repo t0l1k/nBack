@@ -55,6 +55,8 @@ func (s *SceneGame) initGame() {
 		res = "position"
 	case col:
 		res = "color"
+	case sym:
+		res = "number"
 	default:
 		res = tp
 	}

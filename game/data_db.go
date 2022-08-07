@@ -54,7 +54,7 @@ func (d *Db) createGamesTable() {
 }
 
 func (d *Db) createSettingsTable() {
-	var createSettingsDB string = "CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY AUTOINCREMENT,timetonextcell REAL, timeshowcell REAL, rr REAL, level INTEGER, manualadv INTEGER,manual INTEGER, thresholdadv INTEGER, thresholdfall INTEGER, threshholssessions INTEGER, trials INTEGER, factor INTEGER, exponent INTEGER, feedbackmove INTEGER, usecenter INTEGER, resetonwrong INTEGER, fullscreen INTEGER, pauserest INTEGER, grid INTEGER, showgrid INTEGER,showcrosshair INTEGER, gametype TEXT)"
+	var createSettingsDB string = "CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY AUTOINCREMENT,timetonextcell REAL, timeshowcell REAL, rr REAL, level INTEGER, manualadv INTEGER,manual INTEGER, thresholdadv INTEGER, thresholdfall INTEGER, threshholssessions INTEGER, trials INTEGER, factor INTEGER, exponent INTEGER, feedbackmove INTEGER, usecenter INTEGER, resetonwrong INTEGER, fullscreen INTEGER, pauserest INTEGER, grid INTEGER, showgrid INTEGER,showcrosshair INTEGER, gametype TEXT, symcount INTEGER)"
 	cur, err := d.conn.Prepare(createSettingsDB)
 	if err != nil {
 		panic(err)
@@ -76,7 +76,7 @@ func (d *Db) InsertSettings(values *ui.Preferences) {
 	cur.Exec()
 	log.Println("Deleted previous settings")
 
-	insStr := "INSERT INTO settings(timetonextcell, timeshowcell, rr, level, manualadv, manual, thresholdadv, thresholdfall, threshholssessions, trials, factor, exponent, feedbackmove, usecenter, resetonwrong, fullscreen, pauserest, grid, showgrid, showcrosshair, gametype) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	insStr := "INSERT INTO settings(timetonextcell, timeshowcell, rr, level, manualadv, manual, thresholdadv, thresholdfall, threshholssessions, trials, factor, exponent, feedbackmove, usecenter, resetonwrong, fullscreen, pauserest, grid, showgrid, showcrosshair, gametype, symcount) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	cur, err = d.conn.Prepare(insStr)
 	if err != nil {
 		log.Println("Error insert settings in DB:", insStr, values)
@@ -104,7 +104,8 @@ func (d *Db) InsertSettings(values *ui.Preferences) {
 		(*values)["grid size"].(int),
 		(*values)["show grid"].(bool),
 		(*values)["show crosshair"].(bool),
-		(*values)["game type"].(string))
+		(*values)["game type"].(string),
+		(*values)["symbols count"].(int))
 	log.Println("DB: Inserted settings.")
 }
 
@@ -152,6 +153,7 @@ func (d *Db) ReadSettings() (values *ui.Preferences) {
 		shgz := false
 		shch := false
 		gt := ""
+		sc := 0
 		err = rows.Scan(
 			&id,
 			&tmnc,
@@ -175,6 +177,7 @@ func (d *Db) ReadSettings() (values *ui.Preferences) {
 			&shgz,
 			&shch,
 			&gt,
+			&sc,
 		)
 		if err != nil && err != sql.ErrNoRows {
 			d.dropSettingsTable()
@@ -201,6 +204,7 @@ func (d *Db) ReadSettings() (values *ui.Preferences) {
 		v.Set("show grid", shgz)
 		v.Set("show crosshair", shch)
 		v.Set("game type", gt)
+		v.Set("symbols count", sc)
 	}
 	log.Println("Read settings from db:", v, len(v))
 	if len(v) > 0 {
