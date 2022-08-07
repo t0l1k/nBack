@@ -194,7 +194,7 @@ func NewSceneOptions() *SceneOptions {
 	s.optTmShowCell = ui.NewCombobox("Time to show cell", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrShow, idx, func(b *ui.Combobox) { (*s.newSets)["time to show cell"] = s.optTmShowCell.Value().(float64) })
 	s.Add(s.optTmShowCell)
 
-	gamesType := []interface{}{pos, col}
+	gamesType := []interface{}{pos, col, sym}
 	idx = 0
 	s.optGameType = ui.NewCombobox("Game Type", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], gamesType, idx, func(b *ui.Combobox) {
 		(*s.newSets)["game type"] = s.optGameType.Value().(string)
@@ -265,7 +265,7 @@ func (s *SceneOptions) Draw(surface *ebiten.Image) {
 func (s *SceneOptions) Resize() {
 	w, h := ui.GetApp().GetScreenSize()
 	s.rect = ui.NewRect([]int{0, 0, w, h})
-	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)*0.05)
+	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)/16)
 	s.btnQuit.Resize([]int{x, y, w, h})
 	x, w = h, int(float64(s.rect.W)*0.20)
 	s.lblName.Resize([]int{x, y, w, h})

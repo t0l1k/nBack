@@ -55,6 +55,8 @@ func (s *SceneGame) initGame() {
 		res = "position"
 	case col:
 		res = "color"
+	case sym:
+		res = "number"
 	default:
 		res = tp
 	}
@@ -219,6 +221,8 @@ func (s *SceneGame) moveStatus() {
 		str1 = "Pos"
 	case col:
 		str1 = "Col"
+	case sym:
+		str1 = "Sym"
 	}
 	str := fmt.Sprintf("%v %v (%v) (%v/%v)", str1, s.level, s.lives, s.board.move, s.board.totalMoves)
 	s.lblName.SetText(str)
