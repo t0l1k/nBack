@@ -8,6 +8,13 @@ type Point struct {
 	X, Y float64
 }
 
+func NewPoint(x, y float64) *Point {
+	return &Point{
+		X: x,
+		Y: y,
+	}
+}
+
 func (p Point) Get() (float64, float64) {
 	return p.X, p.Y
 }

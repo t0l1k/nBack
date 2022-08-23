@@ -353,4 +353,8 @@ func (s *SceneOptions) Resize() {
 	s.optGameType.Resize(rect)
 }
 
-func (s *SceneOptions) Quit() {}
+func (s *SceneOptions) Quit() {
+	for _, v := range s.container {
+		v.Close()
+	}
+}

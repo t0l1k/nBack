@@ -3,14 +3,10 @@ package ui
 import (
 	"fmt"
 	"image/color"
-	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/text"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/opentype"
 )
 
 type Label struct {
@@ -30,7 +26,8 @@ func NewLabel(text string, rect []int, bg, fg color.Color) *Label {
 		Visible:  true,
 		drawRect: false,
 		bg:       bg,
-		fg:       fg}
+		fg:       fg,
+	}
 }
 
 func (l *Label) SetBg(value color.Color) {
@@ -65,65 +62,31 @@ func (l *Label) SetText(value string) {
 	l.Dirty = true
 }
 
-func (*Label) getFont(size float64) font.Face {
-	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
-	if err != nil {
-		log.Fatal(err)
-	}
-	mplusFont, err := opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    size,
-		DPI:     72,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	return mplusFont
-}
-
-func (l *Label) getFontSize() int {
-	percent := 0.85
+func (l *Label) Layout() {
 	w, h := l.rect.Size()
-	var sz = l.rect.GetLowestSize()
-	fontSize := percent * float64(sz)
-	fnt := l.getFont(fontSize)
-	defer fnt.Close()
-	bound := text.BoundString(fnt, l.text)
-	for w < bound.Max.X || h < bound.Max.Y {
-		fontSize = percent * float64(sz)
-		fnt = l.getFont(fontSize)
-		defer fnt.Close()
-		bound = text.BoundString(fnt, l.text)
-		percent -= 0.01
+	if l.Image == nil {
+		l.Image = ebiten.NewImage(w, h)
+	} else {
+		l.Image.Clear()
 	}
-	return int(fontSize)
-}
-
-func (l *Label) Layout() *ebiten.Image {
-	if !l.Dirty {
-		return l.Image
-	}
-	w, h := l.rect.Size()
-	image := ebiten.NewImage(w, h)
-	image.Fill(l.bg)
+	l.Image.Fill(l.bg)
 	if l.drawRect {
-		ebitenutil.DrawRect(image, 0, 0, float64(w), float64(h), l.fg)
-		ebitenutil.DrawRect(image, 2, 2, float64(w)-4, float64(h)-4, l.bg)
+		ebitenutil.DrawRect(l.Image, 0, 0, float64(w), float64(h), l.fg)
+		ebitenutil.DrawRect(l.Image, 2, 2, float64(w)-4, float64(h)-4, l.bg)
 	}
-	fnt := l.getFont(float64(l.getFontSize()))
-	defer fnt.Close()
-	b := text.BoundString(fnt, l.text)
+	fntSize := GetFonts().calcFontSize(l.text, l.rect)
+	font := GetFonts().get(fntSize)
+	b := text.BoundString(font, l.text)
 	x := (l.rect.W - b.Max.X) / 2
 	y := l.rect.H - (l.rect.H-b.Dy())/2
-	text.Draw(image, l.text, fnt, x, y, l.fg)
+	text.Draw(l.Image, l.text, font, x, y, l.fg)
 	l.Dirty = false
-	return image
 }
 
 func (l *Label) Update(dt int) {}
 func (l *Label) Draw(surface *ebiten.Image) {
 	if l.Dirty {
-		l.Image = l.Layout()
+		l.Layout()
 	}
 	if l.Visible {
 		op := &ebiten.DrawImageOptions{}
@@ -136,8 +99,13 @@ func (l *Label) Draw(surface *ebiten.Image) {
 func (l *Label) Resize(rect []int) {
 	l.rect = NewRect(rect)
 	l.Dirty = true
+	l.Image = nil
 }
 
 func (l Label) String() string {
 	return fmt.Sprintf("%v %v", l.text, l.rect)
+}
+
+func (l *Label) Close() {
+	l.Image.Dispose()
 }

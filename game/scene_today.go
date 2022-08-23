@@ -142,7 +142,11 @@ func (s *SceneToday) Resize() {
 	s.lblHelper.Resize([]int{x, y, w, h})
 }
 
-func (s *SceneToday) Quit() {}
+func (s *SceneToday) Quit() {
+	for _, v := range s.container {
+		v.Close()
+	}
+}
 
 func (s *SceneToday) getRows() (rows int) {
 	switch w := s.rect.Right(); {

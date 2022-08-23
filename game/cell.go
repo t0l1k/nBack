@@ -36,22 +36,26 @@ func NewCell(rect []int, isCenter bool, bg, fg, activeColor color.Color) *Cell {
 	}
 }
 
-func (c *Cell) Layout() *ebiten.Image {
+func (c *Cell) Layout() {
 	w, h := c.rect.Size()
-	image := ebiten.NewImage(w, h)
+	if c.Image == nil {
+		c.Image = ebiten.NewImage(w, h)
+	} else {
+		c.Image.Clear()
+	}
 	bg := c.bg
 	if c.Active {
 		bg = c.activeColor
 	}
 	m := float64(w) * c.margin
 	if c.DrawRect && c.sym == 0 {
-		ebitenutil.DrawRect(image, m, m, float64(w)-m*2, float64(h)-m*2, bg)
-
+		ebitenutil.DrawRect(c.Image, m, m, float64(w)-m*2, float64(h)-m*2, bg)
 	}
 	if c.sym > 0 && c.Active {
 		res := fmt.Sprintf("%v", strconv.Itoa(c.sym))
 		l := ui.NewLabel(res, []int{0, 0, w, h}, c.bg, c.activeColor)
-		l.Draw(image)
+		defer l.Close()
+		l.Draw(c.Image)
 	}
 	if c.IsCenter {
 		m := float64(c.rect.H) * 0.4
@@ -59,11 +63,10 @@ func (c *Cell) Layout() *ebiten.Image {
 		y1 := m
 		x2 := x1
 		y2 := float64(c.rect.H) - m
-		ebitenutil.DrawLine(image, x1, y1, x2, y2, c.fg)
-		ebitenutil.DrawLine(image, y1, x1, y2, x2, c.fg)
+		ebitenutil.DrawLine(c.Image, x1, y1, x2, y2, c.fg)
+		ebitenutil.DrawLine(c.Image, y1, x1, y2, x2, c.fg)
 	}
 	c.Dirty = false
-	return image
 }
 
 func (c *Cell) SetActiveColor(value color.Color) {
@@ -89,7 +92,7 @@ func (c *Cell) SetActive(value bool) {
 func (c *Cell) Update(dt int) {}
 func (c *Cell) Draw(surface *ebiten.Image) {
 	if c.Dirty {
-		c.Image = c.Layout()
+		c.Layout()
 	}
 	if c.Visibe {
 		op := &ebiten.DrawImageOptions{}
@@ -102,8 +105,13 @@ func (c *Cell) Draw(surface *ebiten.Image) {
 func (c *Cell) Resize(rect []int) {
 	c.rect = ui.NewRect(rect)
 	c.Dirty = true
+	c.Image = nil
 }
 
 func (c Cell) String() string {
 	return fmt.Sprintf("Cell: %v", c.rect)
+}
+
+func (c *Cell) Close() {
+	c.Image.Dispose()
 }

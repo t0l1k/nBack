@@ -52,16 +52,17 @@ func (l *List) SetRows(rows int) {
 	l.Dirty = true
 }
 
-func (l *List) Layout() *ebiten.Image {
-	if !l.Dirty {
-		return l.Image
-	}
+func (l *List) Layout() {
 	w, h := l.rect.Size()
-	image := ebiten.NewImage(w, h)
+	if l.Image == nil {
+		l.Image = ebiten.NewImage(w, h)
+	} else {
+		l.Image.Clear()
+	}
 	m := 2.0
 	if l.focus {
-		ebitenutil.DrawRect(image, 0, 0, float64(w), float64(h), l.fg)
-		ebitenutil.DrawRect(image, m, m, float64(w)-m*2, float64(h)-m*2, l.bg)
+		ebitenutil.DrawRect(l.Image, 0, 0, float64(w), float64(h), l.fg)
+		ebitenutil.DrawRect(l.Image, m, m, float64(w)-m*2, float64(h)-m*2, l.bg)
 	}
 	boxWidth := l.boxWidth - int(m)/l.rows
 	boxHeight := l.boxHeight - int(m)/l.rows
@@ -73,8 +74,9 @@ func (l *List) Layout() *ebiten.Image {
 			break
 		}
 		lbl := NewLabel(l.a[j], []int{x, y, boxWidth, boxHeight}, l.bg, l.fg)
+		defer lbl.Close()
 		lbl.SetBg(l.b[j])
-		lbl.Draw(image)
+		lbl.Draw(l.Image)
 		if j < len(l.a)-1 {
 			j++
 		} else {
@@ -87,7 +89,6 @@ func (l *List) Layout() *ebiten.Image {
 		}
 	}
 	l.Dirty = false
-	return image
 }
 
 func (l *List) setFocus(value bool) {
@@ -151,7 +152,7 @@ func (l *List) Update(dt int) {
 
 func (l *List) Draw(surface *ebiten.Image) {
 	if l.Dirty {
-		l.Image = l.Layout()
+		l.Layout()
 	}
 	if l.Visible {
 		op := &ebiten.DrawImageOptions{}
@@ -168,4 +169,9 @@ func (l *List) Resize(rect []int) {
 	l.jump = 0
 	l.end = false
 	l.Dirty = true
+	l.Image = nil
+}
+
+func (l *List) Close() {
+	l.Image.Dispose()
 }

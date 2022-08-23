@@ -291,4 +291,8 @@ func (s *SceneGame) Resize() {
 	s.lblTimer.Resize([]int{x, y, w, h})
 }
 
-func (s *SceneGame) Quit() {}
+func (s *SceneGame) Quit() {
+	for _, v := range s.container {
+		v.Close()
+	}
+}

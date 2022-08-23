@@ -34,15 +34,17 @@ func NewCheckbox(text string, rect []int, bg, fg color.Color, f func(c *Checkbox
 	}
 }
 
-func (c *Checkbox) Layout() *ebiten.Image {
-	if !c.Dirty {
-		return c.Image
-	}
+func (c *Checkbox) Layout() {
 	w, h := c.rect.Size()
-	image := ebiten.NewImage(w, h)
+	if c.Image == nil {
+		c.Image = ebiten.NewImage(w, h)
+	} else {
+		c.Image.Clear()
+	}
 	boxWidth, boxHeight := h, h
 	m := 1
 	lbl := NewLabel(c.text, []int{boxHeight + m, m, w - h - m*2, h - m*2}, c.bg, c.fg)
+	defer lbl.Close()
 	var (
 		bg, fg color.Color
 		rect   bool
@@ -60,23 +62,22 @@ func (c *Checkbox) Layout() *ebiten.Image {
 		rect = true
 		m = 2
 	}
-	ebitenutil.DrawRect(image, 0, 0, float64(w), float64(h), fg)
-	ebitenutil.DrawRect(image, float64(m), float64(m), float64(w-m*2), float64(h-m*2), bg)
+	ebitenutil.DrawRect(c.Image, 0, 0, float64(w), float64(h), fg)
+	ebitenutil.DrawRect(c.Image, float64(m), float64(m), float64(w-m*2), float64(h-m*2), bg)
 	lbl.SetRect(rect)
 	lbl.SetBg(bg)
 	lbl.SetFg(fg)
-	lbl.Draw(image)
+	lbl.Draw(c.Image)
 	if c.checked {
-		ebitenutil.DrawRect(image, 0, 0, float64(boxWidth), float64(boxHeight), fg)
-		ebitenutil.DrawRect(image, float64(m), float64(m), float64(boxWidth-m*2), float64(boxHeight-m*2), bg)
-		ebitenutil.DrawLine(image, 0, 0, float64(boxWidth), float64(boxHeight), fg)
-		ebitenutil.DrawLine(image, float64(boxWidth), 0, 0, float64(boxHeight), fg)
+		ebitenutil.DrawRect(c.Image, 0, 0, float64(boxWidth), float64(boxHeight), fg)
+		ebitenutil.DrawRect(c.Image, float64(m), float64(m), float64(boxWidth-m*2), float64(boxHeight-m*2), bg)
+		ebitenutil.DrawLine(c.Image, 0, 0, float64(boxWidth), float64(boxHeight), fg)
+		ebitenutil.DrawLine(c.Image, float64(boxWidth), 0, 0, float64(boxHeight), fg)
 	} else {
-		ebitenutil.DrawRect(image, 0, 0, float64(boxWidth), float64(boxHeight), fg)
-		ebitenutil.DrawRect(image, float64(m), float64(m), float64(boxWidth-m*2), float64(boxHeight-m*2), bg)
+		ebitenutil.DrawRect(c.Image, 0, 0, float64(boxWidth), float64(boxHeight), fg)
+		ebitenutil.DrawRect(c.Image, float64(m), float64(m), float64(boxWidth-m*2), float64(boxHeight-m*2), bg)
 	}
 	c.Dirty = false
-	return image
 }
 
 func (c *Checkbox) Checked() bool { return c.checked }
@@ -130,7 +131,7 @@ func (c *Checkbox) Update(dt int) {
 
 func (c *Checkbox) Draw(surface *ebiten.Image) {
 	if c.Dirty {
-		c.Image = c.Layout()
+		c.Layout()
 	}
 	if c.Visible {
 		op := &ebiten.DrawImageOptions{}
@@ -143,4 +144,9 @@ func (c *Checkbox) Draw(surface *ebiten.Image) {
 func (c *Checkbox) Resize(rect []int) {
 	c.rect = NewRect(rect)
 	c.Dirty = true
+	c.Image = nil
+}
+
+func (c *Checkbox) Close() {
+	c.Image.Dispose()
 }

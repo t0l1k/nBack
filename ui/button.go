@@ -31,13 +31,15 @@ func NewButton(text string, rect []int, bg, fg color.Color, f func(b *Button)) *
 	}
 }
 
-func (b *Button) Layout() *ebiten.Image {
-	if !b.Dirty {
-		return b.Image
-	}
+func (b *Button) Layout() {
 	w, h := b.rect.Size()
-	image := ebiten.NewImage(w, h)
+	if b.Image == nil {
+		b.Image = ebiten.NewImage(w, h)
+	} else {
+		b.Image.Clear()
+	}
 	lbl := NewLabel(b.text, []int{0, 0, w, h}, b.bg, b.fg)
+	defer lbl.Close()
 	if b.focus && !b.mouseDown {
 		lbl.SetBg(b.fg)
 		lbl.SetFg(b.bg)
@@ -48,9 +50,8 @@ func (b *Button) Layout() *ebiten.Image {
 	} else if b.focus && b.mouseDown {
 		lbl.SetRect(true)
 	}
-	lbl.Draw(image)
+	lbl.Draw(b.Image)
 	b.Dirty = false
-	return image
 }
 
 func (b *Button) SetFocus(value bool) {
@@ -94,7 +95,7 @@ func (b *Button) Update(dt int) {
 
 func (b *Button) Draw(surface *ebiten.Image) {
 	if b.Dirty {
-		b.Image = b.Layout()
+		b.Layout()
 	}
 	if b.Visible {
 		op := &ebiten.DrawImageOptions{}
@@ -107,4 +108,9 @@ func (b *Button) Draw(surface *ebiten.Image) {
 func (b *Button) Resize(rect []int) {
 	b.rect = NewRect(rect)
 	b.Dirty = true
+	b.Image = nil
+}
+
+func (b *Button) Close() {
+	b.Image.Dispose()
 }

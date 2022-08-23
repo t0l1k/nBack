@@ -47,7 +47,7 @@ func NewBoard(rect []int, pref *ui.Preferences, theme *ui.Theme) *Board {
 	}
 	if b.pref.Get("show grid").(bool) && b.pref.Get("game type").(string) == pos {
 		gridSz := b.pref.Get("grid size").(int)
-		b.grid = ui.NewGridView(rect, gridSz, (*b.theme)["game bg"], (*b.theme)["game fg"])
+		b.grid = ui.NewGridView(rect, ui.NewPoint(float64(gridSz), float64(gridSz)), (*b.theme)["game bg"], (*b.theme)["game fg"])
 		b.Add(b.grid)
 	}
 	b.field = b.initCells()
@@ -60,7 +60,7 @@ func (b *Board) Reset(gameCount, level int) {
 	b.reset = false
 	b.userMoved = false
 	if b.pref.Get("show grid").(bool) && b.pref.Get("game type").(string) == pos {
-		b.grid.Visibe = true
+		b.grid.Visible = true
 	}
 	b.setFieldVisible(true)
 	b.gameCount = gameCount
@@ -127,7 +127,7 @@ func (b *Board) MakeMove() {
 		b.inGame = false
 		b.CheckMoveRegular()
 		if b.pref.Get("show grid").(bool) && b.pref.Get("game type").(string) == pos {
-			b.grid.Visibe = false
+			b.grid.Visible = false
 		}
 		b.setFieldVisible(false)
 		b.dtEnd = time.Now()
@@ -225,8 +225,7 @@ func (b *Board) initCells() (field []*Cell) {
 	return field
 }
 
-func (b *Board) Layout() *ebiten.Image {
-	return nil
+func (b *Board) Layout() {
 }
 
 func (b *Board) Add(item ui.Drawable) {
@@ -272,6 +271,15 @@ func (b *Board) resizeCells() {
 		cellX := aX*cellSize + x
 		cellY := aY*cellSize + y
 		v.Resize([]int{cellX, cellY, cellSize, cellSize})
+	}
+}
+
+func (b *Board) Close() {
+	for _, v := range b.container {
+		v.Close()
+	}
+	for _, v := range b.field {
+		v.Close()
 	}
 }
 

@@ -116,4 +116,8 @@ func (s *SceneScore) Resize() {
 	s.plotScore.Resize([]int{x, y, w, h})
 }
 
-func (s *SceneScore) Quit() {}
+func (s *SceneScore) Quit() {
+	for _, v := range s.container {
+		v.Close()
+	}
+}

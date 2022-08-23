@@ -38,16 +38,18 @@ func NewCombobox(text string, rect []int, bg, fg color.Color, data []interface{}
 	}
 }
 
-func (c *Combobox) Layout() *ebiten.Image {
-	if !c.Dirty {
-		return c.Image
-	}
+func (c *Combobox) Layout() {
 	w, h := c.rect.Size()
-	image := ebiten.NewImage(w, h)
+	if c.Image == nil {
+		c.Image = ebiten.NewImage(w, h)
+	} else {
+		c.Image.Clear()
+	}
 	boxHeight := h
 	m := 1
 	x, y, w, h := boxHeight*2, 0, w-h*2, h
 	lblText := NewLabel(c.text, []int{x, y, w, h}, c.bg, c.fg)
+	defer lblText.Close()
 	var result string
 	switch value := c.data[c.current].(type) {
 	case int:
@@ -58,12 +60,15 @@ func (c *Combobox) Layout() *ebiten.Image {
 		result = fmt.Sprintf("%v", value)
 	}
 	lblValue := NewLabel(result, []int{0, 0, boxHeight, h}, c.bg, c.fg)
+	defer lblValue.Close()
 	x, y, w, h = boxHeight+m, m, boxHeight-m*2, (boxHeight-m*2)/2
 	btnUpRect := []int{x, y, w, h}
 	x, y, w, h = boxHeight+m, (boxHeight/2)+m, boxHeight-m*2, (boxHeight-m*2)/2
 	btnDownRect := []int{x, y, w, h}
 	btnUp := NewLabel("\u25b2", btnUpRect, c.bg, c.fg)
+	defer btnUp.Close()
 	btnDown := NewLabel("\u25bc", btnDownRect, c.bg, c.fg)
+	defer btnDown.Close()
 	var (
 		bg, fg           color.Color
 		rectUp, rectDown bool
@@ -92,21 +97,20 @@ func (c *Combobox) Layout() *ebiten.Image {
 	lblText.SetRect(true)
 	lblText.SetBg(bg)
 	lblText.SetFg(fg)
-	lblText.Draw(image)
+	lblText.Draw(c.Image)
 	lblValue.SetRect(true)
 	lblValue.SetBg(bg)
 	lblValue.SetFg(fg)
-	lblValue.Draw(image)
+	lblValue.Draw(c.Image)
 	btnUp.SetRect(rectUp)
 	btnUp.SetBg(bg)
 	btnUp.SetFg(fg)
-	btnUp.Draw(image)
+	btnUp.Draw(c.Image)
 	btnDown.SetRect(rectDown)
 	btnDown.SetBg(bg)
 	btnDown.SetFg(fg)
-	btnDown.Draw(image)
+	btnDown.Draw(c.Image)
 	c.Dirty = false
-	return image
 }
 
 func (c *Combobox) Value() interface{} { return c.data[c.current] }
@@ -186,7 +190,7 @@ func (c *Combobox) Update(dt int) {
 
 func (c *Combobox) Draw(surface *ebiten.Image) {
 	if c.Dirty {
-		c.Image = c.Layout()
+		c.Layout()
 	}
 	if c.Visible {
 		op := &ebiten.DrawImageOptions{}
@@ -206,4 +210,9 @@ func (c *Combobox) Resize(rect []int) {
 	c.upRect = NewRect(btnUpRect)
 	c.downRect = NewRect(btnDownRect)
 	c.Dirty = true
+	c.Image = nil
+}
+
+func (c *Combobox) Close() {
+	c.Image.Dispose()
 }

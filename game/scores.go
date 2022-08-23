@@ -27,22 +27,23 @@ func NewScorePlot(rect []int) *ScorePlot {
 		Visibe: true,
 	}
 }
-func (r *ScorePlot) Layout() *ebiten.Image {
-	if !r.Dirty {
-		return r.Image
-	}
+func (r *ScorePlot) Layout() {
 	xArr, yArr, avgArr, strsArr := getDb().scoresData.PlotData()
 	axisXMax := xArr.Len()
 	score, _ := getDb().ReadAllGamesScore()
 	axisYMax := score.max + 1
 	w0, h0 := r.rect.Size()
-	image := ebiten.NewImage(w0, h0)
+	if r.Image == nil {
+		r.Image = ebiten.NewImage(w0, h0)
+	} else {
+		r.Image.Clear()
+	}
 	bg := r.bg
 	fg := r.fg
 	red, g, b, a := fg.RGBA()
 	a /= 3
 	fg2 := color.RGBA{uint8(red), uint8(g), uint8(b), uint8(a)}
-	image.Fill(bg)
+	r.Image.Fill(bg)
 	margin := int(float64(r.rect.GetLowestSize()) * 0.05)
 	x, y := margin, margin
 	w, h := w0-margin*2, h0-margin*2
@@ -60,7 +61,7 @@ func (r *ScorePlot) Layout() *ebiten.Image {
 	// x axis
 	x1, y1 := axisRect.BottomLeft()
 	x2, y2 := axisRect.BottomRight()
-	ebitenutil.DrawLine(image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
+	ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
 	xTicks := xArr.Len()
 	gridWidth := 0
 	lastW := 0
@@ -68,18 +69,19 @@ func (r *ScorePlot) Layout() *ebiten.Image {
 		x := axisXMax * i / xTicks
 		x1, y1 := xPos(float64(x)), axisRect.Bottom()
 		x2, y2 := xPos(float64(x)), axisRect.Bottom()+margin/4
-		ebitenutil.DrawLine(image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
+		ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
 		x1, y1 = xPos(float64(x)), axisRect.Bottom()
 		x2, y2 = xPos(float64(x)), axisRect.Top()
-		ebitenutil.DrawLine(image, float64(x1), float64(y1), float64(x2), float64(y2), fg2)
+		ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg2)
 		gridWidth = int(xPos(float64(x))) - int(xPos(float64(lastW)))
 		lastW = x
 		if i%5 == 0 || i == 1 || i == xTicks {
 			xL, yL := int(xPos(float64(x))-float64(margin)/2), axisRect.Bottom()+int(float64(margin)*0.1)
 			w, h = margin, margin
 			lbl := ui.NewLabel(strconv.Itoa(x), []int{xL, yL, w, h}, bg, fg)
+			defer lbl.Close()
 			lbl.SetBg(bg)
-			lbl.Draw(image)
+			lbl.Draw(r.Image)
 		}
 	}
 	if gridWidth > margin*2 {
@@ -90,44 +92,48 @@ func (r *ScorePlot) Layout() *ebiten.Image {
 		xL, yL := axisRect.Right()-boxSize*3, axisRect.Bottom()-boxSize
 		w, h = boxSize*3, boxSize
 		lbl := ui.NewLabel("Days", []int{xL, yL, w, h}, bg, fg)
+		defer lbl.Close()
 		lbl.SetBg(bg)
-		lbl.Draw(image)
+		lbl.Draw(r.Image)
 	}
 	// y axis
 	x1, y1 = axisRect.BottomLeft()
 	x2, y2 = axisRect.TopLeft()
-	ebitenutil.DrawLine(image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
+	ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
 	yTicks := axisYMax
 	for i := 1; i < yTicks+1; i++ {
 		y = axisYMax * i / yTicks
 		x1, y1 := axisRect.Left(), yPos(float64(y))
 		x2, y2 := axisRect.Left()-margin/4, yPos(float64(y))
-		ebitenutil.DrawLine(image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
+		ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
 		x1, y1 = axisRect.Left(), yPos(float64(y))
 		x2, y2 = axisRect.Right(), yPos(float64(y))
-		ebitenutil.DrawLine(image, float64(x1), float64(y1), float64(x2), float64(y2), fg2)
+		ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg2)
 		boxSize := int(float64(axisRect.GetLowestSize()) * 0.05)
 		xL, yL := axisRect.Left()-int(float64(boxSize)*1.2), int(yPos(float64(y))-float64(boxSize)/2)
 		w, h = boxSize, boxSize
 		lbl := ui.NewLabel(strconv.Itoa(y), []int{xL, yL, w, h}, bg, fg)
+		defer lbl.Close()
 		lbl.SetBg(bg)
-		lbl.Draw(image)
+		lbl.Draw(r.Image)
 	}
 	{
 		boxSize := margin
 		xL, yL := axisRect.Left()+int(float64(boxSize)*0.2), axisRect.Top()-boxSize
 		w, h = int(float64(boxSize)*1.5), boxSize
 		lbl := ui.NewLabel("Level", []int{xL, yL, w, h}, bg, fg)
+		defer lbl.Close()
 		lbl.SetBg(bg)
-		lbl.Draw(image)
+		lbl.Draw(r.Image)
 	}
 	{
 		boxSize := margin * 7
 		xL, yL := axisRect.Right()/2-boxSize/2, axisRect.Top()-int(float64(boxSize)/4.5)
 		w, h = boxSize, boxSize/3
 		lbl := ui.NewLabel("Scores", []int{xL, yL, w, h}, bg, fg)
+		defer lbl.Close()
 		lbl.SetBg(bg)
-		lbl.Draw(image)
+		lbl.Draw(r.Image)
 	}
 	zip := func(a, b list.List) *list.List {
 		if a.Len() != b.Len() {
@@ -168,14 +174,15 @@ func (r *ScorePlot) Layout() *ebiten.Image {
 			w, h = results2[j]-results1[j], boxSize
 			rect := []int{int(x), int(y), int(w), int(h)}
 			lbl := ui.NewLabel(strs[k], rect, (*ui.GetTheme())["correct color"], fg)
-			lblImage := lbl.Layout()
-			w1, h1 := lblImage.Size()
+			defer lbl.Close()
+			lbl.Layout()
+			w1, h1 := lbl.Image.Size()
 			op := ebiten.DrawImageOptions{}
 			op.GeoM.Translate(-float64(w1)/2, -float64(h1)/2)
 			count := -90
 			op.GeoM.Rotate(float64(count%360) * 2 * math.Pi / 360)
 			op.GeoM.Translate(x1, y1-float64(w1)/2)
-			image.DrawImage(lblImage, &op)
+			r.Image.DrawImage(lbl.Image, &op)
 			k++
 		}
 	}
@@ -195,7 +202,7 @@ func (r *ScorePlot) Layout() *ebiten.Image {
 		}
 		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 {
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
-			ebitenutil.DrawLine(image, x1, y1, x2, y2, (*ui.GetTheme())["regular color"])
+			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, (*ui.GetTheme())["regular color"])
 		}
 	}
 	{ // parse data - average line
@@ -213,17 +220,16 @@ func (r *ScorePlot) Layout() *ebiten.Image {
 		}
 		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 {
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
-			ebitenutil.DrawLine(image, x1, y1, x2, y2, (*ui.GetTheme())["warning color"])
+			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, (*ui.GetTheme())["warning color"])
 		}
 	}
 
 	r.Dirty = false
-	return image
 }
 func (r *ScorePlot) Update(dt int) {}
 func (r *ScorePlot) Draw(surface *ebiten.Image) {
 	if r.Dirty {
-		r.Image = r.Layout()
+		r.Layout()
 	}
 	if r.Visibe {
 		op := &ebiten.DrawImageOptions{}
@@ -236,4 +242,9 @@ func (r *ScorePlot) Draw(surface *ebiten.Image) {
 func (r *ScorePlot) Resize(rect []int) {
 	r.rect = ui.NewRect(rect)
 	r.Dirty = true
+	r.Image = nil
+}
+
+func (r *ScorePlot) Close() {
+	r.Image.Dispose()
 }
