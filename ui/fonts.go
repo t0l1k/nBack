@@ -3,8 +3,8 @@ package ui
 import (
 	"log"
 
-	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/t0l1k/nBack/res"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 )
@@ -28,7 +28,7 @@ func GetFonts() (f *Fonts) {
 type Fonts map[int]font.Face
 
 func (f Fonts) addFont(size int) {
-	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
+	tt, err := opentype.Parse(res.RobotoRegular_ttf)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -78,7 +78,7 @@ func (l *Label) Layout() {
 	font := GetFonts().get(fntSize)
 	b := text.BoundString(font, l.text)
 	x := (l.rect.W - b.Max.X) / 2
-	y := l.rect.H - (l.rect.H-b.Dy())/2
+	y := l.rect.H - (l.rect.H+b.Min.Y)/2
 	text.Draw(l.Image, l.text, font, x, y, l.fg)
 	l.Dirty = false
 }
