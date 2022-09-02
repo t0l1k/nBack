@@ -12,6 +12,7 @@ import (
 type SceneGame struct {
 	name                                          string
 	lblName, lblResult, lblMotiv, lblTimer, lblDt *ui.Label
+	movesLine                                     *MovesLine
 	btnStart, btnQuit                             *ui.Button
 	rect                                          *ui.Rect
 	container                                     []ui.Drawable
@@ -101,6 +102,8 @@ func (s *SceneGame) initUi() {
 	s.lblTimer.Visible = false
 	s.lblDt = ui.NewLabel("up: 00:00 ", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblDt)
+	s.movesLine = NewMovesLine(rect)
+	s.Add(s.movesLine)
 }
 
 func (s *SceneGame) Update(dt int) {
@@ -135,6 +138,8 @@ func (s *SceneGame) Update(dt int) {
 		s.lblDt.SetText(ui.GetApp().UpdateUpTime())
 		if !s.lblResult.Visible {
 			s.SaveGame()
+			s.movesLine.Visible = true
+			s.movesLine.Dirty = true
 			var motiv string
 			count := getDb().todayGamesCount
 			s.level, s.lives, motiv = getDb().todayData[count].NextLevel()
@@ -185,6 +190,7 @@ func (s *SceneGame) newSession() {
 	s.lblTimer.Visible = false
 	s.btnQuit.Visible = false
 	s.lblDt.Visible = false
+	s.movesLine.Visible = false
 	if (*ui.GetPreferences())["feedback on user move"].(bool) {
 		x, y, w, h := 0, 0, int(float64(s.rect.W)*0.20), int(float64(s.rect.H)*0.05)
 		s.lblName.Resize([]int{x, y, w, h})
@@ -240,12 +246,14 @@ func (s *SceneGame) SaveGame() {
 		percent:      s.board.getPercent(),
 		correct:      s.board.countCorrect,
 		wrong:        s.board.countWrong,
+		missed:       s.board.countMissed,
 		moves:        s.board.move,
 		totalmoves:   s.board.totalMoves,
 		manual:       (*ui.GetPreferences())["manual mode"].(bool),
 		advance:      (*ui.GetPreferences())["threshold advance"].(int),
 		fallback:     (*ui.GetPreferences())["threshold fallback"].(int),
 		resetonerror: (*ui.GetPreferences())["reset on first wrong"].(bool),
+		movesStatus:  s.board.movesStatus,
 	}
 	getDb().InsertGame(values)
 	log.Println("Game Saved in DB.")
@@ -289,6 +297,9 @@ func (s *SceneGame) Resize() {
 	w, h = int(float64(s.rect.W)*0.5), int(float64(s.rect.H)*0.2)
 	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*4)
 	s.lblTimer.Resize([]int{x, y, w, h})
+	w, h = int(float64(s.rect.W)*0.9), int(float64(s.rect.H)*0.05)
+	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*6.7)
+	s.movesLine.Resize([]int{x, y, w, h})
 }
 
 func (s *SceneGame) Quit() {

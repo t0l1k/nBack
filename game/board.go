@@ -11,30 +11,31 @@ import (
 	"github.com/t0l1k/nBack/ui"
 )
 
-type status int
+type status string
 
 const (
-	Neutral status = iota
-	Regular
-	Correct
-	Warning
-	Error
+	Neutral status = "nil"
+	Regular status = "regular"
+	Correct status = "correct"
+	Warning status = "missed"
+	Error   status = "wrong"
 )
 
 type Board struct {
-	rect                               *ui.Rect
-	inGame, userMoved, reset           bool
-	gameCount, level, totalMoves, move int
-	grid                               *ui.GridView
-	field                              []*Cell
-	container                          []ui.Drawable
-	moveNumber                         int
-	arr, moves                         []int
-	countCorrect, countWrong           int
-	dtBeg, dtEnd                       time.Time
-	moveStatus                         status
-	pref                               *ui.Preferences
-	theme                              *ui.Theme
+	rect                                  *ui.Rect
+	inGame, userMoved, reset              bool
+	gameCount, level, totalMoves, move    int
+	grid                                  *ui.GridView
+	field                                 []*Cell
+	container                             []ui.Drawable
+	moveValue                             int
+	arr, moves                            []int
+	countCorrect, countWrong, countMissed int
+	dtBeg, dtEnd                          time.Time
+	moveStatus                            status
+	movesStatus                           map[int]status
+	pref                                  *ui.Preferences
+	theme                                 *ui.Theme
 }
 
 func NewBoard(rect []int, pref *ui.Preferences, theme *ui.Theme) *Board {
@@ -67,9 +68,11 @@ func (b *Board) Reset(gameCount, level int) {
 	b.level = level
 	b.moves = make([]int, 0)
 	b.move = 0
+	b.movesStatus = make(map[int]status)
+	b.moveStatus = Neutral
 	b.totalMoves = TotalMoves(b.level)
 	b.arr = getArr(b.level, b.totalMoves, b.pref)
-	b.countCorrect, b.countWrong = 0, 0
+	b.countCorrect, b.countWrong, b.countMissed = 0, 0, 0
 	b.dtBeg = time.Now()
 	b.MakeMove()
 }
@@ -94,20 +97,24 @@ func (b *Board) CheckMoveRegular() {
 		s += fmt.Sprintf("%v", b.moves[i:j])
 		aa := b.moves[i:j]
 		if aa[0] == aa[len(aa)-1] && b.userMoved {
+			b.movesStatus[b.move] = Correct
 			b.moveStatus = Correct
 			b.countCorrect += 1
 			s += " correct answer!"
 		} else if aa[0] == aa[len(aa)-1] && !b.userMoved {
+			b.movesStatus[b.move] = Error
 			b.moveStatus = Error
-			b.countWrong += 1
+			b.countMissed += 1
 			s += " missed the answer!"
 		} else if aa[0] != aa[len(aa)-1] && b.userMoved {
+			b.movesStatus[b.move] = Warning
 			b.moveStatus = Warning
 			b.countWrong += 1
 			s += fmt.Sprintf(" there was no repeat %v steps back!", b.level)
 		}
 	} else {
 		if b.userMoved {
+			b.movesStatus[b.move] = Warning
 			b.moveStatus = Warning
 			b.countWrong += 1
 			s += "error! went early."
@@ -115,7 +122,7 @@ func (b *Board) CheckMoveRegular() {
 			s += " analyze early"
 		}
 	}
-	if b.countWrong > 0 && (*b.pref)["reset on first wrong"].(bool) {
+	if (b.countWrong > 0 || b.countMissed > 0) && (*b.pref)["reset on first wrong"].(bool) {
 		b.reset = true
 	}
 	b.userMoved = false
@@ -133,9 +140,10 @@ func (b *Board) MakeMove() {
 		b.dtEnd = time.Now()
 		return
 	}
-	b.moveNumber = b.arr[b.move]
-	b.moves = append(b.moves, b.moveNumber)
+	b.moveValue = b.arr[b.move]
+	b.moves = append(b.moves, b.moveValue)
 	b.move += 1
+	b.movesStatus[b.move] = Regular
 }
 
 func (b *Board) setFieldVisible(value bool) {
@@ -147,13 +155,13 @@ func (b *Board) setFieldVisible(value bool) {
 func (b *Board) ShowActiveCell() {
 	var mv int
 	if (*b.pref)["game type"].(string) == pos {
-		mv = b.moveNumber
+		mv = b.moveValue
 	} else if (*b.pref)["game type"].(string) == col {
 		mv = 0
-		b.field[mv].SetActiveColor(colors[b.moveNumber])
+		b.field[mv].SetActiveColor(colors[b.moveValue])
 	} else if (*b.pref)["game type"].(string) == sym {
 		mv = 0
-		b.field[mv].SetSymbol(b.moveNumber)
+		b.field[mv].SetSymbol(b.moveValue)
 	}
 	b.field[mv].SetActive(true)
 }
@@ -161,7 +169,7 @@ func (b *Board) ShowActiveCell() {
 func (b *Board) HideActiveCell() {
 	var mv int
 	if (*b.pref)["game type"].(string) == pos {
-		mv = b.moveNumber
+		mv = b.moveValue
 	} else if (*b.pref)["game type"].(string) == col {
 		mv = 0
 	} else if (*b.pref)["game type"].(string) == sym {
@@ -173,7 +181,7 @@ func (b *Board) HideActiveCell() {
 func (b *Board) IsShowActiveCell() bool {
 	var mv int
 	if (*b.pref)["game type"].(string) == pos {
-		mv = b.moveNumber
+		mv = b.moveValue
 	} else if (*b.pref)["game type"].(string) == col {
 		mv = 0
 	} else if (*b.pref)["game type"].(string) == sym {
@@ -189,7 +197,7 @@ func (b *Board) getPercent() int {
 	var (
 		aa, bb, i, j float64
 	)
-	aa, bb = float64(b.countCorrect), float64(b.countWrong)
+	aa, bb = float64(b.countCorrect), float64(b.countWrong+b.countMissed)
 	if aa == 0 && bb == 0 {
 		i, j = 1, 0
 	} else if aa == 0 && bb > 0 {

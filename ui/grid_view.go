@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -37,7 +36,6 @@ func (g *GridView) Layout() {
 	}
 	gridX := int(float64(g.rect.W) / g.grid.X)
 	gridY := int(float64(g.rect.H) / g.grid.Y)
-	fmt.Println(g.rect, g.grid, gridX, gridY)
 	if g.DrawRect {
 		ebitenutil.DrawRect(g.Image, 0, 0, float64(w), float64(h), g.fg)
 		ebitenutil.DrawRect(g.Image, 2, 2, float64(w)-4, float64(h)-4, g.bg)

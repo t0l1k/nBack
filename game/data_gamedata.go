@@ -1,6 +1,7 @@
 package game
 
 import (
+	"container/list"
 	"fmt"
 	"image/color"
 	"time"
@@ -9,9 +10,10 @@ import (
 )
 
 type GameData struct {
-	gameType, dtBeg, dtEnd                                                          string
-	id, level, lives, percent, correct, wrong, moves, totalmoves, advance, fallback int
-	manual, resetonerror                                                            bool
+	gameType, dtBeg, dtEnd                                                                  string
+	id, level, lives, percent, correct, wrong, missed, moves, totalmoves, advance, fallback int
+	manual, resetonerror                                                                    bool
+	movesStatus                                                                             map[int]status
 }
 
 func (d *GameData) NextLevel() (int, int, string) {
@@ -54,6 +56,36 @@ func (d *GameData) NextLevel() (int, int, string) {
 		}
 	}
 	return level, lives, motiv
+}
+func (d GameData) MovesColor() (moves, colors list.List) {
+	theme := ui.GetTheme()
+	colorNil := (*theme)["game fg"]
+	colorRegular := (*theme)["regular color"]
+	colorCorrect := (*theme)["correct color"]
+	colorError := (*theme)["error color"]
+	colorWarning := (*theme)["warning color"]
+	for k, v := range d.movesStatus {
+		moves.PushBack(k)
+		clr := colorNil
+		switch v {
+		case Neutral, Regular:
+			clr = colorRegular
+		case Correct:
+			clr = colorCorrect
+		case Error:
+			clr = colorError
+		case Warning:
+			clr = colorWarning
+		}
+		colors.PushBack(clr)
+	}
+	if d.moves < d.totalmoves {
+		for i := d.moves + 1; i < d.totalmoves+1; i++ {
+			moves.PushBack(i)
+			colors.PushBack(colorNil)
+		}
+	}
+	return moves, colors
 }
 
 func (d GameData) BgColor() (result color.Color) {
@@ -99,23 +131,25 @@ func (q GameData) String() string {
 	m := int(sec / 60)
 	seconds := int(sec) % 60
 	dStr := fmt.Sprintf("%02v:%02v.%03v", m, seconds, int(mSec))
-	ss := fmt.Sprintf("#%v %vB%v %v%% correct:%v wrong:%v moves:%v [%v]",
+	ss := fmt.Sprintf("#%v %vB%v %v%% correct:%v wrong:%v missed:%v moves:%v [%v]",
 		getDb().todayGamesCount,
 		q.gameType,
 		q.level,
 		q.percent,
 		q.correct,
 		q.wrong,
+		q.missed,
 		q.moves,
 		dStr)
 	if (*ui.GetPreferences())["reset on first wrong"].(bool) {
-		ss = fmt.Sprintf("#%v %vB%v %v%% correct:%v wrong:%v moves:(%v/%v) [%v]",
+		ss = fmt.Sprintf("#%v %vB%v %v%% correct:%v wrong:%v missed:%v moves:(%v/%v) [%v]",
 			getDb().todayGamesCount,
 			q.gameType,
 			q.level,
 			q.percent,
 			q.correct,
 			q.wrong,
+			q.missed,
 			q.moves,
 			q.totalmoves,
 			dStr)

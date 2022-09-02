@@ -43,7 +43,7 @@ func (d *Db) createGamesTable() {
 	if err != nil {
 		panic(err)
 	}
-	var createGameDB string = "CREATE TABLE IF NOT EXISTS simple(id INTEGER PRIMARY KEY AUTOINCREMENT,gametype TEXT, dtBeg TEXT, dtEnd TEXT, level INTEGER, lives INTEGER, percent INTEGER, correct INTEGER, wrong NTEGER, moves INTEGER, totalmoves INTEGER, manual INTEGER, advance INTEGER, fallback INTEGER, resetonerror INTEGER)"
+	var createGameDB string = "CREATE TABLE IF NOT EXISTS simple(id INTEGER PRIMARY KEY AUTOINCREMENT,gametype TEXT, dtBeg TEXT, dtEnd TEXT, level INTEGER, lives INTEGER, percent INTEGER, correct INTEGER, wrong INTEGER, missed INTEGER, moves INTEGER, totalmoves INTEGER, manual INTEGER, advance INTEGER, fallback INTEGER, resetonerror INTEGER)"
 	cur, err := d.conn.Prepare(createGameDB)
 	if err != nil {
 		panic(err)
@@ -217,7 +217,7 @@ func (d *Db) InsertGame(values *GameData) {
 	if d.conn == nil {
 		d.Setup()
 	}
-	insStr := "INSERT INTO simple(gametype, dtBeg, dtEnd, level, lives, percent, correct, wrong, moves, totalmoves, manual, advance, fallback, resetonerror) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	insStr := "INSERT INTO simple(gametype, dtBeg, dtEnd, level, lives, percent, correct, wrong, missed, moves, totalmoves, manual, advance, fallback, resetonerror) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	cur, err := d.conn.Prepare(insStr)
 	if err != nil {
 		log.Println("Error in DB:", insStr, values)
@@ -231,16 +231,17 @@ func (d *Db) InsertGame(values *GameData) {
 	percent := values.percent
 	correct := values.correct
 	wrong := values.wrong
+	missed := values.missed
 	moves := values.moves
 	totalmoves := values.totalmoves
 	manual := values.manual
 	advance := values.advance
 	fallback := values.fallback
 	resetonerror := values.resetonerror
-	cur.Exec(gametype, dtBeg, dtEnd, level, lives, percent, correct, wrong, moves, totalmoves, manual, advance, fallback, resetonerror)
+	cur.Exec(gametype, dtBeg, dtEnd, level, lives, percent, correct, wrong, missed, moves, totalmoves, manual, advance, fallback, resetonerror)
 	d.todayGamesCount += 1
 	d.todayData[d.todayGamesCount] = values
-	log.Println("DB: Inserted:", gametype, dtBeg, dtEnd, level, lives, percent, correct, wrong, moves, totalmoves, manual, advance, fallback, resetonerror)
+	log.Println("DB: Inserted:", gametype, dtBeg, dtEnd, level, lives, percent, correct, wrong, missed, moves, totalmoves, manual, advance, fallback, resetonerror)
 }
 
 func (d *Db) ReadTodayGames() {
@@ -258,7 +259,7 @@ func (d *Db) ReadTodayGames() {
 	dtFormat := "2006-01-02 15:04:05.000"
 	for rows.Next() {
 		values := &GameData{}
-		err = rows.Scan(&values.id, &values.gameType, &values.dtBeg, &values.dtEnd, &values.level, &values.lives, &values.percent, &values.correct, &values.wrong, &values.moves, &values.totalmoves, &values.manual, &values.advance, &values.fallback, &values.resetonerror)
+		err = rows.Scan(&values.id, &values.gameType, &values.dtBeg, &values.dtEnd, &values.level, &values.lives, &values.percent, &values.correct, &values.wrong, &values.missed, &values.moves, &values.totalmoves, &values.manual, &values.advance, &values.fallback, &values.resetonerror)
 		if err != nil && err != sql.ErrNoRows {
 			panic(err)
 		}

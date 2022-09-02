@@ -89,7 +89,7 @@ var (
 	green       = color.RGBA{0, 192, 0, 255}
 	greenYellow = color.RGBA{173, 255, 47, 255}
 	yellow      = color.RGBA{255, 255, 0, 255}
-	orange      = color.RGBA{255, 127, 0, 255}
+	orange      = color.RGBA{255, 165, 0, 255}
 	chocolate   = color.RGBA{210, 105, 30, 255}
 	red         = color.RGBA{255, 0, 0, 255}
 	brown       = color.RGBA{165, 42, 42, 255}
