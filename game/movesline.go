@@ -87,7 +87,7 @@ func (p *MovesLine) Layout() {
 		boxSize := margin * 2
 		xL, yL := axisRect.Right()-boxSize*3, axisRect.Bottom()-boxSize
 		w, h = boxSize*3, boxSize
-		lbl := ui.NewLabel("Moves", []int{xL, yL, w, h}, fg2, fg)
+		lbl := ui.NewLabel("Ходы игры", []int{xL, yL, w, h}, fg2, fg)
 		defer lbl.Close()
 		lbl.SetBg(bg)
 		lbl.Draw(p.Image)

@@ -85,6 +85,7 @@ func (b *Board) CheckUserMove() {
 
 func (b *Board) CheckMoveRegular() {
 	s := fmt.Sprintf("Check regular Move %v", b)
+	mv := b.move - 1
 	if len(b.moves) > b.level+1 {
 		var i, j int
 		if b.inGame {
@@ -94,27 +95,28 @@ func (b *Board) CheckMoveRegular() {
 			i = b.move - b.level - 1
 			j = b.move
 		}
+		mv = j
 		s += fmt.Sprintf("%v", b.moves[i:j])
 		aa := b.moves[i:j]
 		if aa[0] == aa[len(aa)-1] && b.userMoved {
-			b.movesStatus[b.move] = Correct
+			b.movesStatus[mv] = Correct
 			b.moveStatus = Correct
 			b.countCorrect += 1
 			s += " correct answer!"
 		} else if aa[0] == aa[len(aa)-1] && !b.userMoved {
-			b.movesStatus[b.move] = Error
+			b.movesStatus[mv] = Error
 			b.moveStatus = Error
 			b.countMissed += 1
 			s += " missed the answer!"
 		} else if aa[0] != aa[len(aa)-1] && b.userMoved {
-			b.movesStatus[b.move] = Warning
+			b.movesStatus[mv] = Warning
 			b.moveStatus = Warning
 			b.countWrong += 1
 			s += fmt.Sprintf(" there was no repeat %v steps back!", b.level)
 		}
 	} else {
 		if b.userMoved {
-			b.movesStatus[b.move] = Warning
+			b.movesStatus[mv] = Warning
 			b.moveStatus = Warning
 			b.countWrong += 1
 			s += "error! went early."

@@ -15,7 +15,7 @@ type ScoreData struct {
 
 func (s *ScoreData) String() string {
 	dtFormat := "2006-01-02"
-	return fmt.Sprintf("%v Games:%v Max:%v Avg:%v", s.dt.Format(dtFormat), s.games, s.max, s.avg)
+	return fmt.Sprintf("%v Игр:%v максимально:%v среднее:%v", s.dt.Format(dtFormat), s.games, s.max, s.avg)
 }
 
 type ScoresData map[int]*ScoreData

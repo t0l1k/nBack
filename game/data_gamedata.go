@@ -26,32 +26,32 @@ func (d *GameData) NextLevel() (int, int, string) {
 	if manual {
 		win, ok, count := getDb().todayData.getWinCountInManual()
 		if !win && !ok {
-			motiv = "Manual game mode. Level default."
+			motiv = "Режим игры на ручнике. Уровень по умолчанию"
 			level = (*ui.GetPreferences())["default level"].(int)
 			lives = count
 		} else if !win && ok {
-			motiv = "Manual game mode. Good result! One more time this level!"
+			motiv = "Режим игры на ручнике. Хороший результат! Еще раз этот уровень!"
 			lives = count
 		} else if win && ok {
-			motiv = "Manual game mode. Excellent result! Level up!"
+			motiv = "Режим игры на ручнике. Отличный результат! Уровень повышен!"
 			level += 1
 			lives = 0
 		}
 	} else if d.percent >= adv {
 		level += 1
 		lives = (*ui.GetPreferences())["threshold fallback sessions"].(int)
-		motiv = "Classic game mode. Excellent result! Level up!"
+		motiv = "Режим игры классика. Отличный результат! Уровень повышен!"
 	} else if d.percent >= fall && d.percent < adv {
-		motiv = "Classic game mode. Good result! One more time this level!"
+		motiv = "Режим игры классика. Хороший результат! Еще раз этот уровень!"
 	} else if d.percent < fall {
 		if lives == 1 {
-			motiv = "Classic game mode. Let's improve the results! Level down!"
+			motiv = "Режим игры классика. Улучшим ещё результаты! Уровень вниз!"
 			if level > 1 {
 				level -= 1
 				lives = (*ui.GetPreferences())["threshold fallback sessions"].(int)
 			}
 		} else if lives > 1 {
-			motiv = "Classic game mode. Let's improve the results! Let's have an extra try!"
+			motiv = "Режим игры классика. Дополнительная попытка!"
 			lives -= 1
 		}
 	}
@@ -131,7 +131,7 @@ func (q GameData) String() string {
 	m := int(sec / 60)
 	seconds := int(sec) % 60
 	dStr := fmt.Sprintf("%02v:%02v.%03v", m, seconds, int(mSec))
-	ss := fmt.Sprintf("#%v %vB%v %v%% correct:%v wrong:%v missed:%v moves:%v [%v]",
+	ss := fmt.Sprintf("#%v %vB%v %v%% правильно:%v ошибок:%v пропущено:%v ходов:%v [%v]",
 		getDb().todayGamesCount,
 		q.gameType,
 		q.level,
@@ -142,7 +142,7 @@ func (q GameData) String() string {
 		q.moves,
 		dStr)
 	if (*ui.GetPreferences())["reset on first wrong"].(bool) {
-		ss = fmt.Sprintf("#%v %vB%v %v%% correct:%v wrong:%v missed:%v moves:(%v/%v) [%v]",
+		ss = fmt.Sprintf("#%v %vB%v %v%% правильно:%v ошибок:%v пропущено:%v ходов:(%v/%v) [%v]",
 			getDb().todayGamesCount,
 			q.gameType,
 			q.level,

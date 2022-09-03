@@ -145,7 +145,7 @@ func (t *TodayGamesData) ListShortStr() (strs []string, clrs []color.Color) {
 func (t *TodayGamesData) String() string {
 	s := fmt.Sprintf("%v", t.getToday())
 	if t.getCount() > 0 {
-		s = fmt.Sprintf("%v #%v max:%v, avg:%v [%v]",
+		s = fmt.Sprintf("%v #%v максимальный:%v, средний:%v [%v]",
 			t.getToday(),
 			t.getCount(),
 			t.getMax(),

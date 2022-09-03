@@ -35,50 +35,50 @@ func (r *OptTheme) Layout() {
 	r.Image.Fill(r.bg)
 	x, y := 0, 0
 	rect := []int{x, y, cellWidth / 2, cellHeight}
-	bgLbl := ui.NewLabel("background", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"])
+	bgLbl := ui.NewLabel("цвет фона", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"])
 	bgLbl.SetRect(true)
 	bgLbl.Draw(r.Image)
 	x, y = cellWidth/2, 0
 	rect = []int{x, y, cellWidth / 2, cellHeight}
-	fgLbl := ui.NewLabel("foreground", rect, (*ui.GetTheme())["fg"], (*ui.GetTheme())["bg"])
+	fgLbl := ui.NewLabel("цвет текста", rect, (*ui.GetTheme())["fg"], (*ui.GetTheme())["bg"])
 	fgLbl.SetRect(true)
 	fgLbl.Draw(r.Image)
 
 	x, y = 0, cellHeight
 	rect = []int{x, y, cellWidth / 3, cellHeight}
-	gameBgLbl := ui.NewLabel("game background", rect, (*ui.GetTheme())["game bg"], (*ui.GetTheme())["game fg"])
+	gameBgLbl := ui.NewLabel("цвет фона в игре", rect, (*ui.GetTheme())["game bg"], (*ui.GetTheme())["game fg"])
 	gameBgLbl.SetRect(true)
 	gameBgLbl.Draw(r.Image)
 	x, y = cellWidth/3, cellHeight
 	rect = []int{x, y, cellWidth / 3, cellHeight}
-	gameFgLbl := ui.NewLabel("game foreground", rect, (*ui.GetTheme())["game fg"], (*ui.GetTheme())["game bg"])
+	gameFgLbl := ui.NewLabel("цвет текста в игре", rect, (*ui.GetTheme())["game fg"], (*ui.GetTheme())["game bg"])
 	gameFgLbl.SetRect(true)
 	gameFgLbl.Draw(r.Image)
 	x, y = cellWidth/3*2, cellHeight
 	rect = []int{x, y, cellWidth / 3, cellHeight}
-	gameActiveLbl := ui.NewLabel("game active color", rect, (*ui.GetTheme())["game active color"], (*ui.GetTheme())["game bg"])
+	gameActiveLbl := ui.NewLabel("цвет активной ячейки", rect, (*ui.GetTheme())["game active color"], (*ui.GetTheme())["game bg"])
 	gameActiveLbl.SetRect(true)
 	gameActiveLbl.Draw(r.Image)
 
 	x, y = 0, cellHeight*2
 	w, h = cellWidth/4, cellHeight
 	rect = []int{x, y, w, h}
-	regularLbl := ui.NewLabel("color regular", rect, (*ui.GetTheme())["regular color"], (*ui.GetTheme())["fg"])
+	regularLbl := ui.NewLabel("цвет обычный", rect, (*ui.GetTheme())["regular color"], (*ui.GetTheme())["fg"])
 	regularLbl.SetRect(true)
 	regularLbl.Draw(r.Image)
 	x = cellWidth / 4
 	rect = []int{x, y, w, h}
-	correctLbl := ui.NewLabel("color correct", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	correctLbl := ui.NewLabel("цвет правильно", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	correctLbl.SetRect(true)
 	correctLbl.Draw(r.Image)
 	x = cellWidth / 4 * 2
 	rect = []int{x, y, w, h}
-	warningLbl := ui.NewLabel("color warning", rect, (*ui.GetTheme())["warning color"], (*ui.GetTheme())["fg"])
+	warningLbl := ui.NewLabel("цвет предупреждение", rect, (*ui.GetTheme())["warning color"], (*ui.GetTheme())["fg"])
 	warningLbl.SetRect(true)
 	warningLbl.Draw(r.Image)
 	x = cellWidth / 4 * 3
 	rect = []int{x, y, w, h}
-	errorLbl := ui.NewLabel("color error", rect, (*ui.GetTheme())["error color"], (*ui.GetTheme())["fg"])
+	errorLbl := ui.NewLabel("цвет ошибка", rect, (*ui.GetTheme())["error color"], (*ui.GetTheme())["fg"])
 	errorLbl.SetRect(true)
 	errorLbl.Draw(r.Image)
 
@@ -108,6 +108,7 @@ func (r *OptTheme) Draw(surface *ebiten.Image) {
 func (r *OptTheme) Resize(rect []int) {
 	r.rect = ui.NewRect(rect)
 	r.Dirty = true
+	r.Image = nil
 }
 
 func (r *OptTheme) Close() {

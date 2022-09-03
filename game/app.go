@@ -80,21 +80,32 @@ func NewPref() *ui.Preferences {
 }
 
 var (
-	black       = color.RGBA{0, 0, 0, 255}
-	gray        = color.RGBA{192, 192, 192, 255}
-	white       = color.RGBA{255, 255, 255, 255}
-	purple      = color.RGBA{148, 0, 221, 255}
-	darkBlue    = color.RGBA{0, 0, 139, 255}
-	blue        = color.RGBA{0, 0, 255, 255}
-	green       = color.RGBA{0, 192, 0, 255}
-	greenYellow = color.RGBA{173, 255, 47, 255}
+	black  = color.RGBA{0, 0, 0, 255}
+	gray   = color.RGBA{128, 128, 128, 255}
+	silver = color.RGBA{192, 192, 192, 255}
+	white  = color.RGBA{255, 255, 255, 255}
+
+	orange  = color.RGBA{255, 165, 0, 255}
+	fuchsia = color.RGBA{255, 0, 255, 255}
+	purple  = color.RGBA{128, 0, 128, 255}
+	red     = color.RGBA{255, 0, 0, 255}
+	maroon  = color.RGBA{128, 0, 0, 255}
+
 	yellow      = color.RGBA{255, 255, 0, 255}
-	orange      = color.RGBA{255, 165, 0, 255}
-	chocolate   = color.RGBA{210, 105, 30, 255}
-	red         = color.RGBA{255, 0, 0, 255}
-	brown       = color.RGBA{165, 42, 42, 255}
+	greenYellow = color.RGBA{173, 255, 47, 255}
+	yellowGreen = color.RGBA{154, 205, 50, 255}
+	olive       = color.RGBA{128, 128, 0, 255}
+	lime        = color.RGBA{0, 255, 0, 255}
+	green       = color.RGBA{0, 128, 0, 255}
+
+	aqua = color.RGBA{0, 255, 255, 255}
+	teal = color.RGBA{0, 128, 128, 255}
+	blue = color.RGBA{0, 0, 255, 255}
+	navy = color.RGBA{0, 0, 128, 255}
 )
-var colors = []color.Color{brown, red, chocolate, orange, yellow, greenYellow, green, blue, darkBlue, purple, white}
+var colors = []color.Color{blue, aqua, green, olive, yellow, red, purple, orange, white, gray}
+
+// var colors = []color.Color{navy, blue, teal, aqua, green, lime, olive, yellowGreen, greenYellow, yellow, maroon, red, purple, fuchsia, orange, white, silver, gray}
 
 func NewTheme() *ui.Theme {
 	theme := ui.NewTheme()

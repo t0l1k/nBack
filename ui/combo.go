@@ -65,9 +65,9 @@ func (c *Combobox) Layout() {
 	btnUpRect := []int{x, y, w, h}
 	x, y, w, h = boxHeight+m, (boxHeight/2)+m, boxHeight-m*2, (boxHeight-m*2)/2
 	btnDownRect := []int{x, y, w, h}
-	btnUp := NewLabel("\u25b2", btnUpRect, c.bg, c.fg)
+	btnUp := NewLabel("^", btnUpRect, c.bg, c.fg)
 	defer btnUp.Close()
-	btnDown := NewLabel("\u25bc", btnDownRect, c.bg, c.fg)
+	btnDown := NewLabel("v", btnDownRect, c.bg, c.fg)
 	defer btnDown.Close()
 	var (
 		bg, fg           color.Color
@@ -123,6 +123,14 @@ func (c *Combobox) SetValue(value interface{}) {
 			break
 		}
 	}
+}
+
+func (c *Combobox) SetText(value string) {
+	if c.text == value {
+		return
+	}
+	c.text = value
+	c.Dirty = true
 }
 
 func (c *Combobox) SetFocus(value bool) {

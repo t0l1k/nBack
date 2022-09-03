@@ -48,23 +48,23 @@ func (s *SceneGame) initGame() {
 		s.level = (*ui.GetPreferences())["default level"].(int)
 		s.lives = (*ui.GetPreferences())["threshold fallback sessions"].(int)
 	}
-	ss := fmt.Sprintf("#%v level:%v", s.count, s.level)
+	ss := fmt.Sprintf("#%v Играть %v шагов назад.", s.count, s.level)
 	res := ""
 	tp := ui.GetPreferences().Get("game type").(string)
 	switch tp {
 	case pos:
-		res = "position"
+		res = "Позиции"
 	case col:
-		res = "color"
+		res = "Цвета"
 	case sym:
-		res = "number"
+		res = "Числа"
 	default:
 		res = tp
 	}
 	if (*ui.GetPreferences())["manual mode"].(bool) {
-		ss += fmt.Sprintf(" Manual game(%v) mode.", res)
+		ss += fmt.Sprintf(" Игра(%v) режим на ручнике.", res)
 	} else {
-		ss += fmt.Sprintf(" Classic game(%v) mode.", res)
+		ss += fmt.Sprintf(" Игра(%v) режим классика.", res)
 	}
 	s.lblResult.SetText(ss)
 }
@@ -79,7 +79,7 @@ func (s *SceneGame) initGameTimers() {
 
 func (s *SceneGame) initUi() {
 	rect := []int{0, 0, 1, 1}
-	s.btnStart = ui.NewButton("New Session", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) {
+	s.btnStart = ui.NewButton("Новая сессия", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) {
 		log.Println("Button new session pressed")
 		s.paused = false
 		s.newSession()
@@ -87,14 +87,14 @@ func (s *SceneGame) initUi() {
 	s.Add(s.btnStart)
 	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Pop() })
 	s.Add(s.btnQuit)
-	s.name = "Game N-Back result"
+	s.name = "N-Back запуск"
 	s.lblName = ui.NewLabel(s.name, rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblName)
 	s.board = NewBoard(rect, ui.GetPreferences(), ui.GetTheme())
 	s.Add(s.board)
 	s.lblResult = ui.NewLabel(" ", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblResult)
-	s.lblMotiv = ui.NewLabel("Motivation", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblMotiv = ui.NewLabel("Мотивация", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblMotiv)
 	s.lblMotiv.Visible = false
 	s.lblTimer = ui.NewLabel(s.name, rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
@@ -145,7 +145,7 @@ func (s *SceneGame) Update(dt int) {
 			s.level, s.lives, motiv = getDb().todayData[count].NextLevel()
 			ss := getDb().todayData[count].String()
 			s.lblResult.SetText(ss)
-			log.Printf("Game Result is: %v", ss)
+			log.Printf("Итог игры: %v", ss)
 			s.count += 1
 			s.lblMotiv.SetText(motiv)
 			s.lblMotiv.SetBg(getDb().todayData[count].BgColor())
@@ -257,6 +257,7 @@ func (s *SceneGame) SaveGame() {
 	}
 	getDb().InsertGame(values)
 	log.Println("Game Saved in DB.")
+	fmt.Println(s.board.movesStatus)
 }
 
 func (s *SceneGame) Draw(surface *ebiten.Image) {

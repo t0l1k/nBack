@@ -79,10 +79,10 @@ func (a *App) SetFullscreen(value bool) {
 func fitWindowSize() (w int, h int) {
 	ww, hh := ebiten.ScreenSizeInFullscreen()
 	k := 10
-	w, h = 180*k, 320*k
+	w, h = 320*k, 200*k
 	for ww <= w || hh <= h {
 		k -= 1
-		w, h = 200*k, 320*k
+		w, h = 320*k, 200*k
 	}
 	return w, h
 }
@@ -181,5 +181,5 @@ func (s *App) UpdateUpTime() string {
 	} else {
 		result = fmt.Sprintf("%02v:%02v", int(minutes), int(sec))
 	}
-	return fmt.Sprintf("up: %v", result)
+	return fmt.Sprintf("Прошло: %v", result)
 }
