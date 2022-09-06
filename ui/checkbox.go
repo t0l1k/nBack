@@ -42,7 +42,7 @@ func (c *Checkbox) Layout() {
 		c.Image.Clear()
 	}
 	boxWidth, boxHeight := h, h
-	m := 1
+	m := int(float64(c.rect.GetLowestSize()) * 0.1)
 	lbl := NewLabel(c.text, []int{boxHeight + m, m, w - h - m*2, h - m*2}, c.bg, c.fg)
 	defer lbl.Close()
 	var (
@@ -71,8 +71,8 @@ func (c *Checkbox) Layout() {
 	if c.checked {
 		ebitenutil.DrawRect(c.Image, 0, 0, float64(boxWidth), float64(boxHeight), fg)
 		ebitenutil.DrawRect(c.Image, float64(m), float64(m), float64(boxWidth-m*2), float64(boxHeight-m*2), bg)
-		ebitenutil.DrawLine(c.Image, 0, 0, float64(boxWidth), float64(boxHeight), fg)
-		ebitenutil.DrawLine(c.Image, float64(boxWidth), 0, 0, float64(boxHeight), fg)
+		ebitenutil.DrawLine(c.Image, float64(m*3), float64(m*3), float64(boxWidth-m*3), float64(boxHeight-m*3), fg)
+		ebitenutil.DrawLine(c.Image, float64(boxWidth-m*3), float64(m*3), float64(m*3), float64(boxHeight-m*3), fg)
 	} else {
 		ebitenutil.DrawRect(c.Image, 0, 0, float64(boxWidth), float64(boxHeight), fg)
 		ebitenutil.DrawRect(c.Image, float64(m), float64(m), float64(boxWidth-m*2), float64(boxHeight-m*2), bg)

@@ -12,9 +12,8 @@ type SceneOptions struct {
 	rect                                                              *ui.Rect
 	container                                                         []ui.Drawable
 	lblName                                                           *ui.Label
-	btnQuit                                                           *ui.Button
 	optTheme                                                          *OptTheme
-	btnReset, btnApply                                                *ui.Button
+	btnQuit, btnReset, btnApply                                       *ui.Button
 	optFullScr, optCenterCell, optFeeback, optResetOnWrong, optManual *ui.Checkbox
 	optShowGrid, optShowCross                                         *ui.Checkbox
 	optRR, optPause                                                   *ui.Combobox
@@ -41,13 +40,15 @@ func NewSceneOptions() *SceneOptions {
 	s.Add(s.optTheme)
 	s.btnReset = ui.NewButton("Обнулить", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], s.Reset)
 	s.Add(s.btnReset)
-	s.btnApply = ui.NewButton("Применить", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], s.Apply)
+	s.btnApply = ui.NewButton("Сохранить", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], s.Apply)
 	s.Add(s.btnApply)
+	// opt app fullscreen lang
 	s.optFullScr = ui.NewCheckbox("Запуск на весь экран", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
 		(*s.newSets)["fullscreen"] = s.optFullScr.Checked()
 		log.Printf("fullscreen checked: %v", (*s.newSets)["fullscreen"].(bool))
 	})
 	s.Add(s.optFullScr)
+	// opt for game feedback resetOnWrong RR pause
 	s.optCenterCell = ui.NewCheckbox("Использовать ячейку в центре", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
 		(*s.newSets)["use center cell"] = s.optCenterCell.Checked()
 		log.Printf("Use center cell: %v", (*s.newSets)["use center cell"].(bool))
@@ -219,26 +220,26 @@ func (s *SceneOptions) getGameType() string {
 }
 func (s *SceneOptions) Setup(sets *ui.Preferences) {
 	s.optFullScr.SetChecked((*sets)["fullscreen"].(bool))
-	s.optCenterCell.SetChecked((*sets)["use center cell"].(bool))
+	s.optPause.SetValue((*sets)["pause to rest"].(int))
 	s.optFeeback.SetChecked((*sets)["feedback on user move"].(bool))
 	s.optResetOnWrong.SetChecked((*sets)["reset on first wrong"].(bool))
-	s.optManual.SetChecked((*sets)["manual mode"].(bool))
-	s.optShowGrid.SetChecked((*sets)["show grid"].(bool))
-	s.optShowCross.SetChecked((*sets)["show crosshair"].(bool))
 	s.optRR.SetValue((*sets)["random repition"].(float64))
-	s.optPause.SetValue((*sets)["pause to rest"].(int))
-	s.optGridSize.SetValue((*sets)["grid size"].(int))
+	s.optTmNextCell.SetValue((*sets)["time to next cell"].(float64))
+	s.optTmShowCell.SetValue((*sets)["time to show cell"].(float64))
+	s.optManual.SetChecked((*sets)["manual mode"].(bool))
 	s.optDefLevel.SetValue((*sets)["default level"].(int))
 	s.optManualAdv.SetValue((*sets)["manual advance"].(int))
-	s.optAdv.SetValue((*sets)["threshold advance"].(int))
-	s.optFall.SetValue((*sets)["threshold fallback"].(int))
-	s.optFallSessions.SetValue((*sets)["threshold fallback sessions"].(int))
 	s.optTrials.SetValue((*sets)["trials"].(int))
 	s.optFactor.SetValue((*sets)["trials factor"].(int))
 	s.optExponent.SetValue((*sets)["trials exponent"].(int))
-	s.optTmNextCell.SetValue((*sets)["time to next cell"].(float64))
-	s.optTmShowCell.SetValue((*sets)["time to show cell"].(float64))
+	s.optAdv.SetValue((*sets)["threshold advance"].(int))
+	s.optFall.SetValue((*sets)["threshold fallback"].(int))
+	s.optFallSessions.SetValue((*sets)["threshold fallback sessions"].(int))
 	s.optGameType.SetValue((*sets)["game type"].(string))
+	s.optShowCross.SetChecked((*sets)["show crosshair"].(bool))
+	s.optGridSize.SetValue((*sets)["grid size"].(int))
+	s.optShowGrid.SetChecked((*sets)["show grid"].(bool))
+	s.optCenterCell.SetChecked((*sets)["use center cell"].(bool))
 }
 
 func (s *SceneOptions) Reset(b *ui.Button) {
@@ -279,7 +280,7 @@ func (s *SceneOptions) Draw(surface *ebiten.Image) {
 func (s *SceneOptions) Resize() {
 	w, h := ui.GetApp().GetScreenSize()
 	s.rect = ui.NewRect([]int{0, 0, w, h})
-	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)/16)
+	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)/20)
 	s.btnQuit.Resize([]int{x, y, w, h})
 	x, w = h, int(float64(s.rect.W)*0.20)
 	s.lblName.Resize([]int{x, y, w, h})
@@ -289,33 +290,38 @@ func (s *SceneOptions) Resize() {
 	w, h1 := s.rect.W, h*3
 	rect := []int{0, y, w, h1}
 	s.optTheme.Resize(rect)
+
 	cellWidth, cellHeight := w, h
-	x, y = 0, int(float64(cellHeight)*1.2)
+	x, y = 0, int(float64(cellHeight)*1.1)
 	rect = []int{x, y, cellWidth, cellHeight}
 	s.optFullScr.Resize(rect)
 
-	x, y = 0, int(float64(cellHeight)*2.4)
-	h3 := float64(cellWidth) / 3.2
-	rect = []int{x, y, int(h3), cellHeight}
-	s.optCenterCell.Resize(rect)
-	x = int(h3 * 1.1)
-	rect = []int{x, y, int(h3), cellHeight}
-	s.optFeeback.Resize(rect)
-	x = int(h3 * 2.2)
-	rect = []int{x, y, int(h3), cellHeight}
-	s.optGridSize.Resize(rect)
-
-	x, y = 0, int(float64(cellHeight)*3.6)
-	rect = []int{x, y, int(h3), cellHeight}
-	s.optResetOnWrong.Resize(rect)
-	x = int(h3 * 1.1)
-	rect = []int{x, y, int(h3), cellHeight}
-	s.optRR.Resize(rect)
-	x = int(h3 * 2.2)
-	rect = []int{x, y, int(h3), cellHeight}
+	x, y = 0, int(float64(cellHeight)*1.1)+y
+	rect = []int{x, y, cellWidth, cellHeight}
 	s.optPause.Resize(rect)
 
-	x, y = 0, int(float64(cellHeight)*4.8)
+	x, y = 0, int(float64(cellHeight)*1.1)+y
+	rect = []int{x, y, cellWidth, cellHeight}
+	s.optFeeback.Resize(rect)
+
+	x, y = 0, int(float64(cellHeight)*1.1)+y
+	rect = []int{x, y, cellWidth, cellHeight}
+	s.optResetOnWrong.Resize(rect)
+
+	x, y = 0, int(float64(cellHeight)*1.1)+y
+	rect = []int{x, y, cellWidth, cellHeight}
+	s.optRR.Resize(rect)
+
+	x, y = 0, int(float64(cellHeight)*1.1)+y
+	h2 := float64(cellWidth) / 2.1
+	rect = []int{x, y, int(h2), cellHeight}
+	s.optTmNextCell.Resize(rect)
+	x = int(h2 * 1.1)
+	rect = []int{x, y, int(h2), cellHeight}
+	s.optTmShowCell.Resize(rect)
+
+	x, y = 0, int(float64(cellHeight)*1.1)+y
+	h3 := float64(cellWidth) / 3.2
 	rect = []int{x, y, int(h3), cellHeight}
 	s.optDefLevel.Resize(rect)
 	x = int(h3 * 1.1)
@@ -325,7 +331,7 @@ func (s *SceneOptions) Resize() {
 	rect = []int{x, y, int(h3), cellHeight}
 	s.optManualAdv.Resize(rect)
 
-	x, y = 0, int(float64(cellHeight)*6.0)
+	x, y = 0, int(float64(cellHeight)*1.1)+y
 	rect = []int{x, y, int(h3), cellHeight}
 	s.optAdv.Resize(rect)
 	x = int(h3 * 1.1)
@@ -335,7 +341,7 @@ func (s *SceneOptions) Resize() {
 	rect = []int{x, y, int(h3), cellHeight}
 	s.optFallSessions.Resize(rect)
 
-	x, y = 0, int(float64(cellHeight)*7.2)
+	x, y = 0, int(float64(cellHeight)*1.1)+y
 	rect = []int{x, y, int(h3), cellHeight}
 	s.optTrials.Resize(rect)
 	x = int(h3 * 1.1)
@@ -345,26 +351,26 @@ func (s *SceneOptions) Resize() {
 	rect = []int{x, y, int(h3), cellHeight}
 	s.optExponent.Resize(rect)
 
-	x, y = 0, int(float64(cellHeight)*8.4)
-	h2 := float64(cellWidth) / 2.1
-	rect = []int{x, y, int(h2), cellHeight}
-	s.optTmNextCell.Resize(rect)
-	x = int(h2 * 1.1)
-	rect = []int{x, y, int(h2), cellHeight}
-	s.optTmShowCell.Resize(rect)
-
-	x, y = 0, int(float64(cellHeight)*9.6)
-	h2 = float64(cellWidth) / 2.1
-	rect = []int{x, y, int(h2), cellHeight}
-	s.optShowGrid.Resize(rect)
-	x = int(h2 * 1.1)
-	rect = []int{x, y, int(h2), cellHeight}
-	s.optShowCross.Resize(rect)
-
 	cellWidth, cellHeight = w, h
-	x, y = 0, int(float64(cellHeight)*10.8)
+	x, y = 0, int(float64(cellHeight)*1.1)+y
 	rect = []int{x, y, cellWidth, cellHeight}
 	s.optGameType.Resize(rect)
+
+	x, y = 0, int(float64(cellHeight)*1.1)+y
+	h2 = float64(cellWidth) / 2.1
+	rect = []int{x, y, int(h2), cellHeight}
+	s.optShowCross.Resize(rect)
+	x = int(h2 * 1.1)
+	rect = []int{x, y, int(h2), cellHeight}
+	s.optShowGrid.Resize(rect)
+
+	x, y = 0, int(float64(cellHeight)*1.1)+y
+	h2 = float64(cellWidth) / 2.1
+	rect = []int{x, y, int(h2), cellHeight}
+	s.optGridSize.Resize(rect)
+	x = int(h2 * 1.1)
+	rect = []int{x, y, int(h2), cellHeight}
+	s.optCenterCell.Resize(rect)
 }
 
 func (s *SceneOptions) Quit() {

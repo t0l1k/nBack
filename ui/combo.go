@@ -46,7 +46,7 @@ func (c *Combobox) Layout() {
 		c.Image.Clear()
 	}
 	boxHeight := h
-	m := 1
+	m := int(float64(c.rect.GetLowestSize()) * 0.1)
 	x, y, w, h := boxHeight*2, 0, w-h*2, h
 	lblText := NewLabel(c.text, []int{x, y, w, h}, c.bg, c.fg)
 	defer lblText.Close()
@@ -65,9 +65,9 @@ func (c *Combobox) Layout() {
 	btnUpRect := []int{x, y, w, h}
 	x, y, w, h = boxHeight+m, (boxHeight/2)+m, boxHeight-m*2, (boxHeight-m*2)/2
 	btnDownRect := []int{x, y, w, h}
-	btnUp := NewLabel("^", btnUpRect, c.bg, c.fg)
+	btnUp := NewLabel("\u02c6", btnUpRect, c.bg, c.fg)
 	defer btnUp.Close()
-	btnDown := NewLabel("v", btnDownRect, c.bg, c.fg)
+	btnDown := NewLabel("\u02c7", btnDownRect, c.bg, c.fg)
 	defer btnDown.Close()
 	var (
 		bg, fg           color.Color

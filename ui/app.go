@@ -141,15 +141,13 @@ func (a *App) Pop() {
 		idx := len(a.scenes) - 1
 		a.scenes = a.scenes[:idx]
 		log.Printf("App Pop Scene Quit done.")
-	}
-	if len(a.scenes) > 0 {
+		if len(a.scenes) == 0 {
+			log.Printf("App Quit.")
+			os.Exit(0)
+		}
 		a.currentScene = a.scenes[len(a.scenes)-1]
 		a.currentScene.Entered()
 		log.Printf("App Pop New Scene Entered.")
-	}
-	if len(a.scenes) == 0 {
-		log.Printf("App Quit.")
-		os.Exit(0)
 	}
 }
 
