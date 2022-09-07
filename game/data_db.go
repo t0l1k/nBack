@@ -54,7 +54,7 @@ func (d *Db) createGamesTable() {
 }
 
 func (d *Db) createSettingsTable() {
-	var createSettingsDB string = "CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY AUTOINCREMENT,timetonextcell REAL, timeshowcell REAL, rr REAL, level INTEGER, manualadv INTEGER,manual INTEGER, thresholdadv INTEGER, thresholdfall INTEGER, threshholssessions INTEGER, trials INTEGER, factor INTEGER, exponent INTEGER, feedbackmove INTEGER, usecenter INTEGER, resetonwrong INTEGER, fullscreen INTEGER, pauserest INTEGER, grid INTEGER, showgrid INTEGER,showcrosshair INTEGER, gametype TEXT, symcount INTEGER)"
+	var createSettingsDB string = "CREATE TABLE IF NOT EXISTS settings(id INTEGER PRIMARY KEY AUTOINCREMENT,timetonextcell REAL, timeshowcell REAL, rr REAL, level INTEGER, manualadv INTEGER,manual INTEGER, thresholdadv INTEGER, thresholdfall INTEGER, threshholssessions INTEGER, trials INTEGER, factor INTEGER, exponent INTEGER, feedbackmove INTEGER, usecenter INTEGER, resetonwrong INTEGER, fullscreen INTEGER, pauserest INTEGER, grid INTEGER, showgrid INTEGER,showcrosshair INTEGER, gametype TEXT, symcount INTEGER, lang TEXT)"
 	cur, err := d.conn.Prepare(createSettingsDB)
 	if err != nil {
 		panic(err)
@@ -76,7 +76,7 @@ func (d *Db) InsertSettings(values *ui.Preferences) {
 	cur.Exec()
 	log.Println("Deleted previous settings")
 
-	insStr := "INSERT INTO settings(timetonextcell, timeshowcell, rr, level, manualadv, manual, thresholdadv, thresholdfall, threshholssessions, trials, factor, exponent, feedbackmove, usecenter, resetonwrong, fullscreen, pauserest, grid, showgrid, showcrosshair, gametype, symcount) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	insStr := "INSERT INTO settings(timetonextcell, timeshowcell, rr, level, manualadv, manual, thresholdadv, thresholdfall, threshholssessions, trials, factor, exponent, feedbackmove, usecenter, resetonwrong, fullscreen, pauserest, grid, showgrid, showcrosshair, gametype, symcount, lang) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	cur, err = d.conn.Prepare(insStr)
 	if err != nil {
 		log.Println("Error insert settings in DB:", insStr, values)
@@ -105,8 +105,10 @@ func (d *Db) InsertSettings(values *ui.Preferences) {
 		(*values)["show grid"].(bool),
 		(*values)["show crosshair"].(bool),
 		(*values)["game type"].(string),
-		(*values)["symbols count"].(int))
-	log.Println("DB: Inserted settings.")
+		(*values)["symbols count"].(int),
+		(*values)["lang"].(string),
+	)
+	log.Println("DB: Inserted settings.", values)
 }
 
 func (d *Db) dropSettingsTable() {
@@ -154,6 +156,7 @@ func (d *Db) ReadSettings() (values *ui.Preferences) {
 		shch := false
 		gt := ""
 		sc := 0
+		lg := ""
 		err = rows.Scan(
 			&id,
 			&tmnc,
@@ -178,6 +181,7 @@ func (d *Db) ReadSettings() (values *ui.Preferences) {
 			&shch,
 			&gt,
 			&sc,
+			&lg,
 		)
 		if err != nil && err != sql.ErrNoRows {
 			d.dropSettingsTable()
@@ -205,6 +209,7 @@ func (d *Db) ReadSettings() (values *ui.Preferences) {
 		v.Set("show crosshair", shch)
 		v.Set("game type", gt)
 		v.Set("symbols count", sc)
+		v.Set("lang", lg)
 	}
 	log.Println("Read settings from db:", v, len(v))
 	if len(v) > 0 {
@@ -276,7 +281,7 @@ func (d *Db) ReadTodayGames() {
 
 func (d *Db) ReadAllGamesScore() (*ScoreData, string) {
 	values := &ScoreData{}
-	resultStr := "Ещё нет результата, что показать."
+	resultStr := ui.GetLocale().Get("scrResultNil")
 	if d.conn == nil {
 		return values, resultStr
 	}
@@ -293,7 +298,13 @@ func (d *Db) ReadAllGamesScore() (*ScoreData, string) {
 		if err != nil && err != sql.ErrNoRows {
 			panic(err)
 		}
-		resultStr = fmt.Sprintf("Всего игр: %v Максимально:%v Среднее:%v", values.games, values.max, values.avg)
+		resultStr = fmt.Sprintf("%v: %v %v:%v %v:%v",
+			ui.GetLocale().Get("scrResultTtl"),
+			values.games,
+			ui.GetLocale().Get("wordMax"),
+			values.max,
+			ui.GetLocale().Get("wordAvg"),
+			values.avg)
 	}
 	return values, resultStr
 }

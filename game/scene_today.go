@@ -9,7 +9,6 @@ import (
 )
 
 type SceneToday struct {
-	name                                                        string
 	lblName, lblPeriodResult, lblDt, lblHelper                  *ui.Label
 	btnScore, btnStart, btnQuit, btnPlot, btnFullScreen, btnOpt *ui.Button
 	lblsResult                                                  *ui.List
@@ -24,32 +23,31 @@ func NewSceneToday() *SceneToday {
 		rect: ui.NewRect([]int{0, 0, 1, 1}),
 	}
 	rect := []int{0, 0, 1, 1}
-	s.btnStart = ui.NewButton("Играть", rect, (*ui.GetTheme())["game active color"], (*ui.GetTheme())["game bg"], func(b *ui.Button) { ui.GetApp().Push(NewSceneGame()) })
+	s.btnStart = ui.NewButton(ui.GetLocale().Get("btnStart"), rect, (*ui.GetTheme())["game active color"], (*ui.GetTheme())["game bg"], func(b *ui.Button) { ui.GetApp().Push(NewSceneGame()) })
 	s.Add(s.btnStart)
-	s.btnScore = ui.NewButton("Итог", rect, (*ui.GetTheme())["error color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Push(NewSceneScore()) })
+	s.btnScore = ui.NewButton(ui.GetLocale().Get("btnScore"), rect, (*ui.GetTheme())["error color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Push(NewSceneScore()) })
 	s.Add(s.btnScore)
 	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Pop() })
 	s.Add(s.btnQuit)
-	s.name = "N-Back"
-	s.lblName = ui.NewLabel(s.name, rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblName = ui.NewLabel(ui.GetLocale().Get("AppName"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblName)
 	s.lblPeriodResult = ui.NewLabel(getDb().todayData.String(), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblPeriodResult)
-	s.lblDt = ui.NewLabel("up: 00:00 ", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblDt = ui.NewLabel(ui.GetLocale().Get("lblUpTm"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblDt)
 	s.lblsResult = ui.NewList(nil, nil, rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], s.getRows())
 	s.Add(s.lblsResult)
-	s.lblHelper = ui.NewLabel("Нажать <SPACE> начать играть,<P> график, <S> итог,<F11> на весь экран, <O> настройки, <Esc> выход", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblHelper = ui.NewLabel(ui.GetLocale().Get("btnHelper"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblHelper)
 	s.plotResult = NewResultPlot(rect)
 	s.plotResult.Visibe = false
 	s.Add(s.plotResult)
 	s.toggleResults = false
-	s.btnPlot = ui.NewButton("{Г}", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { s.togglePlot() })
+	s.btnPlot = ui.NewButton(ui.GetLocale().Get("btnPlot"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { s.togglePlot() })
 	s.Add(s.btnPlot)
 	s.btnFullScreen = ui.NewButton("[ ]", rect, (*ui.GetTheme())["regular color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().ToggleFullscreen() })
 	s.Add(s.btnFullScreen)
-	s.btnOpt = ui.NewButton("Настройки", rect, (*ui.GetTheme())["warning color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Push(NewSceneOptions()) })
+	s.btnOpt = ui.NewButton(ui.GetLocale().Get("btnOpt"), rect, (*ui.GetTheme())["warning color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Push(NewSceneOptions()) })
 	s.Add(s.btnOpt)
 	return s
 }

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"sort"
 	"time"
+
+	"github.com/t0l1k/nBack/ui"
 )
 
 type ScoreData struct {
@@ -15,7 +17,14 @@ type ScoreData struct {
 
 func (s *ScoreData) String() string {
 	dtFormat := "2006-01-02"
-	return fmt.Sprintf("%v Игр:%v максимально:%v среднее:%v", s.dt.Format(dtFormat), s.games, s.max, s.avg)
+	return fmt.Sprintf("%v %v:%v %v:%v %v:%v",
+		s.dt.Format(dtFormat),
+		ui.GetLocale().Get("wordGames"),
+		s.games,
+		ui.GetLocale().Get("wordMax"),
+		s.max,
+		ui.GetLocale().Get("wordAvg"),
+		s.avg)
 }
 
 type ScoresData map[int]*ScoreData

@@ -8,7 +8,6 @@ import (
 )
 
 type SceneOptions struct {
-	name                                                              string
 	rect                                                              *ui.Rect
 	container                                                         []ui.Drawable
 	lblName                                                           *ui.Label
@@ -21,7 +20,7 @@ type SceneOptions struct {
 	optAdv, optFall, optFallSessions                                  *ui.Combobox
 	optTrials, optFactor, optExponent                                 *ui.Combobox
 	optTmNextCell, optTmShowCell                                      *ui.Combobox
-	optGameType                                                       *ui.Combobox
+	optGameType, optLang                                              *ui.Combobox
 	newSets                                                           *ui.Preferences
 }
 
@@ -33,52 +32,58 @@ func NewSceneOptions() *SceneOptions {
 	rect := []int{0, 0, 1, 1}
 	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Pop() })
 	s.Add(s.btnQuit)
-	s.name = "Настройки"
-	s.lblName = ui.NewLabel(s.name, rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+
+	s.lblName = ui.NewLabel(ui.GetLocale().Get("btnOpt"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblName)
+
 	s.optTheme = NewOptTheme(rect)
 	s.Add(s.optTheme)
-	s.btnReset = ui.NewButton("Обнулить", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], s.Reset)
+
+	s.btnReset = ui.NewButton(ui.GetLocale().Get("btnReset"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], s.Reset)
 	s.Add(s.btnReset)
-	s.btnApply = ui.NewButton("Сохранить", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], s.Apply)
+
+	s.btnApply = ui.NewButton(ui.GetLocale().Get("btnSave"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], s.Apply)
 	s.Add(s.btnApply)
+
 	// opt app fullscreen lang
-	s.optFullScr = ui.NewCheckbox("Запуск на весь экран", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
+	s.optFullScr = ui.NewCheckbox(ui.GetLocale().Get("optfs"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
 		(*s.newSets)["fullscreen"] = s.optFullScr.Checked()
 		log.Printf("fullscreen checked: %v", (*s.newSets)["fullscreen"].(bool))
 	})
 	s.Add(s.optFullScr)
+
 	// opt for game feedback resetOnWrong RR pause
-	s.optCenterCell = ui.NewCheckbox("Использовать ячейку в центре", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
+	s.optCenterCell = ui.NewCheckbox(ui.GetLocale().Get("optcc"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
 		(*s.newSets)["use center cell"] = s.optCenterCell.Checked()
 		log.Printf("Use center cell: %v", (*s.newSets)["use center cell"].(bool))
 	})
 	s.Add(s.optCenterCell)
-	s.optFeeback = ui.NewCheckbox("Отклик на ход игры", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
+
+	s.optFeeback = ui.NewCheckbox(ui.GetLocale().Get("optfeedback"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
 		(*s.newSets)["feedback on user move"] = s.optFeeback.Checked()
 		log.Printf("Feedback on mpve: %v", (*s.newSets)["feedback on user move"].(bool))
 	})
 	s.Add(s.optFeeback)
 
-	s.optResetOnWrong = ui.NewCheckbox("Сброс при первой ошибке", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
+	s.optResetOnWrong = ui.NewCheckbox(ui.GetLocale().Get("optreset"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
 		(*s.newSets)["reset on first wrong"] = s.optResetOnWrong.Checked()
 		log.Printf("Reset on wrong: %v", (*s.newSets)["reset on first wrong"].(bool))
 	})
 	s.Add(s.optResetOnWrong)
 
-	s.optManual = ui.NewCheckbox("Игра на ручнике", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
+	s.optManual = ui.NewCheckbox(ui.GetLocale().Get("optmanual"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
 		(*s.newSets)["manual mode"] = s.optManual.Checked()
 		log.Printf("Manual: %v", (*s.newSets)["manual mode"].(bool))
 	})
 	s.Add(s.optManual)
 
-	s.optShowGrid = ui.NewCheckbox("Показать сетку", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
+	s.optShowGrid = ui.NewCheckbox(ui.GetLocale().Get("optgrid"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
 		(*s.newSets)["show grid"] = s.optShowGrid.Checked()
 		log.Printf("Show Grid: %v", (*s.newSets)["show grid"].(bool))
 	})
 	s.Add(s.optShowGrid)
 
-	s.optShowCross = ui.NewCheckbox("Показать прицел", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
+	s.optShowCross = ui.NewCheckbox(ui.GetLocale().Get("optcross"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], func(c *ui.Checkbox) {
 		(*s.newSets)["show crosshair"] = s.optShowCross.Checked()
 		log.Printf("Show crosshair: %v", (*s.newSets)["show crosshair"].(bool))
 	})
@@ -86,7 +91,7 @@ func NewSceneOptions() *SceneOptions {
 
 	data := []interface{}{2, 3, 4, 5}
 	idx := 1
-	s.optGridSize = ui.NewCombobox("Размер сетки", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], data, idx, func(c *ui.Combobox) {
+	s.optGridSize = ui.NewCombobox(ui.GetLocale().Get("optgridsz"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], data, idx, func(c *ui.Combobox) {
 		(*s.newSets)["grid size"] = s.optGridSize.Value().(int)
 		log.Println("Grid Size changed")
 	})
@@ -103,11 +108,11 @@ func NewSceneOptions() *SceneOptions {
 			idx = j
 		}
 	}
-	s.optRR = ui.NewCombobox("Процент повторов", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], rrData, idx, func(c *ui.Combobox) { (*s.newSets)["random repition"] = s.optRR.Value().(float64) })
+	s.optRR = ui.NewCombobox(ui.GetLocale().Get("optrr"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], rrData, idx, func(c *ui.Combobox) { (*s.newSets)["random repition"] = s.optRR.Value().(float64) })
 	s.Add(s.optRR)
 
 	arrPauses := []interface{}{3, 5, 10, 15, 20, 30, 45, 60, 90, 180}
-	s.optPause = ui.NewCombobox("Обязательная пауза после игры", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrPauses, 2, func(c *ui.Combobox) { (*s.newSets)["pause to rest"] = s.optPause.Value().(int) })
+	s.optPause = ui.NewCombobox(ui.GetLocale().Get("optpause"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrPauses, 2, func(c *ui.Combobox) { (*s.newSets)["pause to rest"] = s.optPause.Value().(int) })
 	s.Add(s.optPause)
 
 	values, _ := getDb().ReadAllGamesScore()
@@ -123,14 +128,14 @@ func NewSceneOptions() *SceneOptions {
 			current = i - 1
 		}
 	}
-	s.optDefLevel = ui.NewCombobox("Уровень по умолчанию", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arr, current, func(c *ui.Combobox) {
+	s.optDefLevel = ui.NewCombobox(ui.GetLocale().Get("optdeflev"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arr, current, func(c *ui.Combobox) {
 		(*s.newSets)["default level"] = s.optDefLevel.Value().(int)
 	})
 	s.Add(s.optDefLevel)
 
 	arrAdvManual := []interface{}{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	idx = 0
-	s.optManualAdv = ui.NewCombobox("Игр на 100% переход", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrAdvManual, idx, func(b *ui.Combobox) {
+	s.optManualAdv = ui.NewCombobox(ui.GetLocale().Get("optdeflevadv"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrAdvManual, idx, func(b *ui.Combobox) {
 		(*s.newSets)["manual advance"] = s.optManualAdv.Value().(int)
 	})
 	s.Add(s.optManualAdv)
@@ -143,7 +148,7 @@ func NewSceneOptions() *SceneOptions {
 				idx = j
 			}
 		}
-		s.optAdv = ui.NewCombobox("Процент перехода вверх", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrAdv, idx, func(b *ui.Combobox) { (*s.newSets)["threshold advance"] = s.optAdv.Value().(int) })
+		s.optAdv = ui.NewCombobox(ui.GetLocale().Get("optadv"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrAdv, idx, func(b *ui.Combobox) { (*s.newSets)["threshold advance"] = s.optAdv.Value().(int) })
 		s.Add(s.optAdv)
 	}
 	{
@@ -154,28 +159,28 @@ func NewSceneOptions() *SceneOptions {
 				idx = j
 			}
 		}
-		s.optFall = ui.NewCombobox("Процент перехода вниз", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrFall, idx, func(b *ui.Combobox) { (*s.newSets)["threshold fallback"] = s.optFall.Value().(int) })
+		s.optFall = ui.NewCombobox(ui.GetLocale().Get("optfall"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrFall, idx, func(b *ui.Combobox) { (*s.newSets)["threshold fallback"] = s.optFall.Value().(int) })
 		s.Add(s.optFall)
 	}
 
 	arrFallSessions := []interface{}{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	idx = 3
-	s.optFallSessions = ui.NewCombobox("Дополнительно попыток", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrFallSessions, idx, func(b *ui.Combobox) { (*s.newSets)["threshold fallback sessions"] = s.optFallSessions.Value().(int) })
+	s.optFallSessions = ui.NewCombobox(ui.GetLocale().Get("optgmadv"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrFallSessions, idx, func(b *ui.Combobox) { (*s.newSets)["threshold fallback sessions"] = s.optFallSessions.Value().(int) })
 	s.Add(s.optFallSessions)
 
 	arrTrials := []interface{}{5, 10, 20, 30, 50}
 	idx = 0
-	s.optTrials = ui.NewCombobox("Ходов", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrTrials, idx, func(b *ui.Combobox) { (*s.newSets)["trials"] = s.optTrials.Value().(int) })
+	s.optTrials = ui.NewCombobox(ui.GetLocale().Get("optmv"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrTrials, idx, func(b *ui.Combobox) { (*s.newSets)["trials"] = s.optTrials.Value().(int) })
 	s.Add(s.optTrials)
 
 	arrFactor := []interface{}{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	idx = 0
-	s.optFactor = ui.NewCombobox("Столбик", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrFactor, idx, func(b *ui.Combobox) { (*s.newSets)["trials factor"] = s.optFactor.Value().(int) })
+	s.optFactor = ui.NewCombobox(ui.GetLocale().Get("optfc"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrFactor, idx, func(b *ui.Combobox) { (*s.newSets)["trials factor"] = s.optFactor.Value().(int) })
 	s.Add(s.optFactor)
 
 	arrExp := []interface{}{1, 2, 3}
 	idx = 1
-	s.optExponent = ui.NewCombobox("Степень", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrExp, idx, func(b *ui.Combobox) { (*s.newSets)["trials exponent"] = s.optExponent.Value().(int) })
+	s.optExponent = ui.NewCombobox(ui.GetLocale().Get("optexp"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrExp, idx, func(b *ui.Combobox) { (*s.newSets)["trials exponent"] = s.optExponent.Value().(int) })
 	s.Add(s.optExponent)
 
 	var arrTimeNextCell []interface{}
@@ -185,14 +190,14 @@ func NewSceneOptions() *SceneOptions {
 			idx = j
 		}
 	}
-	s.optTmNextCell = ui.NewCombobox("Время до следующей ячейки", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrTimeNextCell, idx, func(b *ui.Combobox) {
+	s.optTmNextCell = ui.NewCombobox(ui.GetLocale().Get("opttmnc"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrTimeNextCell, idx, func(b *ui.Combobox) {
 		(*s.newSets)["time to next cell"] = s.optTmNextCell.Value().(float64)
 	})
 	s.Add(s.optTmNextCell)
 
 	arrShow := []interface{}{0.5, 1.0}
 	idx = 0
-	s.optTmShowCell = ui.NewCombobox("Время показа ячейки", rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrShow, idx, func(b *ui.Combobox) { (*s.newSets)["time to show cell"] = s.optTmShowCell.Value().(float64) })
+	s.optTmShowCell = ui.NewCombobox(ui.GetLocale().Get("opttmsc"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrShow, idx, func(b *ui.Combobox) { (*s.newSets)["time to show cell"] = s.optTmShowCell.Value().(float64) })
 	s.Add(s.optTmShowCell)
 
 	gamesType := []interface{}{pos, col, sym}
@@ -202,23 +207,38 @@ func NewSceneOptions() *SceneOptions {
 		s.optGameType.SetText(s.getGameType())
 	})
 	s.Add(s.optGameType)
+
+	langs := []interface{}{"en", "ru"}
+	idx = 0
+	for i, v := range langs {
+		prefLang := ui.GetPreferences().Get("lang")
+		if prefLang == v {
+			idx = i
+			break
+		}
+	}
+	s.optLang = ui.NewCombobox(ui.GetLocale().Get("optlang"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], langs, idx, func(b *ui.Combobox) {
+		(*s.newSets)["lang"] = s.optLang.Value().(string)
+	})
+	s.Add(s.optLang)
 	return s
 }
 
 func (s *SceneOptions) getGameType() string {
-	result := "Тип игры"
+	result := ui.GetLocale().Get("optgmtp") + " "
 	tp := ui.GetPreferences().Get("game type").(string)
 	switch tp {
 	case pos:
-		result += " Позиции"
+		result += ui.GetLocale().Get("optpos")
 	case col:
-		result += " Цвета"
+		result += ui.GetLocale().Get("optcol")
 	case sym:
-		result += " Символы"
+		result += ui.GetLocale().Get("optsym")
 	}
 	return result
 }
 func (s *SceneOptions) Setup(sets *ui.Preferences) {
+	s.optLang.SetValue((*sets)["lang"].(string))
 	s.optFullScr.SetChecked((*sets)["fullscreen"].(bool))
 	s.optPause.SetValue((*sets)["pause to rest"].(int))
 	s.optFeeback.SetChecked((*sets)["feedback on user move"].(bool))
@@ -295,6 +315,10 @@ func (s *SceneOptions) Resize() {
 	x, y = 0, int(float64(cellHeight)*1.1)
 	rect = []int{x, y, cellWidth, cellHeight}
 	s.optFullScr.Resize(rect)
+
+	x, y = 0, int(float64(cellHeight)*1.1)+y
+	rect = []int{x, y, cellWidth, cellHeight}
+	s.optLang.Resize(rect)
 
 	x, y = 0, int(float64(cellHeight)*1.1)+y
 	rect = []int{x, y, cellWidth, cellHeight}

@@ -104,7 +104,7 @@ func (t *TodayGamesData) getWinCountInManual() (bool, bool, int) {
 	}
 	sort.Ints(keys)
 	count := 0
-	adv := (*ui.GetPreferences())["manual advance"].(int)
+	adv := (*ui.GetPreferences()).Get("manual advance").(int)
 	lastLvl := getDb().todayData[len(keys)].level
 	ok := false
 	for i := len(keys); i > 0; i-- {
@@ -145,10 +145,12 @@ func (t *TodayGamesData) ListShortStr() (strs []string, clrs []color.Color) {
 func (t *TodayGamesData) String() string {
 	s := fmt.Sprintf("%v", t.getToday())
 	if t.getCount() > 0 {
-		s = fmt.Sprintf("%v #%v максимальный:%v, средний:%v [%v]",
+		s = fmt.Sprintf("%v #%v %v:%v, %v:%v [%v]",
 			t.getToday(),
 			t.getCount(),
+			ui.GetLocale().Get("wordMax"),
 			t.getMax(),
+			ui.GetLocale().Get("wordAvg"),
 			t.getAvg(),
 			t.getGamesTimeDuraton(),
 		)

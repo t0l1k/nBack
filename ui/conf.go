@@ -48,3 +48,25 @@ func (t Theme) String() string {
 	}
 	return s
 }
+
+type Locale map[string]string
+
+func NewLocale() Locale {
+	return make(Locale)
+}
+
+func (l Locale) Get(value string) string {
+	return l[value]
+}
+
+func (l Locale) Set(set, value string) {
+	l[set] = value
+}
+
+func (l Locale) String() string {
+	s := ""
+	for k, v := range l {
+		s += fmt.Sprintf("%v: %v\n", k, v)
+	}
+	return s
+}

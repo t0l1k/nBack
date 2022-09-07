@@ -26,32 +26,32 @@ func (d *GameData) NextLevel() (int, int, string) {
 	if manual {
 		win, ok, count := getDb().todayData.getWinCountInManual()
 		if !win && !ok {
-			motiv = "Режим игры на ручнике. Уровень по умолчанию"
+			motiv = ui.GetLocale().Get("strgamemanual") + " " + ui.GetLocale().Get("strmotivdef")
 			level = (*ui.GetPreferences())["default level"].(int)
 			lives = count
 		} else if !win && ok {
-			motiv = "Режим игры на ручнике. Хороший результат! Еще раз этот уровень!"
+			motiv = ui.GetLocale().Get("strgamemanual") + " " + ui.GetLocale().Get("strmotivmed")
 			lives = count
 		} else if win && ok {
-			motiv = "Режим игры на ручнике. Отличный результат! Уровень повышен!"
+			motiv = ui.GetLocale().Get("strgamemanual") + " " + ui.GetLocale().Get("strmotivup")
 			level += 1
 			lives = 0
 		}
 	} else if d.percent >= adv {
 		level += 1
 		lives = (*ui.GetPreferences())["threshold fallback sessions"].(int)
-		motiv = "Режим игры классика. Отличный результат! Уровень повышен!"
+		motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivup")
 	} else if d.percent >= fall && d.percent < adv {
-		motiv = "Режим игры классика. Хороший результат! Еще раз этот уровень!"
+		motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivmed")
 	} else if d.percent < fall {
 		if lives == 1 {
-			motiv = "Режим игры классика. Улучшим ещё результаты! Уровень вниз!"
+			motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivdwn")
 			if level > 1 {
 				level -= 1
 				lives = (*ui.GetPreferences())["threshold fallback sessions"].(int)
 			}
 		} else if lives > 1 {
-			motiv = "Режим игры классика. Дополнительная попытка!"
+			motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivadv")
 			lives -= 1
 		}
 	}
@@ -131,25 +131,33 @@ func (q GameData) String() string {
 	m := int(sec / 60)
 	seconds := int(sec) % 60
 	dStr := fmt.Sprintf("%02v:%02v.%03v", m, seconds, int(mSec))
-	ss := fmt.Sprintf("#%v %vB%v %v%% правильно:%v ошибок:%v пропущено:%v ходов:%v [%v]",
+	ss := fmt.Sprintf("#%v %vB%v %v%% %v:%v %v:%v %v:%v %v:%v [%v]",
 		getDb().todayGamesCount,
 		q.gameType,
 		q.level,
 		q.percent,
+		ui.GetLocale().Get("wordrgt"),
 		q.correct,
+		ui.GetLocale().Get("worderr"),
 		q.wrong,
+		ui.GetLocale().Get("wordmissed"),
 		q.missed,
+		ui.GetLocale().Get("wordmove"),
 		q.moves,
 		dStr)
 	if (*ui.GetPreferences())["reset on first wrong"].(bool) {
-		ss = fmt.Sprintf("#%v %vB%v %v%% правильно:%v ошибок:%v пропущено:%v ходов:(%v/%v) [%v]",
+		ss = fmt.Sprintf("#%v %vB%v %v%% %v:%v %v:%v %v:%v %v:(%v/%v) [%v]",
 			getDb().todayGamesCount,
 			q.gameType,
 			q.level,
 			q.percent,
+			ui.GetLocale().Get("wordrgt"),
 			q.correct,
+			ui.GetLocale().Get("worderr"),
 			q.wrong,
+			ui.GetLocale().Get("wordmissed"),
 			q.missed,
+			ui.GetLocale().Get("wordmove"),
 			q.moves,
 			q.totalmoves,
 			dStr)

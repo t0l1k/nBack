@@ -19,6 +19,7 @@ type App struct {
 	lastDt       int
 	theme        *Theme
 	pref         *Preferences
+	locale       *Locale
 }
 
 func init() {
@@ -46,6 +47,11 @@ func (a *App) SetupSettings(p *Preferences) {
 	log.Printf("App init preferences: %v", a.pref)
 }
 
+func (a *App) SetupLocale(l *Locale) {
+	a.locale = l
+	log.Printf("App init Locale: %v", a.locale)
+}
+
 func (a *App) SetupTheme(theme *Theme) {
 	a.theme = theme
 	log.Printf("App init theme: %v", a.theme)
@@ -62,6 +68,10 @@ func (a *App) SetupScreen(title string) {
 	ebiten.SetFullscreen(a.fullScreen)
 	ebiten.SetWindowSize(w, h)
 	a.rect = NewRect([]int{0, 0, w, h})
+}
+
+func GetLocale() *Locale {
+	return GetApp().locale
 }
 
 func GetTheme() *Theme {
@@ -179,5 +189,5 @@ func (s *App) UpdateUpTime() string {
 	} else {
 		result = fmt.Sprintf("%02v:%02v", int(minutes), int(sec))
 	}
-	return fmt.Sprintf("Прошло: %v", result)
+	return fmt.Sprintf("%v: %v", GetLocale().Get("lblUpTm"), result)
 }

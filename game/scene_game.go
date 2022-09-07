@@ -48,23 +48,23 @@ func (s *SceneGame) initGame() {
 		s.level = (*ui.GetPreferences())["default level"].(int)
 		s.lives = (*ui.GetPreferences())["threshold fallback sessions"].(int)
 	}
-	ss := fmt.Sprintf("#%v Играть %v шагов назад.", s.count, s.level)
+	ss := fmt.Sprintf("#%v %v %v %v.", s.count, ui.GetLocale().Get("btnStart"), s.level, ui.GetLocale().Get("wordstepback"))
 	res := ""
 	tp := ui.GetPreferences().Get("game type").(string)
 	switch tp {
 	case pos:
-		res = "Позиции"
+		res = ui.GetLocale().Get("optpos")
 	case col:
-		res = "Цвета"
+		res = ui.GetLocale().Get("optcol")
 	case sym:
-		res = "Числа"
+		res = ui.GetLocale().Get("optsym")
 	default:
 		res = tp
 	}
 	if (*ui.GetPreferences())["manual mode"].(bool) {
-		ss += fmt.Sprintf(" Игра(%v) режим на ручнике.", res)
+		ss += fmt.Sprintf(" %v(%v) %v.", ui.GetLocale().Get("wordGame"), res, ui.GetLocale().Get("wordhand"))
 	} else {
-		ss += fmt.Sprintf(" Игра(%v) режим классика.", res)
+		ss += fmt.Sprintf(" %v(%v) %v.", ui.GetLocale().Get("wordGame"), res, ui.GetLocale().Get("wordcclassic"))
 	}
 	s.lblResult.SetText(ss)
 }
@@ -79,7 +79,7 @@ func (s *SceneGame) initGameTimers() {
 
 func (s *SceneGame) initUi() {
 	rect := []int{0, 0, 1, 1}
-	s.btnStart = ui.NewButton("Новая сессия", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) {
+	s.btnStart = ui.NewButton(ui.GetLocale().Get("wordnewsess"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) {
 		log.Println("Button new session pressed")
 		s.paused = false
 		s.newSession()
@@ -87,20 +87,20 @@ func (s *SceneGame) initUi() {
 	s.Add(s.btnStart)
 	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Pop() })
 	s.Add(s.btnQuit)
-	s.name = "N-Back запуск"
+	s.name = ui.GetLocale().Get("AppName") + " " + ui.GetLocale().Get("btnStart")
 	s.lblName = ui.NewLabel(s.name, rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblName)
 	s.board = NewBoard(rect, ui.GetPreferences(), ui.GetTheme())
 	s.Add(s.board)
 	s.lblResult = ui.NewLabel(" ", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblResult)
-	s.lblMotiv = ui.NewLabel("Мотивация", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblMotiv = ui.NewLabel(" ", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblMotiv)
 	s.lblMotiv.Visible = false
 	s.lblTimer = ui.NewLabel(s.name, rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblTimer)
 	s.lblTimer.Visible = false
-	s.lblDt = ui.NewLabel("up: 00:00 ", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblDt = ui.NewLabel("up: ", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblDt)
 	s.movesLine = NewMovesLine(rect)
 	s.Add(s.movesLine)
@@ -145,7 +145,7 @@ func (s *SceneGame) Update(dt int) {
 			s.level, s.lives, motiv = getDb().todayData[count].NextLevel()
 			ss := getDb().todayData[count].String()
 			s.lblResult.SetText(ss)
-			log.Printf("Итог игры: %v", ss)
+			log.Printf("Game result: %v", ss)
 			s.count += 1
 			s.lblMotiv.SetText(motiv)
 			s.lblMotiv.SetBg(getDb().todayData[count].BgColor())

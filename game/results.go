@@ -90,7 +90,7 @@ func (r *ResultPlot) Layout() {
 		boxSize := margin
 		xL, yL := axisRect.Right()-boxSize*3, axisRect.Bottom()-boxSize
 		w, h = boxSize*3, boxSize
-		lbl := ui.NewLabel("Номер игры", []int{xL, yL, w, h}, bg, fg)
+		lbl := ui.NewLabel(ui.GetLocale().Get("lblGmNr"), []int{xL, yL, w, h}, bg, fg)
 		defer lbl.Close()
 		lbl.SetBg(bg)
 		lbl.Draw(r.Image)
@@ -120,7 +120,7 @@ func (r *ResultPlot) Layout() {
 		boxSize := margin
 		xL, yL := axisRect.Left()+int(float64(boxSize)*0.2), axisRect.Top()-boxSize
 		w, h = int(float64(boxSize)*1.5), boxSize
-		lbl := ui.NewLabel("Уровень", []int{xL, yL, w, h}, bg, fg)
+		lbl := ui.NewLabel(ui.GetLocale().Get("lblLevel"), []int{xL, yL, w, h}, bg, fg)
 		defer lbl.Close()
 		lbl.SetBg(bg)
 		lbl.Draw(r.Image)
@@ -129,7 +129,7 @@ func (r *ResultPlot) Layout() {
 		boxSize := margin * 7
 		xL, yL := axisRect.Right()/2-boxSize/2, axisRect.Top()-int(float64(boxSize)/4.5)
 		w, h = boxSize, boxSize/4
-		lbl := ui.NewLabel("Итог за день", []int{xL, yL, w, h}, bg, fg)
+		lbl := ui.NewLabel(ui.GetLocale().Get("lblDTl"), []int{xL, yL, w, h}, bg, fg)
 		defer lbl.Close()
 		lbl.SetBg(bg)
 		lbl.Draw(r.Image)

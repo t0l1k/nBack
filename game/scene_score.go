@@ -34,7 +34,6 @@ func (p period) String() string {
 }
 
 type SceneScore struct {
-	name                            string
 	lblName, lblPeriodResult, lblDt *ui.Label
 	btnQuit                         *ui.Button
 	plotScore                       *ScorePlot
@@ -51,14 +50,13 @@ func NewSceneScore() *SceneScore {
 	rect := []int{0, 0, 1, 1}
 	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Pop() })
 	s.Add(s.btnQuit)
-	s.name = fmt.Sprintf("Игры за период %v", s.scorePeriod)
-	s.lblName = ui.NewLabel(s.name, rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblName = ui.NewLabel(fmt.Sprintf("%v %v", ui.GetLocale().Get("scrName"), s.scorePeriod), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblName)
-	s.lblPeriodResult = ui.NewLabel(getDb().todayData.String(), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblPeriodResult = ui.NewLabel("", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblPeriodResult)
 	s.plotScore = NewScorePlot(rect)
 	s.Add(s.plotScore)
-	s.lblDt = ui.NewLabel("up: 00:00 ", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblDt = ui.NewLabel(" ", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblDt)
 	return s
 }
@@ -88,7 +86,7 @@ func (s *SceneScore) Update(dt int) {
 		if s.scorePeriod > all {
 			s.scorePeriod = week
 		}
-		s.lblName.SetText(fmt.Sprintf("Игры за период %v", s.scorePeriod))
+		s.lblName.SetText(fmt.Sprintf("%v %v", ui.GetLocale().Get("scrName"), s.scorePeriod))
 	}
 }
 
