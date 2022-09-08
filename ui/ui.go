@@ -10,7 +10,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-type App struct {
+type Ui struct {
 	startDt      time.Time
 	fullScreen   bool
 	rect         *Rect
@@ -23,41 +23,41 @@ type App struct {
 }
 
 func init() {
-	appInstance = GetApp()
+	uiInstance = GetUi()
 }
 
-var appInstance *App = nil
+var uiInstance *Ui = nil
 
-func GetApp() (a *App) {
-	if appInstance == nil {
-		a = &App{
+func GetUi() (a *Ui) {
+	if uiInstance == nil {
+		a = &Ui{
 			startDt: time.Now(),
 			lastDt:  -1,
 			scenes:  []Scene{},
 		}
 		log.Printf("App init done")
 	} else {
-		a = appInstance
+		a = uiInstance
 	}
 	return a
 }
 
-func (a *App) SetupSettings(p *Preferences) {
+func (a *Ui) SetupSettings(p *Preferences) {
 	a.pref = p
 	log.Printf("App init preferences: %v", a.pref)
 }
 
-func (a *App) SetupLocale(l *Locale) {
+func (a *Ui) SetupLocale(l *Locale) {
 	a.locale = l
 	log.Printf("App init Locale: %v", a.locale)
 }
 
-func (a *App) SetupTheme(theme *Theme) {
+func (a *Ui) SetupTheme(theme *Theme) {
 	a.theme = theme
 	log.Printf("App init theme: %v", a.theme)
 }
 
-func (a *App) SetupScreen(title string) {
+func (a *Ui) SetupScreen(title string) {
 	var w, h int
 	if a.fullScreen {
 		w, h = ebiten.ScreenSizeInFullscreen()
@@ -71,18 +71,18 @@ func (a *App) SetupScreen(title string) {
 }
 
 func GetLocale() *Locale {
-	return GetApp().locale
+	return GetUi().locale
 }
 
 func GetTheme() *Theme {
-	return GetApp().theme
+	return GetUi().theme
 }
 
 func GetPreferences() *Preferences {
-	return GetApp().pref
+	return GetUi().pref
 }
 
-func (a *App) SetFullscreen(value bool) {
+func (a *Ui) SetFullscreen(value bool) {
 	a.fullScreen = value
 }
 
@@ -97,11 +97,11 @@ func fitWindowSize() (w int, h int) {
 	return w, h
 }
 
-func (a *App) GetScreenSize() (w, h int) {
+func (a *Ui) GetScreenSize() (w, h int) {
 	return a.rect.Right(), a.rect.Bottom()
 }
 
-func (a *App) Update() error {
+func (a *Ui) Update() error {
 	if inpututil.IsKeyJustReleased(ebiten.KeyEscape) {
 		a.Pop()
 	} else if inpututil.IsKeyJustReleased(ebiten.KeyF11) {
@@ -111,7 +111,7 @@ func (a *App) Update() error {
 	return nil
 }
 
-func (a *App) ToggleFullscreen() {
+func (a *Ui) ToggleFullscreen() {
 	a.fullScreen = !a.fullScreen
 	var w, h int
 	if a.fullScreen {
@@ -129,23 +129,23 @@ func (a *App) ToggleFullscreen() {
 	log.Println("Toggle FullScreen:", a.rect)
 }
 
-func (a *App) Draw(screen *ebiten.Image) {
+func (a *Ui) Draw(screen *ebiten.Image) {
 	screen.Fill((*a.theme)["bg"])
 	a.currentScene.Draw(screen)
 }
 
-func (a *App) Layout(oW, oH int) (int, int) {
+func (a *Ui) Layout(oW, oH int) (int, int) {
 	return oW, oH
 }
 
-func (a *App) Push(sc Scene) {
+func (a *Ui) Push(sc Scene) {
 	a.scenes = append(a.scenes, sc)
 	a.currentScene = sc
 	a.currentScene.Entered()
 	log.Println("Scene push")
 }
 
-func (a *App) Pop() {
+func (a *Ui) Pop() {
 	if len(a.scenes) > 0 {
 		a.currentScene.Quit()
 		idx := len(a.scenes) - 1
@@ -161,7 +161,7 @@ func (a *App) Pop() {
 	}
 }
 
-func (a *App) getTick() int {
+func (a *Ui) getTick() int {
 	tm := time.Now()
 	dt := tm.Nanosecond() / 1e6
 	if a.lastDt == -1 {
@@ -175,7 +175,7 @@ func (a *App) getTick() int {
 	return ticks
 }
 
-func (s *App) UpdateUpTime() string {
+func (s *Ui) UpdateUpTime() string {
 	durration := time.Since(s.startDt)
 	d := durration.Round(time.Second)
 	hours := d / time.Hour

@@ -27,7 +27,7 @@ func GetFonts() (f *Fonts) {
 
 type Fonts map[int]font.Face
 
-func (f Fonts) addFont(size int) {
+func (f Fonts) add(size int) {
 	tt, err := opentype.Parse(res.RobotoRegular_ttf)
 	if err != nil {
 		log.Fatal(err)
@@ -41,7 +41,7 @@ func (f Fonts) addFont(size int) {
 		log.Fatal(err)
 	}
 	f[size] = mplusFont
-	log.Println("Added font size", size)
+	log.Println("Cashed font size", size)
 }
 
 func (f Fonts) get(size int) font.Face {
@@ -50,7 +50,7 @@ func (f Fonts) get(size int) font.Face {
 			return v
 		}
 	}
-	f.addFont(size)
+	f.add(size)
 	return f[size]
 }
 

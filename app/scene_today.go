@@ -1,10 +1,11 @@
-package game
+package app
 
 import (
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/t0l1k/nBack/data"
 	"github.com/t0l1k/nBack/ui"
 )
 
@@ -23,15 +24,15 @@ func NewSceneToday() *SceneToday {
 		rect: ui.NewRect([]int{0, 0, 1, 1}),
 	}
 	rect := []int{0, 0, 1, 1}
-	s.btnStart = ui.NewButton(ui.GetLocale().Get("btnStart"), rect, (*ui.GetTheme())["game active color"], (*ui.GetTheme())["game bg"], func(b *ui.Button) { ui.GetApp().Push(NewSceneGame()) })
+	s.btnStart = ui.NewButton(ui.GetLocale().Get("btnStart"), rect, (*ui.GetTheme())["game active color"], (*ui.GetTheme())["game bg"], func(b *ui.Button) { ui.GetUi().Push(NewSceneGame()) })
 	s.Add(s.btnStart)
-	s.btnScore = ui.NewButton(ui.GetLocale().Get("btnScore"), rect, (*ui.GetTheme())["error color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Push(NewSceneScore()) })
+	s.btnScore = ui.NewButton(ui.GetLocale().Get("btnScore"), rect, (*ui.GetTheme())["error color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetUi().Push(NewSceneScore()) })
 	s.Add(s.btnScore)
-	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetUi().Pop() })
 	s.Add(s.btnQuit)
 	s.lblName = ui.NewLabel(ui.GetLocale().Get("AppName"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblName)
-	s.lblPeriodResult = ui.NewLabel(getDb().todayData.String(), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblPeriodResult = ui.NewLabel(data.GetDb().TodayData.String(), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblPeriodResult)
 	s.lblDt = ui.NewLabel(ui.GetLocale().Get("lblUpTm"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblDt)
@@ -45,17 +46,17 @@ func NewSceneToday() *SceneToday {
 	s.toggleResults = false
 	s.btnPlot = ui.NewButton(ui.GetLocale().Get("btnPlot"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { s.togglePlot() })
 	s.Add(s.btnPlot)
-	s.btnFullScreen = ui.NewButton("[ ]", rect, (*ui.GetTheme())["regular color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().ToggleFullscreen() })
+	s.btnFullScreen = ui.NewButton("[ ]", rect, (*ui.GetTheme())["regular color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetUi().ToggleFullscreen() })
 	s.Add(s.btnFullScreen)
-	s.btnOpt = ui.NewButton(ui.GetLocale().Get("btnOpt"), rect, (*ui.GetTheme())["warning color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Push(NewSceneOptions()) })
+	s.btnOpt = ui.NewButton(ui.GetLocale().Get("btnOpt"), rect, (*ui.GetTheme())["warning color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetUi().Push(NewSceneOptions()) })
 	s.Add(s.btnOpt)
 	return s
 }
 
 func (s *SceneToday) Entered() {
-	getDb().ReadTodayGames()
-	s.lblPeriodResult.SetText(getDb().todayData.String())
-	a, b := getDb().todayData.ListShortStr()
+	data.GetDb().ReadTodayGames()
+	s.lblPeriodResult.SetText(data.GetDb().TodayData.String())
+	a, b := data.GetDb().TodayData.ListShortStr()
 	s.lblsResult.SetList(a, b)
 	s.Resize()
 	log.Println("Entered SceneToday")
@@ -64,21 +65,21 @@ func (s *SceneToday) Add(item ui.Drawable) {
 	s.container = append(s.container, item)
 }
 func (s *SceneToday) Update(dt int) {
-	s.lblDt.SetText(ui.GetApp().UpdateUpTime())
+	s.lblDt.SetText(ui.GetUi().UpdateUpTime())
 	for _, value := range s.container {
 		value.Update(dt)
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
-		ui.GetApp().Push(NewSceneGame())
+		ui.GetUi().Push(NewSceneGame())
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyP) {
 		s.togglePlot()
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyS) {
-		ui.GetApp().Push(NewSceneScore())
+		ui.GetUi().Push(NewSceneScore())
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyO) {
-		ui.GetApp().Push(NewSceneOptions())
+		ui.GetUi().Push(NewSceneOptions())
 	}
 }
 
@@ -102,7 +103,7 @@ func (s *SceneToday) Draw(surface *ebiten.Image) {
 }
 
 func (s *SceneToday) Resize() {
-	w, h := ui.GetApp().GetScreenSize()
+	w, h := ui.GetUi().GetScreenSize()
 	s.rect = ui.NewRect([]int{0, 0, w, h})
 	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)*0.05)
 	s.btnQuit.Resize([]int{x, y, w, h})

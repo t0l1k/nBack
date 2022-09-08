@@ -1,4 +1,4 @@
-package game
+package data
 
 import (
 	"container/list"
@@ -10,21 +10,21 @@ import (
 )
 
 type ScoreData struct {
-	dt         time.Time
-	games, max int
-	avg        float64
+	Dt         time.Time
+	Games, Max int
+	Avg        float64
 }
 
 func (s *ScoreData) String() string {
 	dtFormat := "2006-01-02"
 	return fmt.Sprintf("%v %v:%v %v:%v %v:%v",
-		s.dt.Format(dtFormat),
+		s.Dt.Format(dtFormat),
 		ui.GetLocale().Get("wordGames"),
-		s.games,
+		s.Games,
 		ui.GetLocale().Get("wordMax"),
-		s.max,
+		s.Max,
 		ui.GetLocale().Get("wordAvg"),
-		s.avg)
+		s.Avg)
 }
 
 type ScoresData map[int]*ScoreData
@@ -38,10 +38,10 @@ func (s *ScoresData) PlotData() (idx, maxs, averages, strs list.List) {
 	sort.Ints(keys)
 	i := 1
 	for _, k := range keys {
-		v := getDb().scoresData[k]
+		v := GetDb().ScoresData[k]
 		idx.PushBack(i)
-		maxs.PushBack(v.max)
-		averages.PushBack(v.avg)
+		maxs.PushBack(v.Max)
+		averages.PushBack(v.Avg)
 		strs.PushBack(v.String())
 		i++
 	}

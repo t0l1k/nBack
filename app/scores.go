@@ -1,4 +1,4 @@
-package game
+package app
 
 import (
 	"container/list"
@@ -8,6 +8,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/t0l1k/nBack/data"
 	"github.com/t0l1k/nBack/ui"
 )
 
@@ -28,10 +29,10 @@ func NewScorePlot(rect []int) *ScorePlot {
 	}
 }
 func (r *ScorePlot) Layout() {
-	xArr, yArr, avgArr, strsArr := getDb().scoresData.PlotData()
+	xArr, yArr, avgArr, strsArr := data.GetDb().ScoresData.PlotData()
 	axisXMax := xArr.Len()
-	score, _ := getDb().ReadAllGamesScore()
-	axisYMax := score.max + 1
+	score, _ := data.GetDb().ReadAllGamesScore()
+	axisYMax := score.Max + 1
 	w0, h0 := r.rect.Size()
 	if r.Image == nil {
 		r.Image = ebiten.NewImage(w0, h0)

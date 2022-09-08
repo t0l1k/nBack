@@ -1,4 +1,4 @@
-package game
+package app
 
 import (
 	"fmt"
@@ -6,6 +6,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/t0l1k/nBack/data"
+	"github.com/t0l1k/nBack/game"
 	"github.com/t0l1k/nBack/ui"
 )
 
@@ -17,7 +19,7 @@ type SceneGame struct {
 	rect                                          *ui.Rect
 	container                                     []ui.Drawable
 	stopper, pauseTimer                           int
-	board                                         *Board
+	board                                         *game.Board
 	count, level, lives                           int
 	delayBeginCellShow, delayBeginCellHide        int
 	timeToNextCell, timeShowCell                  int
@@ -40,9 +42,9 @@ func (s *SceneGame) Entered() {
 }
 
 func (s *SceneGame) initGame() {
-	s.count = getDb().todayGamesCount
+	s.count = data.GetDb().TodayGamesCount
 	if s.count > 0 {
-		s.level, s.lives, _ = getDb().todayData[s.count].NextLevel()
+		s.level, s.lives, _ = data.GetDb().TodayData[s.count].NextLevel()
 	} else {
 		s.count = 1
 		s.level = (*ui.GetPreferences())["default level"].(int)
@@ -52,11 +54,11 @@ func (s *SceneGame) initGame() {
 	res := ""
 	tp := ui.GetPreferences().Get("game type").(string)
 	switch tp {
-	case pos:
+	case game.Pos:
 		res = ui.GetLocale().Get("optpos")
-	case col:
+	case game.Col:
 		res = ui.GetLocale().Get("optcol")
-	case sym:
+	case game.Sym:
 		res = ui.GetLocale().Get("optsym")
 	default:
 		res = tp
@@ -85,12 +87,12 @@ func (s *SceneGame) initUi() {
 		s.newSession()
 	})
 	s.Add(s.btnStart)
-	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetUi().Pop() })
 	s.Add(s.btnQuit)
 	s.name = ui.GetLocale().Get("AppName") + " " + ui.GetLocale().Get("btnStart")
 	s.lblName = ui.NewLabel(s.name, rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblName)
-	s.board = NewBoard(rect, ui.GetPreferences(), ui.GetTheme())
+	s.board = game.NewBoard(rect, ui.GetPreferences(), ui.GetTheme())
 	s.Add(s.board)
 	s.lblResult = ui.NewLabel(" ", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblResult)
@@ -111,18 +113,18 @@ func (s *SceneGame) Update(dt int) {
 		value.Update(dt)
 	}
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-		if s.board.inGame && !s.board.userMoved {
+		if s.board.InGame && !s.board.UserMoved {
 			s.board.CheckUserMove()
 		}
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
-		if s.board.inGame {
+		if s.board.InGame {
 			s.board.CheckUserMove()
 		} else if !s.paused {
 			s.newSession()
 		}
 	}
-	if s.board.inGame {
+	if s.board.InGame {
 		s.stopper += dt
 		if s.stopper >= s.timeToNextCell {
 			s.stopper -= s.timeToNextCell
@@ -135,20 +137,20 @@ func (s *SceneGame) Update(dt int) {
 		}
 		s.moveStatus()
 	} else {
-		s.lblDt.SetText(ui.GetApp().UpdateUpTime())
+		s.lblDt.SetText(ui.GetUi().UpdateUpTime())
 		if !s.lblResult.Visible {
 			s.SaveGame()
 			s.movesLine.Visible = true
 			s.movesLine.Dirty = true
 			var motiv string
-			count := getDb().todayGamesCount
-			s.level, s.lives, motiv = getDb().todayData[count].NextLevel()
-			ss := getDb().todayData[count].String()
+			count := data.GetDb().TodayGamesCount
+			s.level, s.lives, motiv = data.GetDb().TodayData[count].NextLevel()
+			ss := data.GetDb().TodayData[count].String()
 			s.lblResult.SetText(ss)
 			log.Printf("Game result: %v", ss)
 			s.count += 1
 			s.lblMotiv.SetText(motiv)
-			s.lblMotiv.SetBg(getDb().todayData[count].BgColor())
+			s.lblMotiv.SetBg(data.GetDb().TodayData[count].BgColor())
 			s.lblName.SetRect(true)
 			s.lblName.SetText(s.name)
 			s.lblName.SetBg((*ui.GetTheme())["correct color"])
@@ -208,14 +210,14 @@ func (s *SceneGame) newSession() {
 
 func (s *SceneGame) moveStatus() {
 	if (*ui.GetPreferences())["feedback on user move"].(bool) {
-		switch s.board.moveStatus {
-		case Correct:
+		switch s.board.MoveStatus {
+		case game.Correct:
 			s.lblName.SetBg((*ui.GetTheme())["correct color"])
-		case Error:
+		case game.Error:
 			s.lblName.SetBg((*ui.GetTheme())["error color"])
-		case Warning:
+		case game.Warning:
 			s.lblName.SetBg((*ui.GetTheme())["warning color"])
-		case Regular:
+		case game.Regular:
 			s.lblName.SetBg((*ui.GetTheme())["regular color"])
 		default:
 			s.lblName.SetBg((*ui.GetTheme())["game bg"])
@@ -223,41 +225,40 @@ func (s *SceneGame) moveStatus() {
 	}
 	str1 := ""
 	switch ui.GetPreferences().Get("game type").(string) {
-	case pos:
+	case game.Pos:
 		str1 = "Pos"
-	case col:
+	case game.Col:
 		str1 = "Col"
-	case sym:
+	case game.Sym:
 		str1 = "Sym"
 	}
-	str := fmt.Sprintf("%v %v (%v) (%v/%v)", str1, s.level, s.lives, s.board.move, s.board.totalMoves)
+	str := fmt.Sprintf("%v %v (%v) (%v/%v)", str1, s.level, s.lives, s.board.Move, s.board.TotalMoves)
 	s.lblName.SetText(str)
 }
 
 func (s *SceneGame) SaveGame() {
-	dtBeg := s.board.dtBeg.Format("2006-01-02 15:04:05.000")
-	dtEnd := s.board.dtEnd.Format("2006-01-02 15:04:05.000")
-	values := &GameData{
-		gameType:     ui.GetPreferences().Get("game type").(string),
-		dtBeg:        dtBeg,
-		dtEnd:        dtEnd,
-		level:        s.level,
-		lives:        s.lives,
-		percent:      s.board.getPercent(),
-		correct:      s.board.countCorrect,
-		wrong:        s.board.countWrong,
-		missed:       s.board.countMissed,
-		moves:        s.board.move,
-		totalmoves:   s.board.totalMoves,
-		manual:       (*ui.GetPreferences())["manual mode"].(bool),
-		advance:      (*ui.GetPreferences())["threshold advance"].(int),
-		fallback:     (*ui.GetPreferences())["threshold fallback"].(int),
-		resetonerror: (*ui.GetPreferences())["reset on first wrong"].(bool),
-		movesStatus:  s.board.movesStatus,
+	dtBeg := s.board.DtBeg.Format("2006-01-02 15:04:05.000")
+	dtEnd := s.board.DtEnd.Format("2006-01-02 15:04:05.000")
+	values := &data.GameData{
+		GameType:     ui.GetPreferences().Get("game type").(string),
+		DtBeg:        dtBeg,
+		DtEnd:        dtEnd,
+		Level:        s.level,
+		Lives:        s.lives,
+		Percent:      s.board.GetPercent(),
+		Correct:      s.board.CountCorrect,
+		Wrong:        s.board.CountWrong,
+		Missed:       s.board.CountMissed,
+		Moves:        s.board.Move,
+		Totalmoves:   s.board.TotalMoves,
+		Manual:       (*ui.GetPreferences())["manual mode"].(bool),
+		Advance:      (*ui.GetPreferences())["threshold advance"].(int),
+		Fallback:     (*ui.GetPreferences())["threshold fallback"].(int),
+		Resetonerror: (*ui.GetPreferences())["reset on first wrong"].(bool),
+		MovesStatus:  s.board.MovesStatus,
 	}
-	getDb().InsertGame(values)
+	data.GetDb().InsertGame(values)
 	log.Println("Game Saved in DB.")
-	fmt.Println(s.board.movesStatus)
 }
 
 func (s *SceneGame) Draw(surface *ebiten.Image) {
@@ -272,7 +273,7 @@ func (s *SceneGame) Add(item ui.Drawable) {
 }
 
 func (s *SceneGame) Resize() {
-	w, h := ui.GetApp().GetScreenSize()
+	w, h := ui.GetUi().GetScreenSize()
 	s.rect = ui.NewRect([]int{0, 0, w, h})
 	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)*0.05)
 	s.btnQuit.Resize([]int{x, y, w, h})

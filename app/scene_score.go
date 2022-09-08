@@ -1,4 +1,4 @@
-package game
+package app
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/t0l1k/nBack/data"
 	"github.com/t0l1k/nBack/ui"
 )
 
@@ -48,7 +49,7 @@ func NewSceneScore() *SceneScore {
 		scorePeriod: all,
 	}
 	rect := []int{0, 0, 1, 1}
-	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetUi().Pop() })
 	s.Add(s.btnQuit)
 	s.lblName = ui.NewLabel(fmt.Sprintf("%v %v", ui.GetLocale().Get("scrName"), s.scorePeriod), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
 	s.Add(s.lblName)
@@ -62,8 +63,8 @@ func NewSceneScore() *SceneScore {
 }
 
 func (s *SceneScore) Entered() {
-	getDb().ReadAllGamesForScoresByDays()
-	_, str := getDb().ReadAllGamesScore()
+	data.GetDb().ReadAllGamesForScoresByDays()
+	_, str := data.GetDb().ReadAllGamesScore()
 	s.lblPeriodResult.SetText(str)
 	s.Resize()
 	log.Println("Entered SceneScore")
@@ -74,12 +75,12 @@ func (s *SceneScore) Add(item ui.Drawable) {
 }
 
 func (s *SceneScore) Update(dt int) {
-	s.lblDt.SetText(ui.GetApp().UpdateUpTime())
+	s.lblDt.SetText(ui.GetUi().UpdateUpTime())
 	for _, value := range s.container {
 		value.Update(dt)
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
-		ui.GetApp().Push(NewSceneGame())
+		ui.GetUi().Push(NewSceneGame())
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyP) {
 		s.scorePeriod++
@@ -97,7 +98,7 @@ func (s *SceneScore) Draw(surface *ebiten.Image) {
 }
 
 func (s *SceneScore) Resize() {
-	w, h := ui.GetApp().GetScreenSize()
+	w, h := ui.GetUi().GetScreenSize()
 	s.rect = ui.NewRect([]int{0, 0, w, h})
 	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)*0.05)
 	s.btnQuit.Resize([]int{x, y, w, h})

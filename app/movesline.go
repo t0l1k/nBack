@@ -1,4 +1,4 @@
-package game
+package app
 
 import (
 	"container/list"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/t0l1k/nBack/data"
 	"github.com/t0l1k/nBack/ui"
 )
 
@@ -33,7 +34,7 @@ func (p *MovesLine) Layout() {
 	} else {
 		p.Image.Clear()
 	}
-	count := getDb().todayGamesCount
+	count := data.GetDb().TodayGamesCount
 	if count < 1 || !p.Visible {
 		return
 	}
@@ -43,7 +44,7 @@ func (p *MovesLine) Layout() {
 	a /= 3
 	fg2 := color.RGBA{uint8(red), uint8(g), uint8(b), uint8(a)}
 	p.Image.Fill(bg)
-	xArr, colors := getDb().todayData[count].MovesColor()
+	xArr, colors := data.GetDb().TodayData[count].MovesColor()
 	var yArr list.List
 	for i := 0; i < xArr.Len(); i++ {
 		yArr.PushBack(1)

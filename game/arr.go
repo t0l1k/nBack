@@ -40,15 +40,15 @@ func genArr(moves int, pref *ui.Preferences) (a []int) {
 	center := (dim*dim - 1) / 2
 	num := 0
 	for len(a) < moves {
-		if pref.Get("game type").(string) == pos {
+		if pref.Get("game type").(string) == Pos {
 			num = rand.Intn((dim * dim) - 1)
 			if num != center && !(*pref)["use center cell"].(bool) || (*pref)["use center cell"].(bool) {
 				a = append(a, num)
 			}
-		} else if pref.Get("game type").(string) == col {
-			num = rand.Intn((len(colors)) - 1)
+		} else if pref.Get("game type").(string) == Col {
+			num = rand.Intn((len(Colors)) - 1)
 			a = append(a, num)
-		} else if pref.Get("game type").(string) == sym {
+		} else if pref.Get("game type").(string) == Sym {
 			num = rand.Intn(pref.Get("symbols count").(int)-1) + 1
 			a = append(a, num)
 		}

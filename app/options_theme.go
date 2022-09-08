@@ -1,10 +1,11 @@
-package game
+package app
 
 import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/t0l1k/nBack/game"
 	"github.com/t0l1k/nBack/ui"
 )
 
@@ -83,9 +84,9 @@ func (r *OptTheme) Layout() {
 	errorLbl.Draw(r.Image)
 
 	x, y = 0, cellHeight*3
-	w, h = cellWidth/len(colors), cellHeight
-	sz := len(colors)
-	for i, v := range colors {
+	w, h = cellWidth/len(game.Colors), cellHeight
+	sz := len(game.Colors)
+	for i, v := range game.Colors {
 		cellX := i % sz * w
 		ebitenutil.DrawRect(r.Image, float64(cellX), float64(y), float64(w), float64(h), v)
 	}

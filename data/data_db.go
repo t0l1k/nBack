@@ -1,4 +1,4 @@
-package game
+package data
 
 import (
 	"database/sql"
@@ -12,18 +12,18 @@ import (
 
 type Db struct {
 	conn            *sql.DB
-	todayData       TodayGamesData
-	todayGamesCount int
-	scoresData      ScoresData
+	TodayData       TodayGamesData
+	TodayGamesCount int
+	ScoresData      ScoresData
 }
 
 var dbInstance *Db = nil
 
 func init() {
-	dbInstance = getDb()
+	dbInstance = GetDb()
 }
 
-func getDb() (db *Db) {
+func GetDb() (db *Db) {
 	if dbInstance == nil {
 		db = &Db{}
 	} else {
@@ -228,30 +228,30 @@ func (d *Db) InsertGame(values *GameData) {
 		log.Println("Error in DB:", insStr, values)
 		panic(err)
 	}
-	gametype := values.gameType
-	dtBeg := values.dtBeg
-	dtEnd := values.dtEnd
-	level := values.level
-	lives := values.lives
-	percent := values.percent
-	correct := values.correct
-	wrong := values.wrong
-	missed := values.missed
-	moves := values.moves
-	totalmoves := values.totalmoves
-	manual := values.manual
-	advance := values.advance
-	fallback := values.fallback
-	resetonerror := values.resetonerror
+	gametype := values.GameType
+	dtBeg := values.DtBeg
+	dtEnd := values.DtEnd
+	level := values.Level
+	lives := values.Lives
+	percent := values.Percent
+	correct := values.Correct
+	wrong := values.Wrong
+	missed := values.Missed
+	moves := values.Moves
+	totalmoves := values.Totalmoves
+	manual := values.Manual
+	advance := values.Advance
+	fallback := values.Fallback
+	resetonerror := values.Resetonerror
 	cur.Exec(gametype, dtBeg, dtEnd, level, lives, percent, correct, wrong, missed, moves, totalmoves, manual, advance, fallback, resetonerror)
-	d.todayGamesCount += 1
-	d.todayData[d.todayGamesCount] = values
+	d.TodayGamesCount += 1
+	d.TodayData[d.TodayGamesCount] = values
 	log.Println("DB: Inserted:", gametype, dtBeg, dtEnd, level, lives, percent, correct, wrong, missed, moves, totalmoves, manual, advance, fallback, resetonerror)
 }
 
 func (d *Db) ReadTodayGames() {
-	d.todayData = make(map[int]*GameData)
-	d.todayGamesCount = 0
+	d.TodayData = make(map[int]*GameData)
+	d.TodayGamesCount = 0
 	if d.conn == nil {
 		return
 	}
@@ -264,17 +264,17 @@ func (d *Db) ReadTodayGames() {
 	dtFormat := "2006-01-02 15:04:05.000"
 	for rows.Next() {
 		values := &GameData{}
-		err = rows.Scan(&values.id, &values.gameType, &values.dtBeg, &values.dtEnd, &values.level, &values.lives, &values.percent, &values.correct, &values.wrong, &values.missed, &values.moves, &values.totalmoves, &values.manual, &values.advance, &values.fallback, &values.resetonerror)
+		err = rows.Scan(&values.Id, &values.GameType, &values.DtBeg, &values.DtEnd, &values.Level, &values.Lives, &values.Percent, &values.Correct, &values.Wrong, &values.Missed, &values.Moves, &values.Totalmoves, &values.Manual, &values.Advance, &values.Fallback, &values.Resetonerror)
 		if err != nil && err != sql.ErrNoRows {
 			panic(err)
 		}
-		dt, err := time.Parse(dtFormat, values.dtBeg)
+		dt, err := time.Parse(dtFormat, values.DtBeg)
 		if err != nil {
 			panic(err)
 		}
 		if dt.After(todayBeginDt) {
-			d.todayGamesCount += 1
-			d.todayData[d.todayGamesCount] = values
+			d.TodayGamesCount += 1
+			d.TodayData[d.TodayGamesCount] = values
 		}
 	}
 }
@@ -291,8 +291,8 @@ func (d *Db) ReadAllGamesScore() (*ScoreData, string) {
 		panic(err)
 	}
 	for rows.Next() {
-		err = rows.Scan(&values.games, &values.max, &values.avg)
-		if values.games == 0 {
+		err = rows.Scan(&values.Games, &values.Max, &values.Avg)
+		if values.Games == 0 {
 			break
 		}
 		if err != nil && err != sql.ErrNoRows {
@@ -300,11 +300,11 @@ func (d *Db) ReadAllGamesScore() (*ScoreData, string) {
 		}
 		resultStr = fmt.Sprintf("%v: %v %v:%v %v:%v",
 			ui.GetLocale().Get("scrResultTtl"),
-			values.games,
+			values.Games,
 			ui.GetLocale().Get("wordMax"),
-			values.max,
+			values.Max,
 			ui.GetLocale().Get("wordAvg"),
-			values.avg)
+			values.Avg)
 	}
 	return values, resultStr
 }
@@ -314,7 +314,7 @@ func (d *Db) ReadAllGamesForScoresByDays() {
 		return
 	}
 	qry := "SELECT count() games,max(level)max,round( avg(level),2)average, strftime('%Y-%m-%d',datetime(dtBeg)) day FROM simple GROUP BY day;"
-	d.scoresData = make(ScoresData)
+	d.ScoresData = make(ScoresData)
 	rows, err := d.conn.Query(qry)
 	if err != nil {
 		panic(err)
@@ -324,7 +324,7 @@ func (d *Db) ReadAllGamesForScoresByDays() {
 	for rows.Next() {
 		values := &ScoreData{}
 		var dStr string
-		err = rows.Scan(&values.games, &values.max, &values.avg, &dStr)
+		err = rows.Scan(&values.Games, &values.Max, &values.Avg, &dStr)
 		if err != nil && err != sql.ErrNoRows {
 			panic(err)
 		}
@@ -332,8 +332,8 @@ func (d *Db) ReadAllGamesForScoresByDays() {
 		if err != nil {
 			panic(err)
 		}
-		values.dt = dt
-		d.scoresData[i] = values
+		values.Dt = dt
+		d.ScoresData[i] = values
 		i++
 	}
 }

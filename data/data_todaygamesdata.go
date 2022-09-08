@@ -1,4 +1,4 @@
-package game
+package data
 
 import (
 	"container/list"
@@ -21,10 +21,10 @@ func (t *TodayGamesData) getCount() (count int) {
 	return len(*t)
 }
 
-func (t *TodayGamesData) getMax() (max int) {
+func (t *TodayGamesData) GetMax() (max int) {
 	for _, v := range *t {
-		if v.level > max {
-			max = v.level
+		if v.Level > max {
+			max = v.Level
 		}
 	}
 	return max
@@ -32,7 +32,7 @@ func (t *TodayGamesData) getMax() (max int) {
 
 func (t *TodayGamesData) getAvg() (sum float64) {
 	for _, v := range *t {
-		sum += float64(v.level)
+		sum += float64(v.Level)
 	}
 	if t.getCount() > 0 {
 		sum /= float64(len(*t))
@@ -48,11 +48,11 @@ func (t *TodayGamesData) getGamesTimeDuraton() (result string) {
 	dtFormat := "2006-01-02 15:04:05.000"
 	var durration time.Duration
 	for _, v := range *t {
-		dtBeg, err := time.Parse(dtFormat, v.dtBeg)
+		dtBeg, err := time.Parse(dtFormat, v.DtBeg)
 		if err != nil {
 			panic(err)
 		}
-		dtEnd, err := time.Parse(dtFormat, v.dtEnd)
+		dtEnd, err := time.Parse(dtFormat, v.DtEnd)
 		if err != nil {
 			panic(err)
 		}
@@ -81,17 +81,17 @@ func (t *TodayGamesData) PlotTodayData() (gameNr, level, levelValue, percents, m
 	}
 	sort.Ints(keys)
 	for _, k := range keys {
-		v := getDb().todayData[k]
+		v := GetDb().TodayData[k]
 		gameNr.PushBack(k)
-		level.PushBack(v.level)
-		result := float64(v.percent)*0.01 + float64(v.level)
+		level.PushBack(v.Level)
+		result := float64(v.Percent)*0.01 + float64(v.Level)
 		levelValue.PushBack(result)
-		percents.PushBack(v.percent)
+		percents.PushBack(v.Percent)
 		colors.PushBack(v.BgColor())
-		moves := float64(v.moves)
-		totalmoves := float64(v.totalmoves)
+		moves := float64(v.Moves)
+		totalmoves := float64(v.Totalmoves)
 		percentMoves := moves * 100 / totalmoves
-		lvlMoves := float64(v.level) * percentMoves / 100
+		lvlMoves := float64(v.Level) * percentMoves / 100
 		movesPerceent.PushBack(lvlMoves)
 	}
 	return
@@ -105,26 +105,26 @@ func (t *TodayGamesData) getWinCountInManual() (bool, bool, int) {
 	sort.Ints(keys)
 	count := 0
 	adv := (*ui.GetPreferences()).Get("manual advance").(int)
-	lastLvl := getDb().todayData[len(keys)].level
+	lastLvl := GetDb().TodayData[len(keys)].Level
 	ok := false
 	for i := len(keys); i > 0; i-- {
-		v := getDb().todayData[i]
-		if adv == 0 || !v.manual && count < adv {
+		v := GetDb().TodayData[i]
+		if adv == 0 || !v.Manual && count < adv {
 			return false, false, count
-		} else if v.manual && v.percent == 100 && v.level == lastLvl {
+		} else if v.Manual && v.Percent == 100 && v.Level == lastLvl {
 			count++
 			ok = true
 			if count == adv {
 				return true, ok, count
 			}
-		} else if v.manual && v.percent < 100 && v.level == lastLvl {
+		} else if v.Manual && v.Percent < 100 && v.Level == lastLvl {
 			ok = true
 			return false, ok, count
 		}
-		if v.level != lastLvl {
+		if v.Level != lastLvl {
 			return false, ok, count
 		}
-		lastLvl = v.level
+		lastLvl = v.Level
 	}
 	return count >= adv, ok, count
 }
@@ -136,8 +136,8 @@ func (t *TodayGamesData) ListShortStr() (strs []string, clrs []color.Color) {
 	}
 	sort.Ints(keys)
 	for _, v := range keys {
-		strs = append(strs, getDb().todayData[v].ShortStr())
-		clrs = append(clrs, getDb().todayData[v].BgColor())
+		strs = append(strs, GetDb().TodayData[v].ShortStr())
+		clrs = append(clrs, GetDb().TodayData[v].BgColor())
 	}
 	return
 }
@@ -149,7 +149,7 @@ func (t *TodayGamesData) String() string {
 			t.getToday(),
 			t.getCount(),
 			ui.GetLocale().Get("wordMax"),
-			t.getMax(),
+			t.GetMax(),
 			ui.GetLocale().Get("wordAvg"),
 			t.getAvg(),
 			t.getGamesTimeDuraton(),

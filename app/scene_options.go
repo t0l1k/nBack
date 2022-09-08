@@ -1,9 +1,11 @@
-package game
+package app
 
 import (
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/t0l1k/nBack/data"
+	"github.com/t0l1k/nBack/game"
 	"github.com/t0l1k/nBack/ui"
 )
 
@@ -30,7 +32,7 @@ func NewSceneOptions() *SceneOptions {
 	}
 	s.newSets = LoadPreferences()
 	rect := []int{0, 0, 1, 1}
-	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetApp().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetUi().Pop() })
 	s.Add(s.btnQuit)
 
 	s.lblName = ui.NewLabel(ui.GetLocale().Get("btnOpt"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
@@ -89,9 +91,9 @@ func NewSceneOptions() *SceneOptions {
 	})
 	s.Add(s.optShowCross)
 
-	data := []interface{}{2, 3, 4, 5}
+	lvls := []interface{}{2, 3, 4, 5}
 	idx := 1
-	s.optGridSize = ui.NewCombobox(ui.GetLocale().Get("optgridsz"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], data, idx, func(c *ui.Combobox) {
+	s.optGridSize = ui.NewCombobox(ui.GetLocale().Get("optgridsz"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], lvls, idx, func(c *ui.Combobox) {
 		(*s.newSets)["grid size"] = s.optGridSize.Value().(int)
 		log.Println("Grid Size changed")
 	})
@@ -115,8 +117,8 @@ func NewSceneOptions() *SceneOptions {
 	s.optPause = ui.NewCombobox(ui.GetLocale().Get("optpause"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrPauses, 2, func(c *ui.Combobox) { (*s.newSets)["pause to rest"] = s.optPause.Value().(int) })
 	s.Add(s.optPause)
 
-	values, _ := getDb().ReadAllGamesScore()
-	max := values.max
+	values, _ := data.GetDb().ReadAllGamesScore()
+	max := values.Max
 	if max == 0 {
 		max = 1
 	}
@@ -200,7 +202,7 @@ func NewSceneOptions() *SceneOptions {
 	s.optTmShowCell = ui.NewCombobox(ui.GetLocale().Get("opttmsc"), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], arrShow, idx, func(b *ui.Combobox) { (*s.newSets)["time to show cell"] = s.optTmShowCell.Value().(float64) })
 	s.Add(s.optTmShowCell)
 
-	gamesType := []interface{}{pos, col, sym}
+	gamesType := []interface{}{game.Pos, game.Col, game.Sym}
 	idx = 0
 	s.optGameType = ui.NewCombobox(s.getGameType(), rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], gamesType, idx, func(b *ui.Combobox) {
 		(*s.newSets)["game type"] = s.optGameType.Value().(string)
@@ -228,11 +230,11 @@ func (s *SceneOptions) getGameType() string {
 	result := ui.GetLocale().Get("optgmtp") + " "
 	tp := ui.GetPreferences().Get("game type").(string)
 	switch tp {
-	case pos:
+	case game.Pos:
 		result += ui.GetLocale().Get("optpos")
-	case col:
+	case game.Col:
 		result += ui.GetLocale().Get("optcol")
-	case sym:
+	case game.Sym:
 		result += ui.GetLocale().Get("optsym")
 	}
 	return result
@@ -269,9 +271,9 @@ func (s *SceneOptions) Reset(b *ui.Button) {
 
 func (s *SceneOptions) Apply(b *ui.Button) {
 	sets := ApplyPreferences(s.newSets)
-	getDb().InsertSettings(sets)
+	data.GetDb().InsertSettings(sets)
 	log.Println("Apply Settings")
-	ui.GetApp().Pop()
+	ui.GetUi().Pop()
 }
 
 func (s *SceneOptions) Entered() {
@@ -298,7 +300,7 @@ func (s *SceneOptions) Draw(surface *ebiten.Image) {
 }
 
 func (s *SceneOptions) Resize() {
-	w, h := ui.GetApp().GetScreenSize()
+	w, h := ui.GetUi().GetScreenSize()
 	s.rect = ui.NewRect([]int{0, 0, w, h})
 	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)/20)
 	s.btnQuit.Resize([]int{x, y, w, h})
