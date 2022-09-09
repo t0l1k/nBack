@@ -65,9 +65,9 @@ func (c *Combobox) Layout() {
 	btnUpRect := []int{x, y, w, h}
 	x, y, w, h = boxHeight+m, (boxHeight/2)+m, boxHeight-m*2, (boxHeight-m*2)/2
 	btnDownRect := []int{x, y, w, h}
-	btnUp := NewLabel("\u02c6", btnUpRect, c.bg, c.fg)
+	btnUp := NewLabel("+", btnUpRect, c.bg, c.fg)
 	defer btnUp.Close()
-	btnDown := NewLabel("\u02c7", btnDownRect, c.bg, c.fg)
+	btnDown := NewLabel("-", btnDownRect, c.bg, c.fg)
 	defer btnDown.Close()
 	var (
 		bg, fg           color.Color

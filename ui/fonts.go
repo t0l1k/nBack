@@ -18,7 +18,6 @@ var fontsInstance *Fonts = nil
 func GetFonts() (f *Fonts) {
 	if fontsInstance == nil {
 		f = &Fonts{}
-		log.Printf("Fonts init done")
 	} else {
 		f = fontsInstance
 	}
@@ -41,7 +40,6 @@ func (f Fonts) add(size int) {
 		log.Fatal(err)
 	}
 	f[size] = mplusFont
-	log.Println("Cashed font size", size)
 }
 
 func (f Fonts) get(size int) font.Face {

@@ -92,7 +92,7 @@ func NewTheme() *ui.Theme {
 
 func NewLocale() *ui.Locale {
 	lang := ui.GetPreferences().Get("lang")
-	log.Printf("Setup Locale %v", lang)
+	log.Printf("Setup Locale for %v", lang)
 	switch lang {
 	case "ru":
 		return NewLocaleRu()

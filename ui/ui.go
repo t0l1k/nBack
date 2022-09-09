@@ -44,17 +44,17 @@ func GetUi() (a *Ui) {
 
 func (a *Ui) SetupSettings(p *Preferences) {
 	a.pref = p
-	log.Printf("App init preferences: %v", a.pref)
+	log.Printf("App init preferences.")
 }
 
 func (a *Ui) SetupLocale(l *Locale) {
 	a.locale = l
-	log.Printf("App init Locale: %v", a.locale)
+	log.Printf("App init Locale.")
 }
 
 func (a *Ui) SetupTheme(theme *Theme) {
 	a.theme = theme
-	log.Printf("App init theme: %v", a.theme)
+	log.Printf("App init theme")
 }
 
 func (a *Ui) SetupScreen(title string) {

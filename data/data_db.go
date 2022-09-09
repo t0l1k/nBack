@@ -211,7 +211,7 @@ func (d *Db) ReadSettings() (values *ui.Preferences) {
 		v.Set("symbols count", sc)
 		v.Set("lang", lg)
 	}
-	log.Println("Read settings from db:", v, len(v))
+	log.Println("Read settings from db")
 	if len(v) > 0 {
 		return &v
 	}
