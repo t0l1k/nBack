@@ -52,9 +52,9 @@ func NewPref() *ui.Preferences {
 	p := ui.NewPreferences()
 	p.Set("game type", game.Sym)
 	p.Set("symbols count", 99)
-	p.Set("time to next cell", 2.0)
+	p.Set("time to next cell", 2.5)
 	p.Set("time to show cell", 0.5)
-	p.Set("trials", 5) //20 classic = trials+factor*level**exponent
+	p.Set("trials", 20) //20 classic = trials+factor*level**exponent
 	p.Set("trials factor", 1)
 	p.Set("trials exponent", 2)
 	p.Set("threshold advance", 80)
@@ -63,7 +63,7 @@ func NewPref() *ui.Preferences {
 	p.Set("default level", 1) // Level in manul mode and first game level today
 	p.Set("manual mode", false)
 	p.Set("manual advance", 3) // games with 100% to next level in manual mode, 0 same level
-	p.Set("reset on first wrong", true)
+	p.Set("reset on first wrong", false)
 	p.Set("random repition", 12.5) // Random Repition
 	p.Set("use center cell", false)
 	p.Set("show grid", true)
@@ -163,6 +163,11 @@ func NewLocaleEn() *ui.Locale {
 	loc.Set("wordhand", "manual mode")
 	loc.Set("wordcclassic", "classic mode")
 	loc.Set("wordnewsess", "New Session")
+	loc.Set("notifhere", "Notifications here")
+	loc.Set("inc", "Increase")
+	loc.Set("dec", "Decrease")
+	loc.Set("by", "by")
+	loc.Set("sec", "seconds")
 
 	return &loc
 }
@@ -229,6 +234,11 @@ func NewLocaleRu() *ui.Locale {
 	loc.Set("wordhand", "режим на ручнике")
 	loc.Set("wordcclassic", "режим классика")
 	loc.Set("wordnewsess", "Новая сессия")
+	loc.Set("notifhere", "Тут уведомления")
+	loc.Set("inc", "Увеличили")
+	loc.Set("dec", "Уменьшили")
+	loc.Set("by", "на")
+	loc.Set("sec", "секунд")
 
 	return &loc
 }
