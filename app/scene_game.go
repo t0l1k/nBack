@@ -107,8 +107,6 @@ func (s *SceneGame) initUi() {
 	s.Add(s.lblDt)
 	s.movesLine = NewMovesLine(rect)
 	s.Add(s.movesLine)
-	s.notify = ui.NewNotification(ui.GetLocale().Get("notifhere"), rect, (*ui.GetTheme())["regular color"], (*ui.GetTheme())["fg"])
-	s.Add(s.notify)
 }
 
 func (s *SceneGame) Update(dt int) {
@@ -133,8 +131,8 @@ func (s *SceneGame) Update(dt int) {
 			ui.GetPreferences().Set("time to next cell", curPause)
 			s.initGameTimers()
 			ss := fmt.Sprintf("%v %v %v %v %v", ui.GetLocale().Get("inc"), ui.GetLocale().Get("opttmnc"), ui.GetLocale().Get("by"), curPause, ui.GetLocale().Get("sec"))
-			s.notify.SetText(ss)
-			log.Printf(ss, curPause)
+			ui.GetUi().ShowNotification(ss)
+			log.Println(ss)
 		}
 	} else if inpututil.IsKeyJustReleased(ebiten.KeyF6) {
 		curPause := ui.GetPreferences().Get("time to next cell").(float64)
@@ -143,8 +141,8 @@ func (s *SceneGame) Update(dt int) {
 			ui.GetPreferences().Set("time to next cell", curPause)
 			s.initGameTimers()
 			ss := fmt.Sprintf("%v %v %v %v %v", ui.GetLocale().Get("dec"), ui.GetLocale().Get("opttmnc"), ui.GetLocale().Get("by"), curPause, ui.GetLocale().Get("sec"))
-			s.notify.SetText(ss)
-			log.Printf(ss, curPause)
+			ui.GetUi().ShowNotification(ss)
+			log.Println(ss)
 		}
 	}
 	if s.board.InGame {
@@ -304,10 +302,6 @@ func (s *SceneGame) Resize() {
 	s.lblName.Resize([]int{x, y, w, h})
 	x = s.rect.Right() - w
 	s.lblDt.Resize([]int{x, y, w, h})
-
-	w = int(float64(s.rect.W) * 0.50)
-	x = s.rect.CenterX() - w/2
-	s.notify.Resize([]int{x, y, w, h})
 
 	sz := s.rect.GetLowestSize()
 	cellSize := float64(sz)/3 - float64(sz)*0.02

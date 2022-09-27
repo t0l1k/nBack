@@ -20,6 +20,7 @@ type Ui struct {
 	theme        *Theme
 	pref         *Preferences
 	locale       *Locale
+	notification *Notification
 }
 
 func init() {
@@ -31,9 +32,10 @@ var uiInstance *Ui = nil
 func GetUi() (a *Ui) {
 	if uiInstance == nil {
 		a = &Ui{
-			startDt: time.Now(),
-			lastDt:  -1,
-			scenes:  []Scene{},
+			startDt:      time.Now(),
+			lastDt:       -1,
+			scenes:       []Scene{},
+			notification: nil,
 		}
 		log.Printf("App init done")
 	} else {
@@ -82,6 +84,16 @@ func GetPreferences() *Preferences {
 	return GetUi().pref
 }
 
+func (a *Ui) ShowNotification(text string) {
+	w, h := int(float64(a.rect.W)*0.50), int(float64(a.rect.H)*0.05)
+	x, y := a.rect.CenterX()-w/2, 0
+	rect := []int{x, y, w, h}
+	bg := GetTheme().Get("bg")
+	fg := GetTheme().Get("fg")
+	a.notification = NewNotification(text, 2, rect, bg, fg)
+	log.Printf("Show Notification %v", text)
+}
+
 func (a *Ui) SetFullscreen(value bool) {
 	a.fullScreen = value
 }
@@ -107,7 +119,15 @@ func (a *Ui) Update() error {
 	} else if inpututil.IsKeyJustReleased(ebiten.KeyF11) {
 		a.ToggleFullscreen()
 	}
-	a.currentScene.Update(a.getTick())
+	tick := a.getTick()
+	a.currentScene.Update(tick)
+	if a.notification != nil {
+		a.notification.Update(tick)
+		if !a.notification.Show {
+			a.notification = nil
+			log.Printf("Notification off")
+		}
+	}
 	return nil
 }
 
@@ -132,6 +152,9 @@ func (a *Ui) ToggleFullscreen() {
 func (a *Ui) Draw(screen *ebiten.Image) {
 	screen.Fill((*a.theme)["bg"])
 	a.currentScene.Draw(screen)
+	if a.notification != nil {
+		a.notification.Draw(screen)
+	}
 }
 
 func (a *Ui) Layout(oW, oH int) (int, int) {
