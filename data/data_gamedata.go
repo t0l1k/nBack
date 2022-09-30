@@ -19,16 +19,16 @@ type GameData struct {
 
 func (d *GameData) NextLevel() (int, int, string) {
 	motiv := ""
-	manual := (*ui.GetPreferences())["manual mode"].(bool)
-	adv := (*ui.GetPreferences())["threshold advance"].(int)
-	fall := (*ui.GetPreferences())["threshold fallback"].(int)
+	manual := ui.GetPreferences().Get("manual mode").(bool)
+	adv := ui.GetPreferences().Get("threshold advance").(int)
+	fall := ui.GetPreferences().Get("threshold fallback").(int)
 	level := d.Level
 	lives := d.Lives
 	if manual {
 		win, ok, count := GetDb().TodayData.getWinCountInManual()
 		if !win && !ok {
 			motiv = ui.GetLocale().Get("strgamemanual") + " " + ui.GetLocale().Get("strmotivdef")
-			level = (*ui.GetPreferences())["default level"].(int)
+			level = ui.GetPreferences().Get("default level").(int)
 			lives = count
 		} else if !win && ok {
 			motiv = ui.GetLocale().Get("strgamemanual") + " " + ui.GetLocale().Get("strmotivmed")
@@ -40,7 +40,7 @@ func (d *GameData) NextLevel() (int, int, string) {
 		}
 	} else if d.Percent >= adv {
 		level += 1
-		lives = (*ui.GetPreferences())["threshold fallback sessions"].(int)
+		lives = ui.GetPreferences().Get("threshold fallback sessions").(int)
 		motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivup")
 	} else if d.Percent >= fall && d.Percent < adv {
 		motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivmed")
@@ -49,7 +49,7 @@ func (d *GameData) NextLevel() (int, int, string) {
 			motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivdwn")
 			if level > 1 {
 				level -= 1
-				lives = (*ui.GetPreferences())["threshold fallback sessions"].(int)
+				lives = ui.GetPreferences().Get("threshold fallback sessions").(int)
 			}
 		} else if lives > 1 {
 			motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivadv")
@@ -60,11 +60,11 @@ func (d *GameData) NextLevel() (int, int, string) {
 }
 func (d GameData) MovesColor() (moves, colors list.List) {
 	theme := ui.GetTheme()
-	colorNil := (*theme)["game fg"]
-	colorRegular := (*theme)["regular color"]
-	colorCorrect := (*theme)["correct color"]
-	colorError := (*theme)["error color"]
-	colorWarning := (*theme)["warning color"]
+	colorNil := theme.Get("game fg")
+	colorRegular := theme.Get("regular color")
+	colorCorrect := theme.Get("correct color")
+	colorError := theme.Get("error color")
+	colorWarning := theme.Get("warning color")
 	for k, v := range d.MovesStatus {
 		moves.PushBack(k)
 		clr := colorNil
@@ -91,12 +91,12 @@ func (d GameData) MovesColor() (moves, colors list.List) {
 
 func (d GameData) BgColor() (result color.Color) {
 	theme := ui.GetTheme()
-	colorRegular := (*theme)["regular color"]
-	colorCorrect := (*theme)["correct color"]
-	colorError := (*theme)["error color"]
-	colorWarning := (*theme)["warning color"]
-	adv := (*ui.GetPreferences())["threshold advance"].(int)
-	fall := (*ui.GetPreferences())["threshold fallback"].(int)
+	colorRegular := theme.Get("regular color")
+	colorCorrect := theme.Get("correct color")
+	colorError := theme.Get("error color")
+	colorWarning := theme.Get("warning color")
+	adv := ui.GetPreferences().Get("threshold advance").(int)
+	fall := ui.GetPreferences().Get("threshold fallback").(int)
 	if d.Percent >= adv {
 		result = colorRegular
 	} else if d.Percent >= fall && d.Percent < adv {
@@ -146,7 +146,7 @@ func (q GameData) String() string {
 		ui.GetLocale().Get("wordmove"),
 		q.Moves,
 		dStr)
-	if (*ui.GetPreferences())["reset on first wrong"].(bool) {
+	if ui.GetPreferences().Get("reset on first wrong").(bool) {
 		ss = fmt.Sprintf("#%v %vB%v %v%% %v:%v %v:%v %v:%v %v:(%v/%v) [%v]",
 			GetDb().TodayGamesCount,
 			q.GameType,

@@ -21,8 +21,8 @@ type MovesLine struct {
 func NewMovesLine(rect []int) *MovesLine {
 	return &MovesLine{
 		rect:    ui.NewRect(rect),
-		bg:      (*ui.GetTheme())["game bg"],
-		fg:      (*ui.GetTheme())["game fg"],
+		bg:      ui.GetTheme().Get("game bg"),
+		fg:      ui.GetTheme().Get("game fg"),
 		Dirty:   false,
 		Visible: false,
 	}

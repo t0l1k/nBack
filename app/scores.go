@@ -22,8 +22,8 @@ type ScorePlot struct {
 func NewScorePlot(rect []int) *ScorePlot {
 	return &ScorePlot{
 		rect:   ui.NewRect(rect),
-		bg:     (*ui.GetTheme())["bg"],
-		fg:     (*ui.GetTheme())["fg"],
+		bg:     ui.GetTheme().Get("bg"),
+		fg:     ui.GetTheme().Get("fg"),
 		Dirty:  true,
 		Visibe: true,
 	}
@@ -174,7 +174,7 @@ func (r *ScorePlot) Layout() {
 			x, y = 0, 0
 			w, h = results2[j]-results1[j], boxSize
 			rect := []int{int(x), int(y), int(w), int(h)}
-			lbl := ui.NewLabel(strs[k], rect, (*ui.GetTheme())["correct color"], fg)
+			lbl := ui.NewLabel(strs[k], rect, ui.GetTheme().Get("correct color"), fg)
 			defer lbl.Close()
 			lbl.Layout()
 			w1, h1 := lbl.Image.Size()
@@ -203,7 +203,7 @@ func (r *ScorePlot) Layout() {
 		}
 		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 {
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
-			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, (*ui.GetTheme())["regular color"])
+			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, ui.GetTheme().Get("regular color"))
 		}
 	}
 	{ // parse data - average line
@@ -221,7 +221,7 @@ func (r *ScorePlot) Layout() {
 		}
 		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 {
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
-			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, (*ui.GetTheme())["warning color"])
+			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, ui.GetTheme().Get("warning color"))
 		}
 	}
 

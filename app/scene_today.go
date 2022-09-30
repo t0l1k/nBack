@@ -24,31 +24,31 @@ func NewSceneToday() *SceneToday {
 		rect: ui.NewRect([]int{0, 0, 1, 1}),
 	}
 	rect := []int{0, 0, 1, 1}
-	s.btnStart = ui.NewButton(ui.GetLocale().Get("btnStart"), rect, (*ui.GetTheme())["game active color"], (*ui.GetTheme())["game bg"], func(b *ui.Button) { ui.GetUi().Push(NewSceneGame()) })
+	s.btnStart = ui.NewButton(ui.GetLocale().Get("btnStart"), rect, ui.GetTheme().Get("game active color"), ui.GetTheme().Get("game bg"), func(b *ui.Button) { ui.GetUi().Push(NewSceneGame()) })
 	s.Add(s.btnStart)
-	s.btnScore = ui.NewButton(ui.GetLocale().Get("btnScore"), rect, (*ui.GetTheme())["error color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetUi().Push(NewSceneScore()) })
+	s.btnScore = ui.NewButton(ui.GetLocale().Get("btnScore"), rect, ui.GetTheme().Get("error color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.GetUi().Push(NewSceneScore()) })
 	s.Add(s.btnScore)
-	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetUi().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.GetUi().Pop() })
 	s.Add(s.btnQuit)
-	s.lblName = ui.NewLabel(ui.GetLocale().Get("AppName"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblName = ui.NewLabel(ui.GetLocale().Get("AppName"), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblName)
-	s.lblPeriodResult = ui.NewLabel(data.GetDb().TodayData.String(), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblPeriodResult = ui.NewLabel(data.GetDb().TodayData.String(), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblPeriodResult)
-	s.lblDt = ui.NewLabel(ui.GetLocale().Get("lblUpTm"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblDt = ui.NewLabel(ui.GetLocale().Get("lblUpTm"), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblDt)
-	s.lblsResult = ui.NewList(nil, nil, rect, (*ui.GetTheme())["bg"], (*ui.GetTheme())["fg"], s.getRows())
+	s.lblsResult = ui.NewList(nil, nil, rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), s.getRows())
 	s.Add(s.lblsResult)
-	s.lblHelper = ui.NewLabel(ui.GetLocale().Get("btnHelper"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblHelper = ui.NewLabel(ui.GetLocale().Get("btnHelper"), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblHelper)
 	s.plotResult = NewResultPlot(rect)
 	s.plotResult.Visibe = false
 	s.Add(s.plotResult)
 	s.toggleResults = false
-	s.btnPlot = ui.NewButton(ui.GetLocale().Get("btnPlot"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { s.togglePlot() })
+	s.btnPlot = ui.NewButton(ui.GetLocale().Get("btnPlot"), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { s.togglePlot() })
 	s.Add(s.btnPlot)
-	s.btnFullScreen = ui.NewButton("[ ]", rect, (*ui.GetTheme())["regular color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetUi().ToggleFullscreen() })
+	s.btnFullScreen = ui.NewButton("[ ]", rect, ui.GetTheme().Get("regular color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.GetUi().ToggleFullscreen() })
 	s.Add(s.btnFullScreen)
-	s.btnOpt = ui.NewButton(ui.GetLocale().Get("btnOpt"), rect, (*ui.GetTheme())["warning color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetUi().Push(NewSceneOptions()) })
+	s.btnOpt = ui.NewButton(ui.GetLocale().Get("btnOpt"), rect, ui.GetTheme().Get("warning color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.GetUi().Push(NewSceneOptions()) })
 	s.Add(s.btnOpt)
 	return s
 }

@@ -24,7 +24,6 @@ type SceneGame struct {
 	delayBeginCellShow, delayBeginCellHide        int
 	timeToNextCell, timeShowCell                  int
 	paused                                        bool
-	notify                                        *ui.Notification
 }
 
 func NewSceneGame() *SceneGame {
@@ -48,8 +47,8 @@ func (s *SceneGame) initGame() {
 		s.level, s.lives, _ = data.GetDb().TodayData[s.count].NextLevel()
 	} else {
 		s.count = 1
-		s.level = (*ui.GetPreferences())["default level"].(int)
-		s.lives = (*ui.GetPreferences())["threshold fallback sessions"].(int)
+		s.level = ui.GetPreferences().Get("default level").(int)
+		s.lives = ui.GetPreferences().Get("threshold fallback sessions").(int)
 	}
 	ss := fmt.Sprintf("#%v %v %v %v.", s.count, ui.GetLocale().Get("btnStart"), s.level, ui.GetLocale().Get("wordstepback"))
 	res := ""
@@ -64,7 +63,7 @@ func (s *SceneGame) initGame() {
 	default:
 		res = tp
 	}
-	if (*ui.GetPreferences())["manual mode"].(bool) {
+	if ui.GetPreferences().Get("manual mode").(bool) {
 		ss += fmt.Sprintf(" %v(%v) %v.", ui.GetLocale().Get("wordGame"), res, ui.GetLocale().Get("wordhand"))
 	} else {
 		ss += fmt.Sprintf(" %v(%v) %v.", ui.GetLocale().Get("wordGame"), res, ui.GetLocale().Get("wordcclassic"))
@@ -72,8 +71,8 @@ func (s *SceneGame) initGame() {
 	s.lblResult.SetText(ss)
 }
 func (s *SceneGame) initGameTimers() {
-	s.timeToNextCell = int((*ui.GetPreferences())["time to next cell"].(float64) * 1000)
-	s.timeShowCell = int((*ui.GetPreferences())["time to show cell"].(float64) * 1000)
+	s.timeToNextCell = int(ui.GetPreferences().Get("time to next cell").(float64) * 1000)
+	s.timeShowCell = int(ui.GetPreferences().Get("time to show cell").(float64) * 1000)
 	s.stopper = 0
 	delay := (s.timeToNextCell - s.timeShowCell) / 2
 	s.delayBeginCellShow = delay
@@ -82,28 +81,33 @@ func (s *SceneGame) initGameTimers() {
 
 func (s *SceneGame) initUi() {
 	rect := []int{0, 0, 1, 1}
-	s.btnStart = ui.NewButton(ui.GetLocale().Get("wordnewsess"), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) {
-		log.Println("Button new session pressed")
-		s.paused = false
-		s.newSession()
-	})
+	s.btnStart = ui.NewButton(
+		ui.GetLocale().Get("wordnewsess"),
+		rect,
+		ui.GetTheme().Get("correct color"),
+		ui.GetTheme().Get("fg"),
+		func(b *ui.Button) {
+			log.Println("Button new session pressed")
+			s.paused = false
+			s.newSession()
+		})
 	s.Add(s.btnStart)
-	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetUi().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.GetUi().Pop() })
 	s.Add(s.btnQuit)
 	s.name = ui.GetLocale().Get("AppName") + " " + ui.GetLocale().Get("btnStart")
-	s.lblName = ui.NewLabel(s.name, rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblName = ui.NewLabel(s.name, rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblName)
 	s.board = game.NewBoard(rect, ui.GetPreferences(), ui.GetTheme())
 	s.Add(s.board)
-	s.lblResult = ui.NewLabel(" ", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblResult = ui.NewLabel(" ", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblResult)
-	s.lblMotiv = ui.NewLabel(" ", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblMotiv = ui.NewLabel(" ", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblMotiv)
 	s.lblMotiv.Visible = false
-	s.lblTimer = ui.NewLabel(s.name, rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblTimer = ui.NewLabel(s.name, rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblTimer)
 	s.lblTimer.Visible = false
-	s.lblDt = ui.NewLabel("up: ", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblDt = ui.NewLabel("up: ", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblDt)
 	s.movesLine = NewMovesLine(rect)
 	s.Add(s.movesLine)
@@ -174,15 +178,15 @@ func (s *SceneGame) Update(dt int) {
 			s.lblMotiv.SetBg(data.GetDb().TodayData[count].BgColor())
 			s.lblName.SetRect(true)
 			s.lblName.SetText(s.name)
-			s.lblName.SetBg((*ui.GetTheme())["correct color"])
+			s.lblName.SetBg(ui.GetTheme().Get("correct color"))
 			x, y, w, h := int(float64(s.rect.H)*0.05), 0, int(float64(s.rect.W)*0.20), int(float64(s.rect.H)*0.05)
 			s.lblName.Resize([]int{x, y, w, h})
 			s.lblResult.Visible = true
 			s.lblMotiv.Visible = true
 			s.lblTimer.Visible = true
 			s.btnQuit.Visible = true
-			s.lblTimer.SetBg((*ui.GetTheme())["error color"])
-			s.pauseTimer = (*ui.GetPreferences())["pause to rest"].(int) * 1000
+			s.lblTimer.SetBg(ui.GetTheme().Get("error color"))
+			s.pauseTimer = ui.GetPreferences().Get("pause to rest").(int) * 1000
 			s.paused = true
 			s.lblDt.Visible = true
 		}
@@ -198,8 +202,8 @@ func (s *SceneGame) Update(dt int) {
 		} else if s.pauseTimer <= 0 {
 			if s.paused {
 				s.paused = false
-				s.pauseTimer += (*ui.GetPreferences())["pause to rest"].(int) * 1000
-				s.lblTimer.SetBg((*ui.GetTheme())["correct color"])
+				s.pauseTimer += ui.GetPreferences().Get("pause to rest").(int) * 1000
+				s.lblTimer.SetBg(ui.GetTheme().Get("correct color"))
 			}
 		}
 	}
@@ -214,7 +218,7 @@ func (s *SceneGame) newSession() {
 	s.btnQuit.Visible = false
 	s.lblDt.Visible = false
 	s.movesLine.Visible = false
-	if (*ui.GetPreferences())["feedback on user move"].(bool) {
+	if ui.GetPreferences().Get("feedback on user move").(bool) {
 		x, y, w, h := 0, 0, int(float64(s.rect.W)*0.20), int(float64(s.rect.H)*0.05)
 		s.lblName.Resize([]int{x, y, w, h})
 		s.lblName.SetRect(true)
@@ -230,18 +234,18 @@ func (s *SceneGame) newSession() {
 }
 
 func (s *SceneGame) moveStatus() {
-	if (*ui.GetPreferences())["feedback on user move"].(bool) {
+	if ui.GetPreferences().Get("feedback on user move").(bool) {
 		switch s.board.MoveStatus {
 		case game.Correct:
-			s.lblName.SetBg((*ui.GetTheme())["correct color"])
+			s.lblName.SetBg(ui.GetTheme().Get("correct color"))
 		case game.Error:
-			s.lblName.SetBg((*ui.GetTheme())["error color"])
+			s.lblName.SetBg(ui.GetTheme().Get("error color"))
 		case game.Warning:
-			s.lblName.SetBg((*ui.GetTheme())["warning color"])
+			s.lblName.SetBg(ui.GetTheme().Get("warning color"))
 		case game.Regular:
-			s.lblName.SetBg((*ui.GetTheme())["regular color"])
+			s.lblName.SetBg(ui.GetTheme().Get("regular color"))
 		default:
-			s.lblName.SetBg((*ui.GetTheme())["game bg"])
+			s.lblName.SetBg(ui.GetTheme().Get("game bg"))
 		}
 	}
 	str1 := ""
@@ -272,10 +276,10 @@ func (s *SceneGame) SaveGame() {
 		Missed:       s.board.CountMissed,
 		Moves:        s.board.Move,
 		Totalmoves:   s.board.TotalMoves,
-		Manual:       (*ui.GetPreferences())["manual mode"].(bool),
-		Advance:      (*ui.GetPreferences())["threshold advance"].(int),
-		Fallback:     (*ui.GetPreferences())["threshold fallback"].(int),
-		Resetonerror: (*ui.GetPreferences())["reset on first wrong"].(bool),
+		Manual:       ui.GetPreferences().Get("manual mode").(bool),
+		Advance:      ui.GetPreferences().Get("threshold advance").(int),
+		Fallback:     ui.GetPreferences().Get("threshold fallback").(int),
+		Resetonerror: ui.GetPreferences().Get("reset on first wrong").(bool),
 		MovesStatus:  s.board.MovesStatus,
 	}
 	data.GetDb().InsertGame(values)
@@ -283,7 +287,7 @@ func (s *SceneGame) SaveGame() {
 }
 
 func (s *SceneGame) Draw(surface *ebiten.Image) {
-	surface.Fill((*ui.GetTheme())["game bg"])
+	surface.Fill(ui.GetTheme().Get("game bg"))
 	for _, value := range s.container {
 		value.Draw(surface)
 	}

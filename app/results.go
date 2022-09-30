@@ -22,8 +22,8 @@ type ResultPlot struct {
 func NewResultPlot(rect []int) *ResultPlot {
 	return &ResultPlot{
 		rect:   ui.NewRect(rect),
-		bg:     (*ui.GetTheme())["bg"],
-		fg:     (*ui.GetTheme())["fg"],
+		bg:     ui.GetTheme().Get("bg"),
+		fg:     ui.GetTheme().Get("fg"),
 		Dirty:  true,
 		Visibe: true,
 	}
@@ -176,15 +176,15 @@ func (r *ResultPlot) Layout() {
 		}
 		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 { // level line
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
-			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, (*ui.GetTheme())["correct color"])
+			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, ui.GetTheme().Get("correct color"))
 		}
 		for i, j := 0, 1; j < len(results2); i, j = i+2, j+2 { // total moves line
 			x1, y1, x2, y2 := results1[i], results1[j], results2[i], results2[j]
-			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, (*ui.GetTheme())["correct color"])
+			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, ui.GetTheme().Get("correct color"))
 		}
 		for i, j := 0, 1; j < len(results3); i, j = i+2, j+2 { // moves line
 			x1, y1, x2, y2 := results1[i], results1[j], results3[i], results3[j]
-			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, (*ui.GetTheme())["error color"])
+			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, ui.GetTheme().Get("error color"))
 		}
 
 	}
@@ -208,7 +208,7 @@ func (r *ResultPlot) Layout() {
 		}
 		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 { // max line
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
-			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, (*ui.GetTheme())["regular color"])
+			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, ui.GetTheme().Get("regular color"))
 		}
 		k := 0
 		for i, j := 0, 1; j < len(results1); i, j = i+2, j+2 {

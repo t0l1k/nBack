@@ -49,15 +49,15 @@ func NewSceneScore() *SceneScore {
 		scorePeriod: all,
 	}
 	rect := []int{0, 0, 1, 1}
-	s.btnQuit = ui.NewButton("<", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"], func(b *ui.Button) { ui.GetUi().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.GetUi().Pop() })
 	s.Add(s.btnQuit)
-	s.lblName = ui.NewLabel(fmt.Sprintf("%v %v", ui.GetLocale().Get("scrName"), s.scorePeriod), rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblName = ui.NewLabel(fmt.Sprintf("%v %v", ui.GetLocale().Get("scrName"), s.scorePeriod), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblName)
-	s.lblPeriodResult = ui.NewLabel("", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblPeriodResult = ui.NewLabel("", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblPeriodResult)
 	s.plotScore = NewScorePlot(rect)
 	s.Add(s.plotScore)
-	s.lblDt = ui.NewLabel(" ", rect, (*ui.GetTheme())["correct color"], (*ui.GetTheme())["fg"])
+	s.lblDt = ui.NewLabel(" ", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblDt)
 	return s
 }

@@ -57,7 +57,7 @@ func NewBoard(rect []int, pref *ui.Preferences, theme *ui.Theme) *Board {
 	}
 	if b.pref.Get("show grid").(bool) && b.pref.Get("game type").(string) == Pos {
 		gridSz := b.pref.Get("grid size").(int)
-		b.grid = ui.NewGridView(rect, ui.NewPoint(float64(gridSz), float64(gridSz)), (*b.theme)["game bg"], (*b.theme)["game fg"])
+		b.grid = ui.NewGridView(rect, ui.NewPoint(float64(gridSz), float64(gridSz)), b.theme.Get("game bg"), b.theme.Get("game fg"))
 		b.Add(b.grid)
 	}
 	b.field = b.initCells()
@@ -133,7 +133,7 @@ func (b *Board) CheckMoveRegular() {
 			s += " analyze early"
 		}
 	}
-	if (b.CountWrong > 0 || b.CountMissed > 0) && (*b.pref)["reset on first wrong"].(bool) {
+	if (b.CountWrong > 0 || b.CountMissed > 0) && b.pref.Get("reset on first wrong").(bool) {
 		b.reset = true
 	}
 	b.UserMoved = false
@@ -165,12 +165,12 @@ func (b *Board) setFieldVisible(value bool) {
 
 func (b *Board) ShowActiveCell() {
 	var mv int
-	if (*b.pref)["game type"].(string) == Pos {
+	if b.pref.Get("game type").(string) == Pos {
 		mv = b.moveValue
-	} else if (*b.pref)["game type"].(string) == Col {
+	} else if b.pref.Get("game type").(string) == Col {
 		mv = 0
 		b.field[mv].SetActiveColor(Colors[b.moveValue])
-	} else if (*b.pref)["game type"].(string) == Sym {
+	} else if b.pref.Get("game type").(string) == Sym {
 		mv = 0
 		b.field[mv].SetSymbol(b.moveValue)
 	}
@@ -179,11 +179,11 @@ func (b *Board) ShowActiveCell() {
 
 func (b *Board) HideActiveCell() {
 	var mv int
-	if (*b.pref)["game type"].(string) == Pos {
+	if b.pref.Get("game type").(string) == Pos {
 		mv = b.moveValue
-	} else if (*b.pref)["game type"].(string) == Col {
+	} else if b.pref.Get("game type").(string) == Col {
 		mv = 0
-	} else if (*b.pref)["game type"].(string) == Sym {
+	} else if b.pref.Get("game type").(string) == Sym {
 		mv = 0
 	}
 	b.field[mv].SetActive(false)
@@ -191,11 +191,11 @@ func (b *Board) HideActiveCell() {
 
 func (b *Board) IsShowActiveCell() bool {
 	var mv int
-	if (*b.pref)["game type"].(string) == Pos {
+	if b.pref.Get("game type").(string) == Pos {
 		mv = b.moveValue
-	} else if (*b.pref)["game type"].(string) == Col {
+	} else if b.pref.Get("game type").(string) == Col {
 		mv = 0
-	} else if (*b.pref)["game type"].(string) == Sym {
+	} else if b.pref.Get("game type").(string) == Sym {
 		mv = 0
 	}
 	return b.field[mv].Active
@@ -221,20 +221,20 @@ func (b *Board) GetPercent() int {
 
 func (b *Board) initCells() (field []*Cell) {
 	var dim int
-	if (*b.pref)["game type"].(string) == Pos {
-		dim = (*b.pref)["grid size"].(int)
+	if b.pref.Get("game type").(string) == Pos {
+		dim = b.pref.Get("grid size").(int)
 	} else {
 		dim = 1
 	}
-	cellBg := (*b.theme)["game bg"]
-	cellFg := (*b.theme)["game fg"]
-	cellActiveColor := (*b.theme)["game active color"]
+	cellBg := b.theme.Get("game bg")
+	cellFg := b.theme.Get("game fg")
+	cellActiveColor := b.theme.Get("game active color")
 	showCrossHair := b.pref.Get("show crosshair").(bool)
 	for i := 0; i < dim*dim; i++ {
 		isCenter := false
 		aX := i % dim
 		aY := i / dim
-		if aX == dim/2 && aY == dim/2 && !(*b.pref)["use center cell"].(bool) && dim%2 != 0 && showCrossHair {
+		if aX == dim/2 && aY == dim/2 && !b.pref.Get("use center cell").(bool) && dim%2 != 0 && showCrossHair {
 			isCenter = true
 		}
 		cell := NewCell([]int{0, 0, 1, 1}, isCenter, cellBg, cellFg, cellActiveColor)
@@ -276,8 +276,8 @@ func (b *Board) Resize(rect []int) {
 
 func (b *Board) resizeCells() {
 	var dim int
-	if (*b.pref)["game type"].(string) == Pos {
-		dim = (*b.pref)["grid size"].(int)
+	if b.pref.Get("game type").(string) == Pos {
+		dim = b.pref.Get("grid size").(int)
 	} else {
 		dim = 1
 	}
@@ -303,7 +303,8 @@ func (b *Board) Close() {
 }
 
 func TotalMoves(level int) int {
-	return (*ui.GetPreferences())["trials"].(int) +
-		(*ui.GetPreferences())["trials factor"].(int)*
-			int(math.Pow(float64(level), float64((*ui.GetPreferences())["trials exponent"].(int))))
+	trials := ui.GetPreferences().Get("trials").(int)
+	factor := ui.GetPreferences().Get("trials factor").(int)
+	exponent := ui.GetPreferences().Get("trials exponent").(int)
+	return trials + factor*int(math.Pow(float64(level), float64(exponent)))
 }

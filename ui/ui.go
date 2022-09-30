@@ -150,7 +150,7 @@ func (a *Ui) ToggleFullscreen() {
 }
 
 func (a *Ui) Draw(screen *ebiten.Image) {
-	screen.Fill((*a.theme)["bg"])
+	screen.Fill(a.theme.Get("bg"))
 	a.currentScene.Draw(screen)
 	if a.notification != nil {
 		a.notification.Draw(screen)

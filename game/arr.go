@@ -36,13 +36,13 @@ func getArr(level, moves int, pref *ui.Preferences) (arr []int) {
 }
 
 func genArr(moves int, pref *ui.Preferences) (a []int) {
-	dim := (*pref)["grid size"].(int)
+	dim := pref.Get("grid size").(int)
 	center := (dim*dim - 1) / 2
 	num := 0
 	for len(a) < moves {
 		if pref.Get("game type").(string) == Pos {
 			num = rand.Intn((dim * dim) - 1)
-			if num != center && !(*pref)["use center cell"].(bool) || (*pref)["use center cell"].(bool) {
+			if num != center && !pref.Get("use center cell").(bool) || pref.Get("use center cell").(bool) {
 				a = append(a, num)
 			}
 		} else if pref.Get("game type").(string) == Col {
@@ -57,7 +57,7 @@ func genArr(moves int, pref *ui.Preferences) (a []int) {
 }
 
 func checkRR(a []int, level int, pref *ui.Preferences) (bool, int) {
-	RR := (*pref)["random repition"].(float64)
+	RR := pref.Get("random repition").(float64)
 	count := 0
 	for i, v := range a {
 		nextMove := i + level
