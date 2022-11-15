@@ -6,6 +6,7 @@ import (
 	"image/color"
 	"math"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/t0l1k/nBack/ui"
@@ -142,6 +143,21 @@ func (t *TodayGamesData) ListShortStr() (strs []string, clrs []color.Color) {
 	return
 }
 
+func (t *TodayGamesData) LongStr() (str string) {
+	keys := make([]int, 0)
+	for k := range *t {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+	for i, v := range keys {
+		str += "#" + strconv.Itoa(i+1)
+		str += GetDb().TodayData[v].String()
+		if i < len(keys)-1 {
+			str += "\n"
+		}
+	}
+	return str
+}
 func (t *TodayGamesData) String() string {
 	s := fmt.Sprintf("%v", t.getToday())
 	if t.getCount() > 0 {

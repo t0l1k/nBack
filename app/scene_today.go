@@ -60,6 +60,7 @@ func (s *SceneToday) Entered() {
 	s.lblsResult.SetList(a, b)
 	s.Resize()
 	log.Println("Entered SceneToday")
+	log.Println(data.GetDb().TodayData.LongStr())
 }
 func (s *SceneToday) Add(item ui.Drawable) {
 	s.container = append(s.container, item)

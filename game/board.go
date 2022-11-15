@@ -93,7 +93,7 @@ func (b *Board) CheckUserMove() {
 }
 
 func (b *Board) CheckMoveRegular() {
-	s := fmt.Sprintf("Check regular Move %v", b)
+	s := "Check regular Move "
 	mv := b.Move - 1
 	if len(b.moves) > b.level+1 {
 		var i, j int
@@ -105,7 +105,7 @@ func (b *Board) CheckMoveRegular() {
 			j = b.Move
 		}
 		mv = j
-		s += fmt.Sprintf("%v", b.moves[i:j])
+		s += fmt.Sprintf("%v %v", b.Status(mv), b.moves[i:j])
 		aa := b.moves[i:j]
 		if aa[0] == aa[len(aa)-1] && b.UserMoved {
 			b.MovesStatus[mv] = Correct
@@ -139,6 +139,7 @@ func (b *Board) CheckMoveRegular() {
 	b.UserMoved = false
 	log.Println(s)
 }
+
 func (b *Board) MakeMove() {
 	b.MoveStatus = Neutral
 	if b.Move == b.TotalMoves || b.reset {
@@ -155,6 +156,7 @@ func (b *Board) MakeMove() {
 	b.moves = append(b.moves, b.moveValue)
 	b.Move += 1
 	b.MovesStatus[b.Move] = Regular
+	log.Println("Make Move", b.Move)
 }
 
 func (b *Board) setFieldVisible(value bool) {
@@ -261,9 +263,13 @@ func (b *Board) Draw(surface *ebiten.Image) {
 	}
 }
 
-func (b *Board) String() string {
+func (b *Board) Status(mv int) string {
 	tp := b.pref.Get("game type").(string)
-	return fmt.Sprintf("#%v %vB%v %v/%v", b.gameCount, tp, b.level, b.Move, b.TotalMoves)
+	return fmt.Sprintf("#%v %vB%v %v/%v", b.gameCount, tp, b.level, mv, b.TotalMoves)
+}
+
+func (b *Board) String() string {
+	return b.Status(b.Move)
 }
 
 func (b *Board) Resize(rect []int) {

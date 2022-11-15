@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"fmt"
 	"image/color"
+	"strconv"
 	"time"
 
 	"github.com/t0l1k/nBack/game"
@@ -24,36 +25,41 @@ func (d *GameData) NextLevel() (int, int, string) {
 	fall := ui.GetPreferences().Get("threshold fallback").(int)
 	level := d.Level
 	lives := d.Lives
+	win, ok, count := GetDb().TodayData.getWinCountInManual()
 	if manual {
-		win, ok, count := GetDb().TodayData.getWinCountInManual()
 		if !win && !ok {
-			motiv = ui.GetLocale().Get("strgamemanual") + " " + ui.GetLocale().Get("strmotivdef")
+			motiv = ui.GetLocale().Get("strgamemanual") + " " + ui.GetLocale().Get("strmotivdef") + "(" + strconv.Itoa(level) + ")"
 			level = ui.GetPreferences().Get("default level").(int)
 			lives = count
 		} else if !win && ok {
-			motiv = ui.GetLocale().Get("strgamemanual") + " " + ui.GetLocale().Get("strmotivmed")
+			motiv = ui.GetLocale().Get("strgamemanual") + " " + ui.GetLocale().Get("strmotivmed") + "(" + strconv.Itoa(level) + ")"
 			lives = count
 		} else if win && ok {
-			motiv = ui.GetLocale().Get("strgamemanual") + " " + ui.GetLocale().Get("strmotivup")
 			level += 1
+			motiv = ui.GetLocale().Get("strgamemanual") + " " + ui.GetLocale().Get("strmotivup") + "(" + strconv.Itoa(level) + ")"
 			lives = 0
 		}
-	} else if d.Percent >= adv {
-		level += 1
-		lives = ui.GetPreferences().Get("threshold fallback sessions").(int)
-		motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivup")
-	} else if d.Percent >= fall && d.Percent < adv {
-		motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivmed")
-	} else if d.Percent < fall {
-		if lives == 1 {
-			motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivdwn")
-			if level > 1 {
-				level -= 1
-				lives = ui.GetPreferences().Get("threshold fallback sessions").(int)
+	} else {
+		if lives == 0 || count > 0 {
+			level = ui.GetPreferences().Get("default level").(int)
+			lives = ui.GetPreferences().Get("threshold fallback sessions").(int)
+		} else if d.Percent >= adv {
+			level += 1
+			lives = ui.GetPreferences().Get("threshold fallback sessions").(int)
+			motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivup") + "(" + strconv.Itoa(level) + ")"
+		} else if d.Percent >= fall && d.Percent < adv {
+			motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivmed") + "(" + strconv.Itoa(level) + ")"
+		} else if d.Percent < fall {
+			if lives == 1 {
+				motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivdwn") + "(" + strconv.Itoa(level) + ")"
+				if level > 1 {
+					level -= 1
+					lives = ui.GetPreferences().Get("threshold fallback sessions").(int)
+				}
+			} else if lives > 1 {
+				motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivadv") + "(" + strconv.Itoa(level) + ")"
+				lives -= 1
 			}
-		} else if lives > 1 {
-			motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivadv")
-			lives -= 1
 		}
 	}
 	return level, lives, motiv
@@ -132,8 +138,7 @@ func (q GameData) String() string {
 	m := int(sec / 60)
 	seconds := int(sec) % 60
 	dStr := fmt.Sprintf("%02v:%02v.%03v", m, seconds, int(mSec))
-	ss := fmt.Sprintf("#%v %vB%v %v%% %v:%v %v:%v %v:%v %v:%v [%v]",
-		GetDb().TodayGamesCount,
+	ss := fmt.Sprintf(" %vB%v %v%% %v:%v (%v:%v %v:%v)%v %v:%v [%v]",
 		q.GameType,
 		q.Level,
 		q.Percent,
@@ -143,12 +148,12 @@ func (q GameData) String() string {
 		q.Wrong,
 		ui.GetLocale().Get("wordmissed"),
 		q.Missed,
+		q.Wrong+q.Missed,
 		ui.GetLocale().Get("wordmove"),
 		q.Moves,
 		dStr)
 	if ui.GetPreferences().Get("reset on first wrong").(bool) {
-		ss = fmt.Sprintf("#%v %vB%v %v%% %v:%v %v:%v %v:%v %v:(%v/%v) [%v]",
-			GetDb().TodayGamesCount,
+		ss = fmt.Sprintf(" %vB%v %v%% %v:%v (%v:%v %v:%v)%v %v:(%v/%v) [%v]",
 			q.GameType,
 			q.Level,
 			q.Percent,
@@ -158,6 +163,7 @@ func (q GameData) String() string {
 			q.Wrong,
 			ui.GetLocale().Get("wordmissed"),
 			q.Missed,
+			q.Wrong+q.Missed,
 			ui.GetLocale().Get("wordmove"),
 			q.Moves,
 			q.Totalmoves,

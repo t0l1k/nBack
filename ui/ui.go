@@ -13,7 +13,7 @@ import (
 type Ui struct {
 	startDt      time.Time
 	fullScreen   bool
-	rect         *Rect
+	rect, last   *Rect
 	scenes       []Scene
 	currentScene Scene
 	lastDt       int
@@ -68,7 +68,13 @@ func (a *Ui) SetupScreen(title string) {
 	}
 	ebiten.SetWindowTitle(title)
 	ebiten.SetFullscreen(a.fullScreen)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowSize(w, h)
+	a.setRect(w, h)
+}
+
+func (a *Ui) setRect(w int, h int) {
+	a.last = a.rect
 	a.rect = NewRect([]int{0, 0, w, h})
 }
 
@@ -102,7 +108,7 @@ func fitWindowSize() (w int, h int) {
 	ww, hh := ebiten.ScreenSizeInFullscreen()
 	k := 10
 	w, h = 320*k, 200*k
-	for ww <= w || hh <= h {
+	for ww <= w*2 || hh <= h {
 		k -= 1
 		w, h = 320*k, 200*k
 	}
@@ -118,6 +124,15 @@ func (a *Ui) Update() error {
 		a.Pop()
 	} else if inpututil.IsKeyJustReleased(ebiten.KeyF11) {
 		a.ToggleFullscreen()
+	}
+	w, h := ebiten.WindowSize()
+	w1, h1 := a.GetScreenSize()
+	if w != w1 || h != h1 {
+		a.setRect(w, h)
+		for _, scene := range a.scenes {
+			scene.Resize()
+		}
+		log.Printf("Resized: %v %v", w, h)
 	}
 	tick := a.getTick()
 	a.currentScene.Update(tick)
@@ -138,11 +153,11 @@ func (a *Ui) ToggleFullscreen() {
 		ebiten.SetFullscreen(a.fullScreen)
 		w, h = ebiten.ScreenSizeInFullscreen()
 	} else {
-		w, h = fitWindowSize()
+		w, h = a.last.W, a.last.H
 	}
 	ebiten.SetFullscreen(a.fullScreen)
 	ebiten.SetWindowSize(w, h)
-	a.rect = NewRect([]int{0, 0, w, h})
+	a.setRect(w, h)
 	for _, scene := range a.scenes {
 		scene.Resize()
 	}
