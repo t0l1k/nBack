@@ -12,17 +12,11 @@ import (
 
 func NewGame() *ui.Ui {
 	ui := ui.GetUi()
-	ui.SetupSettings(LoadPreferences())
-	ui.SetupTheme(NewTheme())
-	ui.SetupLocale(NewLocale())
-	ui.SetupScreen("Single nBack")
-	ui.Push(NewSceneToday())
+	ui.SetTitle("Single NBack")
+	ui.ApplyPreferences(LoadPreferences())
+	ui.ApplyTheme(NewTheme())
+	ui.ApplyLocale(NewLocale())
 	return ui
-}
-
-func ApplyPreferences(value *ui.Preferences) *ui.Preferences {
-	ui.GetUi().SetupSettings(value)
-	return ui.GetPreferences()
 }
 
 func LoadPreferences() *ui.Preferences {
@@ -50,6 +44,7 @@ func LoadPreferences() *ui.Preferences {
 
 func NewPref() *ui.Preferences {
 	p := ui.NewPreferences()
+	p.Set("fullscreen", false)
 	p.Set("game type", game.Sym)
 	p.Set("symbols count", 99)
 	p.Set("time to next cell", 2.5)
@@ -71,7 +66,6 @@ func NewPref() *ui.Preferences {
 	p.Set("feedback on user move", true)
 	p.Set("grid size", 3)
 	p.Set("pause to rest", 5)
-	p.Set("fullscreen", false)
 	p.Set("lang", "ru")
 	return &p
 }

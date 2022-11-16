@@ -1,33 +1,18 @@
 package ui
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-type Ui struct {
-	startDt      time.Time
-	fullScreen   bool
-	rect, last   *Rect
-	scenes       []Scene
-	currentScene Scene
-	lastDt       int
-	theme        *Theme
-	pref         *Preferences
-	locale       *Locale
-	notification *Notification
-}
+var uiInstance *Ui = nil
 
 func init() {
 	uiInstance = GetUi()
 }
-
-var uiInstance *Ui = nil
 
 func GetUi() (a *Ui) {
 	if uiInstance == nil {
@@ -44,39 +29,29 @@ func GetUi() (a *Ui) {
 	return a
 }
 
-func (a *Ui) SetupSettings(p *Preferences) {
-	a.pref = p
-	log.Printf("App init preferences.")
-}
-
-func (a *Ui) SetupLocale(l *Locale) {
-	a.locale = l
-	log.Printf("App init Locale.")
-}
-
-func (a *Ui) SetupTheme(theme *Theme) {
-	a.theme = theme
-	log.Printf("App init theme")
-}
-
-func (a *Ui) SetupScreen(title string) {
+func Init(f *Ui) {
+	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
+	ebiten.SetWindowTitle(f.title)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	var w, h int
-	if a.fullScreen {
+	if GetUi().fullScreen {
 		w, h = ebiten.ScreenSizeInFullscreen()
 	} else {
 		w, h = fitWindowSize()
 	}
-	ebiten.SetWindowTitle(title)
-	ebiten.SetFullscreen(a.fullScreen)
-	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowSize(w, h)
-	a.setRect(w, h)
+	ebiten.SetFullscreen(GetUi().fullScreen)
+	GetUi().rect = NewRect([]int{0, 0, w, h})
 }
 
-func (a *Ui) setRect(w int, h int) {
-	a.last = a.rect
-	a.rect = NewRect([]int{0, 0, w, h})
+func Run(sc Scene) {
+	Push(sc)
+	if err := ebiten.RunGame(GetUi()); err != nil {
+		log.Fatal(err)
+	}
 }
+
+func Quit() {}
 
 func GetLocale() *Locale {
 	return GetUi().locale
@@ -90,142 +65,36 @@ func GetPreferences() *Preferences {
 	return GetUi().pref
 }
 
-func (a *Ui) ShowNotification(text string) {
-	w, h := int(float64(a.rect.W)*0.50), int(float64(a.rect.H)*0.05)
-	x, y := a.rect.CenterX()-w/2, 0
-	rect := []int{x, y, w, h}
-	bg := GetTheme().Get("bg")
-	fg := GetTheme().Get("fg")
-	a.notification = NewNotification(text, 2, rect, bg, fg)
-	log.Printf("Show Notification %v", text)
+func Push(sc Scene) {
+	GetUi().scenes = append(GetUi().scenes, sc)
+	GetUi().currentScene = sc
+	GetUi().currentScene.Entered()
+	log.Println("Scene push")
 }
 
-func (a *Ui) SetFullscreen(value bool) {
-	a.fullScreen = value
+func Pop() {
+	if len(GetUi().scenes) > 0 {
+		GetUi().currentScene.Quit()
+		idx := len(GetUi().scenes) - 1
+		GetUi().scenes = GetUi().scenes[:idx]
+		log.Printf("App Pop Scene Quit done.")
+		if len(GetUi().scenes) == 0 {
+			log.Printf("App Quit.")
+			os.Exit(0)
+		}
+		GetUi().currentScene = GetUi().scenes[len(GetUi().scenes)-1]
+		GetUi().currentScene.Entered()
+		log.Printf("App Pop New Scene Entered.")
+	}
 }
 
 func fitWindowSize() (w int, h int) {
 	ww, hh := ebiten.ScreenSizeInFullscreen()
 	k := 10
-	w, h = 320*k, 200*k
+	w, h = 320*k, 180*k
 	for ww <= w*2 || hh <= h {
 		k -= 1
 		w, h = 320*k, 200*k
 	}
 	return w, h
-}
-
-func (a *Ui) GetScreenSize() (w, h int) {
-	return a.rect.Right(), a.rect.Bottom()
-}
-
-func (a *Ui) Update() error {
-	if inpututil.IsKeyJustReleased(ebiten.KeyEscape) {
-		a.Pop()
-	} else if inpututil.IsKeyJustReleased(ebiten.KeyF11) {
-		a.ToggleFullscreen()
-	}
-	w, h := ebiten.WindowSize()
-	w1, h1 := a.GetScreenSize()
-	if w != w1 || h != h1 {
-		a.setRect(w, h)
-		for _, scene := range a.scenes {
-			scene.Resize()
-		}
-		log.Printf("Resized: %v %v", w, h)
-	}
-	tick := a.getTick()
-	a.currentScene.Update(tick)
-	if a.notification != nil {
-		a.notification.Update(tick)
-		if !a.notification.Show {
-			a.notification = nil
-			log.Printf("Notification off")
-		}
-	}
-	return nil
-}
-
-func (a *Ui) ToggleFullscreen() {
-	a.fullScreen = !a.fullScreen
-	var w, h int
-	if a.fullScreen {
-		ebiten.SetFullscreen(a.fullScreen)
-		w, h = ebiten.ScreenSizeInFullscreen()
-	} else {
-		w, h = a.last.W, a.last.H
-	}
-	ebiten.SetFullscreen(a.fullScreen)
-	ebiten.SetWindowSize(w, h)
-	a.setRect(w, h)
-	for _, scene := range a.scenes {
-		scene.Resize()
-	}
-	log.Println("Toggle FullScreen:", a.rect)
-}
-
-func (a *Ui) Draw(screen *ebiten.Image) {
-	screen.Fill(a.theme.Get("bg"))
-	a.currentScene.Draw(screen)
-	if a.notification != nil {
-		a.notification.Draw(screen)
-	}
-}
-
-func (a *Ui) Layout(oW, oH int) (int, int) {
-	return oW, oH
-}
-
-func (a *Ui) Push(sc Scene) {
-	a.scenes = append(a.scenes, sc)
-	a.currentScene = sc
-	a.currentScene.Entered()
-	log.Println("Scene push")
-}
-
-func (a *Ui) Pop() {
-	if len(a.scenes) > 0 {
-		a.currentScene.Quit()
-		idx := len(a.scenes) - 1
-		a.scenes = a.scenes[:idx]
-		log.Printf("App Pop Scene Quit done.")
-		if len(a.scenes) == 0 {
-			log.Printf("App Quit.")
-			os.Exit(0)
-		}
-		a.currentScene = a.scenes[len(a.scenes)-1]
-		a.currentScene.Entered()
-		log.Printf("App Pop New Scene Entered.")
-	}
-}
-
-func (a *Ui) getTick() int {
-	tm := time.Now()
-	dt := tm.Nanosecond() / 1e6
-	if a.lastDt == -1 {
-		a.lastDt = dt
-	}
-	ticks := dt - a.lastDt
-	if dt < a.lastDt {
-		ticks = 999 - a.lastDt + dt
-	}
-	a.lastDt = dt
-	return ticks
-}
-
-func (s *Ui) UpdateUpTime() string {
-	durration := time.Since(s.startDt)
-	d := durration.Round(time.Second)
-	hours := d / time.Hour
-	d -= hours * time.Hour
-	minutes := d / time.Minute
-	d -= minutes * time.Minute
-	sec := d / time.Second
-	result := ""
-	if hours > 0 {
-		result = fmt.Sprintf("%02v:%02v:%02v", int(hours), int(minutes), int(sec))
-	} else {
-		result = fmt.Sprintf("%02v:%02v", int(minutes), int(sec))
-	}
-	return fmt.Sprintf("%v: %v", GetLocale().Get("lblUpTm"), result)
 }

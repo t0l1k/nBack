@@ -339,6 +339,9 @@ func (d *Db) ReadAllGamesForScoresByDays() {
 }
 
 func (d *Db) Close() {
+	if d.conn == nil {
+		return
+	}
 	d.conn.Close()
 	log.Println("DB Closed.")
 }

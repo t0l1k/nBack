@@ -49,7 +49,7 @@ func NewSceneScore() *SceneScore {
 		scorePeriod: all,
 	}
 	rect := []int{0, 0, 1, 1}
-	s.btnQuit = ui.NewButton("<", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.GetUi().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.Pop() })
 	s.Add(s.btnQuit)
 	s.lblName = ui.NewLabel(fmt.Sprintf("%v %v", ui.GetLocale().Get("scrName"), s.scorePeriod), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblName)
@@ -80,7 +80,7 @@ func (s *SceneScore) Update(dt int) {
 		value.Update(dt)
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
-		ui.GetUi().Push(NewSceneGame())
+		ui.Push(NewSceneGame())
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyP) {
 		s.scorePeriod++

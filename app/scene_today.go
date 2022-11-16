@@ -24,11 +24,11 @@ func NewSceneToday() *SceneToday {
 		rect: ui.NewRect([]int{0, 0, 1, 1}),
 	}
 	rect := []int{0, 0, 1, 1}
-	s.btnStart = ui.NewButton(ui.GetLocale().Get("btnStart"), rect, ui.GetTheme().Get("game active color"), ui.GetTheme().Get("game bg"), func(b *ui.Button) { ui.GetUi().Push(NewSceneGame()) })
+	s.btnStart = ui.NewButton(ui.GetLocale().Get("btnStart"), rect, ui.GetTheme().Get("game active color"), ui.GetTheme().Get("game bg"), func(b *ui.Button) { ui.Push(NewSceneGame()) })
 	s.Add(s.btnStart)
-	s.btnScore = ui.NewButton(ui.GetLocale().Get("btnScore"), rect, ui.GetTheme().Get("error color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.GetUi().Push(NewSceneScore()) })
+	s.btnScore = ui.NewButton(ui.GetLocale().Get("btnScore"), rect, ui.GetTheme().Get("error color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.Push(NewSceneScore()) })
 	s.Add(s.btnScore)
-	s.btnQuit = ui.NewButton("<", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.GetUi().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.Pop() })
 	s.Add(s.btnQuit)
 	s.lblName = ui.NewLabel(ui.GetLocale().Get("AppName"), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblName)
@@ -48,7 +48,7 @@ func NewSceneToday() *SceneToday {
 	s.Add(s.btnPlot)
 	s.btnFullScreen = ui.NewButton("[ ]", rect, ui.GetTheme().Get("regular color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.GetUi().ToggleFullscreen() })
 	s.Add(s.btnFullScreen)
-	s.btnOpt = ui.NewButton(ui.GetLocale().Get("btnOpt"), rect, ui.GetTheme().Get("warning color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.GetUi().Push(NewSceneOptions()) })
+	s.btnOpt = ui.NewButton(ui.GetLocale().Get("btnOpt"), rect, ui.GetTheme().Get("warning color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.Push(NewSceneOptions()) })
 	s.Add(s.btnOpt)
 	return s
 }
@@ -71,16 +71,16 @@ func (s *SceneToday) Update(dt int) {
 		value.Update(dt)
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
-		ui.GetUi().Push(NewSceneGame())
+		ui.Push(NewSceneGame())
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyP) {
 		s.togglePlot()
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyS) {
-		ui.GetUi().Push(NewSceneScore())
+		ui.Push(NewSceneScore())
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyO) {
-		ui.GetUi().Push(NewSceneOptions())
+		ui.Push(NewSceneOptions())
 	}
 }
 
@@ -146,6 +146,7 @@ func (s *SceneToday) Quit() {
 	for _, v := range s.container {
 		v.Close()
 	}
+	data.GetDb().Close()
 }
 
 func (s *SceneToday) getRows() (rows int) {

@@ -92,7 +92,7 @@ func (s *SceneGame) initUi() {
 			s.newSession()
 		})
 	s.Add(s.btnStart)
-	s.btnQuit = ui.NewButton("<", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.GetUi().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.Pop() })
 	s.Add(s.btnQuit)
 	s.name = ui.GetLocale().Get("AppName") + " " + ui.GetLocale().Get("btnStart")
 	s.lblName = ui.NewLabel(s.name, rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))

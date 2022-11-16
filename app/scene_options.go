@@ -32,7 +32,7 @@ func NewSceneOptions() *SceneOptions {
 	}
 	s.newSets = LoadPreferences()
 	rect := []int{0, 0, 1, 1}
-	s.btnQuit = ui.NewButton("<", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.GetUi().Pop() })
+	s.btnQuit = ui.NewButton("<", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.Pop() })
 	s.Add(s.btnQuit)
 
 	s.lblName = ui.NewLabel(ui.GetLocale().Get("btnOpt"), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
@@ -283,7 +283,7 @@ func (s *SceneOptions) Setup(sets *ui.Preferences) {
 }
 
 func (s *SceneOptions) Reset(b *ui.Button) {
-	s.newSets = ApplyPreferences(NewPref())
+	s.newSets = ui.GetUi().ApplyPreferences(NewPref())
 	s.Setup(s.newSets)
 	log.Println("Reset All Options to Defaults")
 }
@@ -291,7 +291,7 @@ func (s *SceneOptions) Reset(b *ui.Button) {
 func (s *SceneOptions) Apply(b *ui.Button) {
 	data.GetDb().InsertSettings(s.newSets)
 	log.Println("Apply Settings")
-	ui.GetUi().Pop()
+	ui.Pop()
 }
 
 func (s *SceneOptions) Entered() {
