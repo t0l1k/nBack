@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/t0l1k/nBack/ui"
+	ui "github.com/t0l1k/eui"
 )
 
 const (

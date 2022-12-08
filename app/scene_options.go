@@ -4,9 +4,9 @@ import (
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	ui "github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/data"
 	"github.com/t0l1k/nBack/game"
-	"github.com/t0l1k/nBack/ui"
 )
 
 type SceneOptions struct {

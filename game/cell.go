@@ -7,7 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/t0l1k/nBack/ui"
+	ui "github.com/t0l1k/eui"
 )
 
 type Cell struct {

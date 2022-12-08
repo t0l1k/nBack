@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
+	ui "github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/game"
-	"github.com/t0l1k/nBack/ui"
 )
 
 type GameData struct {

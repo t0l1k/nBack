@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/t0l1k/nBack/ui"
+	ui "github.com/t0l1k/eui"
 )
 
 type TodayGamesData map[int]*GameData

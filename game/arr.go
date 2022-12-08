@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/t0l1k/nBack/ui"
+	ui "github.com/t0l1k/eui"
 )
 
 func getArr(level, moves int, pref *ui.Preferences) (arr []int) {

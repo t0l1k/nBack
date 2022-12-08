@@ -6,8 +6,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	ui "github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/data"
-	"github.com/t0l1k/nBack/ui"
 )
 
 type period int

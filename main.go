@@ -1,8 +1,8 @@
 package main
 
 import (
+	ui "github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/app"
-	"github.com/t0l1k/nBack/ui"
 )
 
 func main() {
