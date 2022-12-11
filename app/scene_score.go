@@ -40,7 +40,7 @@ type SceneScore struct {
 	plotScore                       *ScorePlot
 	scorePeriod                     period
 	rect                            *ui.Rect
-	container                       []ui.Drawable
+	ui.ContainerDefault
 }
 
 func NewSceneScore() *SceneScore {
@@ -70,13 +70,9 @@ func (s *SceneScore) Entered() {
 	log.Println("Entered SceneScore")
 }
 
-func (s *SceneScore) Add(item ui.Drawable) {
-	s.container = append(s.container, item)
-}
-
 func (s *SceneScore) Update(dt int) {
 	s.lblDt.SetText(ui.GetUi().UpdateUpTime())
-	for _, value := range s.container {
+	for _, value := range s.Container {
 		value.Update(dt)
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
@@ -92,7 +88,7 @@ func (s *SceneScore) Update(dt int) {
 }
 
 func (s *SceneScore) Draw(surface *ebiten.Image) {
-	for _, value := range s.container {
+	for _, value := range s.Container {
 		value.Draw(surface)
 	}
 }
@@ -115,8 +111,8 @@ func (s *SceneScore) Resize() {
 	s.plotScore.Resize([]int{x, y, w, h})
 }
 
-func (s *SceneScore) Quit() {
-	for _, v := range s.container {
+func (s *SceneScore) Close() {
+	for _, v := range s.Container {
 		v.Close()
 	}
 }

@@ -17,13 +17,13 @@ type SceneGame struct {
 	movesLine                                     *MovesLine
 	btnStart, btnQuit                             *ui.Button
 	rect                                          *ui.Rect
-	container                                     []ui.Drawable
 	stopper, pauseTimer                           int
 	board                                         *game.Board
 	count, level, lives                           int
 	delayBeginCellShow, delayBeginCellHide        int
 	timeToNextCell, timeShowCell                  int
 	paused                                        bool
+	ui.ContainerDefault
 }
 
 func NewSceneGame() *SceneGame {
@@ -114,7 +114,7 @@ func (s *SceneGame) initUi() {
 }
 
 func (s *SceneGame) Update(dt int) {
-	for _, value := range s.container {
+	for _, value := range s.Container {
 		value.Update(dt)
 	}
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
@@ -288,13 +288,9 @@ func (s *SceneGame) SaveGame() {
 
 func (s *SceneGame) Draw(surface *ebiten.Image) {
 	surface.Fill(ui.GetTheme().Get("game bg"))
-	for _, value := range s.container {
+	for _, value := range s.Container {
 		value.Draw(surface)
 	}
-}
-
-func (s *SceneGame) Add(item ui.Drawable) {
-	s.container = append(s.container, item)
 }
 
 func (s *SceneGame) Resize() {
@@ -330,8 +326,8 @@ func (s *SceneGame) Resize() {
 	s.movesLine.Resize([]int{x, y, w, h})
 }
 
-func (s *SceneGame) Quit() {
-	for _, v := range s.container {
+func (s *SceneGame) Close() {
+	for _, v := range s.Container {
 		v.Close()
 	}
 }

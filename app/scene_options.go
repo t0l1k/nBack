@@ -11,7 +11,6 @@ import (
 
 type SceneOptions struct {
 	rect                                                              *ui.Rect
-	container                                                         []ui.Drawable
 	lblName                                                           *ui.Label
 	optTheme                                                          *OptTheme
 	btnQuit, btnReset, btnApply                                       *ui.Button
@@ -24,6 +23,7 @@ type SceneOptions struct {
 	optTmNextCell, optTmShowCell                                      *ui.Combobox
 	optGameType, optLang                                              *ui.Combobox
 	newSets                                                           *ui.Preferences
+	ui.ContainerDefault
 }
 
 func NewSceneOptions() *SceneOptions {
@@ -300,19 +300,15 @@ func (s *SceneOptions) Entered() {
 	log.Println("Entered SceneOptions")
 }
 
-func (s *SceneOptions) Add(item ui.Drawable) {
-	s.container = append(s.container, item)
-}
-
 func (s *SceneOptions) Update(dt int) {
-	for _, value := range s.container {
+	for _, value := range s.Container {
 		value.Update(dt)
 	}
 }
 
 func (s *SceneOptions) Draw(surface *ebiten.Image) {
 	surface.Fill(ui.GetTheme().Get("game bg"))
-	for _, value := range s.container {
+	for _, value := range s.Container {
 		value.Draw(surface)
 	}
 }
@@ -417,8 +413,8 @@ func (s *SceneOptions) Resize() {
 	s.optCenterCell.Resize(rect)
 }
 
-func (s *SceneOptions) Quit() {
-	for _, v := range s.container {
+func (s *SceneOptions) Close() {
+	for _, v := range s.Container {
 		v.Close()
 	}
 }

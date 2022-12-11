@@ -16,7 +16,7 @@ type SceneToday struct {
 	plotResult                                                  *ResultPlot
 	toggleResults                                               bool
 	rect                                                        *ui.Rect
-	container                                                   []ui.Drawable
+	ui.ContainerDefault
 }
 
 func NewSceneToday() *SceneToday {
@@ -62,12 +62,10 @@ func (s *SceneToday) Entered() {
 	log.Println("Entered SceneToday")
 	log.Println(data.GetDb().TodayData.LongStr())
 }
-func (s *SceneToday) Add(item ui.Drawable) {
-	s.container = append(s.container, item)
-}
+
 func (s *SceneToday) Update(dt int) {
 	s.lblDt.SetText(ui.GetUi().UpdateUpTime())
-	for _, value := range s.container {
+	for _, value := range s.Container {
 		value.Update(dt)
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
@@ -98,7 +96,7 @@ func (s *SceneToday) togglePlot() {
 }
 
 func (s *SceneToday) Draw(surface *ebiten.Image) {
-	for _, value := range s.container {
+	for _, value := range s.Container {
 		value.Draw(surface)
 	}
 }
@@ -142,8 +140,8 @@ func (s *SceneToday) Resize() {
 	s.lblHelper.Resize([]int{x, y, w, h})
 }
 
-func (s *SceneToday) Quit() {
-	for _, v := range s.container {
+func (s *SceneToday) Close() {
+	for _, v := range s.Container {
 		v.Close()
 	}
 	data.GetDb().Close()
