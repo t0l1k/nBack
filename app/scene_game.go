@@ -60,6 +60,8 @@ func (s *SceneGame) initGame() {
 		res = ui.GetLocale().Get("optcol")
 	case game.Sym:
 		res = ui.GetLocale().Get("optsym")
+	case game.Ari:
+		res = ui.GetLocale().Get("optari")
 	default:
 		res = tp
 	}
@@ -73,6 +75,9 @@ func (s *SceneGame) initGame() {
 func (s *SceneGame) initGameTimers() {
 	s.timeToNextCell = int(ui.GetPreferences().Get("time to next cell").(float64) * 1000)
 	s.timeShowCell = int(ui.GetPreferences().Get("time to show cell").(float64) * 1000)
+	if s.timeShowCell > s.timeToNextCell {
+		s.timeShowCell = s.timeToNextCell - 500
+	}
 	s.stopper = 0
 	delay := (s.timeToNextCell - s.timeShowCell) / 2
 	s.delayBeginCellShow = delay
@@ -256,6 +261,8 @@ func (s *SceneGame) moveStatus() {
 		str1 = "Col"
 	case game.Sym:
 		str1 = "Sym"
+	case game.Ari:
+		str1 = "Ari"
 	}
 	str := fmt.Sprintf("%v %v (%v) (%v/%v)", str1, s.level, s.lives, s.board.Move, s.board.TotalMoves)
 	s.lblName.SetText(str)

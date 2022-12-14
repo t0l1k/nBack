@@ -22,6 +22,7 @@ type SceneOptions struct {
 	optTrials, optFactor, optExponent                                 *ui.Combobox
 	optTmNextCell, optTmShowCell                                      *ui.Combobox
 	optGameType, optLang                                              *ui.Combobox
+	optMaxSym, optMaxAriphmetic                                       *ui.Combobox
 	newSets                                                           *ui.Preferences
 	ui.ContainerDefault
 }
@@ -209,18 +210,26 @@ func NewSceneOptions() *SceneOptions {
 		}
 	}
 	s.optTmNextCell = ui.NewCombobox(ui.GetLocale().Get("opttmnc"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrTimeNextCell, idx, func(b *ui.Combobox) {
-		s.newSets.Set("time to next cell", s.optTmNextCell.Value().(float64))
+		tmnc := s.newSets.Get("time to next cell").(float64)
+		tmsc := s.newSets.Get("time to show cell").(float64)
+		if tmnc-0.5 > tmsc {
+			s.newSets.Set("time to next cell", s.optTmNextCell.Value().(float64))
+		}
 	})
 	s.Add(s.optTmNextCell)
 
-	arrShow := []interface{}{0.5, 1.0}
+	arrShow := []interface{}{0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5}
 	idx = 0
 	s.optTmShowCell = ui.NewCombobox(ui.GetLocale().Get("opttmsc"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrShow, idx, func(b *ui.Combobox) {
-		s.newSets.Set("time to show cell", s.optTmShowCell.Value().(float64))
+		tmnc := s.newSets.Get("time to next cell").(float64)
+		value := s.optTmShowCell.Value().(float64)
+		if value < tmnc {
+			s.newSets.Set("time to show cell", value)
+		}
 	})
 	s.Add(s.optTmShowCell)
 
-	gamesType := []interface{}{game.Pos, game.Col, game.Sym}
+	gamesType := []interface{}{game.Pos, game.Col, game.Sym, game.Ari}
 	idx = 0
 	s.optGameType = ui.NewCombobox(s.getGameType(), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), gamesType, idx, func(b *ui.Combobox) {
 		s.newSets.Set("game type", s.optGameType.Value().(string))
@@ -241,6 +250,17 @@ func NewSceneOptions() *SceneOptions {
 		s.newSets.Set("lang", s.optLang.Value().(string))
 	})
 	s.Add(s.optLang)
+
+	arrMaxSymbols := []interface{}{10, 20, 50, 100, 200, 500, 1000}
+	s.optMaxSym = ui.NewCombobox(ui.GetLocale().Get("optmaxsym"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrMaxSymbols, 3, func(c *ui.Combobox) {
+		s.newSets.Set("symbols count", s.optMaxSym.Value().(int))
+	})
+	s.Add(s.optMaxSym)
+
+	s.optMaxAriphmetic = ui.NewCombobox(ui.GetLocale().Get("optmaxari"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrMaxSymbols, 1, func(c *ui.Combobox) {
+		s.newSets.Set("ariphmetic max", s.optMaxAriphmetic.Value().(int))
+	})
+	s.Add(s.optMaxAriphmetic)
 	return s
 }
 
@@ -254,6 +274,8 @@ func (s *SceneOptions) getGameType() string {
 		result += ui.GetLocale().Get("optcol")
 	case game.Sym:
 		result += ui.GetLocale().Get("optsym")
+	case game.Ari:
+		result += ui.GetLocale().Get("optari")
 	}
 	return result
 }
@@ -280,6 +302,8 @@ func (s *SceneOptions) Setup(sets *ui.Preferences) {
 	s.optGridSize.SetValue(sets.Get("grid size").(int))
 	s.optShowGrid.SetChecked(sets.Get("show grid").(bool))
 	s.optCenterCell.SetChecked(sets.Get("use center cell").(bool))
+	s.optMaxSym.SetValue(sets.Get("symbols count").(int))
+	s.optMaxAriphmetic.SetValue(sets.Get("ariphmetic max").(int))
 }
 
 func (s *SceneOptions) Reset(b *ui.Button) {
@@ -411,6 +435,15 @@ func (s *SceneOptions) Resize() {
 	x = int(h2 * 1.1)
 	rect = []int{x, y, int(h2), cellHeight}
 	s.optCenterCell.Resize(rect)
+
+	x, y = 0, int(float64(cellHeight)*1.1)+y
+	h2 = float64(cellWidth) / 2.1
+	rect = []int{x, y, int(h2), cellHeight}
+	s.optMaxSym.Resize(rect)
+	x = int(h2 * 1.1)
+	rect = []int{x, y, int(h2), cellHeight}
+	s.optMaxAriphmetic.Resize(rect)
+
 }
 
 func (s *SceneOptions) Close() {

@@ -16,6 +16,7 @@ const (
 	Pos string = "p"
 	Col string = "c"
 	Sym string = "s"
+	Ari string = "a"
 )
 
 type Status string
@@ -167,25 +168,28 @@ func (b *Board) setFieldVisible(value bool) {
 
 func (b *Board) ShowActiveCell() {
 	var mv int
-	if b.pref.Get("game type").(string) == Pos {
+	gt := b.pref.Get("game type").(string)
+	if gt == Pos {
 		mv = b.moveValue
-	} else if b.pref.Get("game type").(string) == Col {
+	} else if gt == Col {
 		mv = 0
 		b.field[mv].SetActiveColor(Colors[b.moveValue])
-	} else if b.pref.Get("game type").(string) == Sym {
+	} else if gt == Sym {
 		mv = 0
 		b.field[mv].SetSymbol(b.moveValue)
+	} else if gt == Ari {
+		mv = 0
+		b.field[mv].SetAriphmetic(b.moveValue)
 	}
 	b.field[mv].SetActive(true)
 }
 
 func (b *Board) HideActiveCell() {
 	var mv int
-	if b.pref.Get("game type").(string) == Pos {
+	gt := b.pref.Get("game type").(string)
+	if gt == Pos {
 		mv = b.moveValue
-	} else if b.pref.Get("game type").(string) == Col {
-		mv = 0
-	} else if b.pref.Get("game type").(string) == Sym {
+	} else if gt == Col || gt == Sym || gt == Ari {
 		mv = 0
 	}
 	b.field[mv].SetActive(false)
@@ -193,11 +197,10 @@ func (b *Board) HideActiveCell() {
 
 func (b *Board) IsShowActiveCell() bool {
 	var mv int
-	if b.pref.Get("game type").(string) == Pos {
+	gt := b.pref.Get("game type").(string)
+	if gt == Pos {
 		mv = b.moveValue
-	} else if b.pref.Get("game type").(string) == Col {
-		mv = 0
-	} else if b.pref.Get("game type").(string) == Sym {
+	} else if gt == Col || gt == Sym || gt == Ari {
 		mv = 0
 	}
 	return b.field[mv].Active

@@ -40,16 +40,20 @@ func genArr(moves int, pref *ui.Preferences) (a []int) {
 	center := (dim*dim - 1) / 2
 	num := 0
 	for len(a) < moves {
-		if pref.Get("game type").(string) == Pos {
+		gt := pref.Get("game type").(string)
+		if gt == Pos {
 			num = rand.Intn((dim * dim) - 1)
 			if num != center && !pref.Get("use center cell").(bool) || pref.Get("use center cell").(bool) {
 				a = append(a, num)
 			}
-		} else if pref.Get("game type").(string) == Col {
+		} else if gt == Col {
 			num = rand.Intn((len(Colors)) - 1)
 			a = append(a, num)
 		} else if pref.Get("game type").(string) == Sym {
 			num = rand.Intn(pref.Get("symbols count").(int)-1) + 1
+			a = append(a, num)
+		} else if gt == Ari {
+			num = rand.Intn(pref.Get("ariphmetic max").(int)-1) + 1
 			a = append(a, num)
 		}
 	}

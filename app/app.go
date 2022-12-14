@@ -45,10 +45,9 @@ func LoadPreferences() *ui.Preferences {
 func NewPref() *ui.Preferences {
 	p := ui.NewPreferences()
 	p.Set("fullscreen", false)
-	p.Set("game type", game.Sym)
-	p.Set("symbols count", 99)
-	p.Set("time to next cell", 2.5)
-	p.Set("time to show cell", 0.5)
+	p.Set("game type", game.Ari)
+	p.Set("time to next cell", 3.0)
+	p.Set("time to show cell", 2.5)
 	p.Set("trials", 20) //20 classic = trials+factor*level**exponent
 	p.Set("trials factor", 1)
 	p.Set("trials exponent", 2)
@@ -67,6 +66,8 @@ func NewPref() *ui.Preferences {
 	p.Set("grid size", 3)
 	p.Set("pause to rest", 5)
 	p.Set("lang", "ru")
+	p.Set("symbols count", 100)
+	p.Set("ariphmetic max", 20)
 	return &p
 }
 
@@ -140,6 +141,9 @@ func NewLocaleEn() *ui.Locale {
 	loc.Set("optpos", "Positions")
 	loc.Set("optcol", "Colors")
 	loc.Set("optsym", "Symbols")
+	loc.Set("optari", "Arithmetic")
+	loc.Set("optmaxsym", "Max number in number game")
+	loc.Set("optmaxari", "Max number in arithmetic game")
 	loc.Set("optlang", "Language")
 	loc.Set("strgamemanual", "Manual game mode.")
 	loc.Set("strgameclassic", "Classic game mode.")
@@ -211,6 +215,9 @@ func NewLocaleRu() *ui.Locale {
 	loc.Set("optpos", "Позиции")
 	loc.Set("optcol", "Цвета")
 	loc.Set("optsym", "Символы")
+	loc.Set("optari", "Арифметика")
+	loc.Set("optmaxsym", "Макс число в игре с цифрами")
+	loc.Set("optmaxari", "Макс число в игре арифметика")
 	loc.Set("optlang", "Язык")
 	loc.Set("strgamemanual", "Режим игры на ручнике.")
 	loc.Set("strgameclassic", "Режим игры классика.")

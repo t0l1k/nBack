@@ -17,6 +17,8 @@ type Cell struct {
 	bg, fg, activeColor                       color.Color
 	margin                                    float64
 	sym                                       int
+	text                                      string
+	ariphmetic                                bool
 }
 
 func NewCell(rect []int, isCenter bool, bg, fg, activeColor color.Color) *Cell {
@@ -51,12 +53,17 @@ func (c *Cell) Layout() {
 	if c.DrawRect && c.sym == 0 {
 		ebitenutil.DrawRect(c.Image, m, m, float64(w)-m*2, float64(h)-m*2, bg)
 	}
-	if c.sym > 0 && c.Active {
+	if c.sym > 0 && c.Active && !c.ariphmetic {
 		res := fmt.Sprintf("%v", strconv.Itoa(c.sym))
 		l := ui.NewLabel(res, []int{0, 0, w, h}, c.bg, c.activeColor)
 		defer l.Close()
 		l.Draw(c.Image)
+	} else if c.sym > 0 && c.Active && c.ariphmetic {
+		l := ui.NewLabel(c.text, []int{0, 0, w, h}, c.bg, c.activeColor)
+		defer l.Close()
+		l.Draw(c.Image)
 	}
+
 	if c.IsCenter {
 		m := float64(c.rect.H) * 0.4
 		x1 := float64(c.rect.W) / 2
@@ -82,6 +89,17 @@ func (c *Cell) SetSymbol(value int) {
 		return
 	}
 	c.sym = value
+	c.Dirty = true
+}
+
+func (c *Cell) SetAriphmetic(value int) {
+	c.ariphmetic = true
+	max := ui.GetPreferences().Get("ariphmetic max").(int)
+	c.sym = value
+	oper := NewOperation()
+	oper.Rand()
+	a, b := oper.Get(getNum(value), value, max)
+	c.text = fmt.Sprintln(a, oper, b)
 	c.Dirty = true
 }
 
