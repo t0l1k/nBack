@@ -51,14 +51,14 @@ func (d *GameData) NextLevel() (int, int, string) {
 			motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivmed") + "(" + strconv.Itoa(level) + ")"
 		} else if d.Percent < fall {
 			if lives == 1 {
-				motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivdwn") + "(" + strconv.Itoa(level) + ")"
 				if level > 1 {
 					level -= 1
 					lives = ui.GetPreferences().Get("threshold fallback sessions").(int)
 				}
+				motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivdwn") + "(" + strconv.Itoa(level) + ")"
 			} else if lives > 1 {
-				motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivadv") + "(" + strconv.Itoa(level) + ")"
 				lives -= 1
+				motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivadv") + "(" + strconv.Itoa(level) + ")"
 			}
 		}
 	}

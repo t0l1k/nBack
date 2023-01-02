@@ -203,7 +203,7 @@ func NewSceneOptions() *SceneOptions {
 	s.Add(s.optExponent)
 
 	var arrTimeNextCell []interface{}
-	for i, j = 1.5, 0; i <= 5; i, j = i+0.5, j+1 {
+	for i, j = 1.0, 0; i <= 5; i, j = i+0.5, j+1 {
 		arrTimeNextCell = append(arrTimeNextCell, i)
 		if s.newSets.Get("time to next cell").(float64) == i {
 			idx = j

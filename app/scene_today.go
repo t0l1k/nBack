@@ -28,7 +28,11 @@ func NewSceneToday() *SceneToday {
 	s.Add(s.btnStart)
 	s.btnScore = ui.NewButton(ui.GetLocale().Get("btnScore"), rect, ui.GetTheme().Get("error color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.Push(NewSceneScore()) })
 	s.Add(s.btnScore)
-	s.btnQuit = ui.NewButton("<", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.Pop() })
+	str := "<"
+	if ui.GetUi().IsMainScene() {
+		str = "x"
+	}
+	s.btnQuit = ui.NewButton(str, rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.Pop() })
 	s.Add(s.btnQuit)
 	s.lblName = ui.NewLabel(ui.GetLocale().Get("AppName"), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblName)

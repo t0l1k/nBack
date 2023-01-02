@@ -47,7 +47,7 @@ func genArr(moves int, pref *ui.Preferences) (a []int) {
 				a = append(a, num)
 			}
 		} else if gt == Col {
-			num = rand.Intn((len(Colors)) - 1)
+			num = rand.Intn(len(Colors))
 			a = append(a, num)
 		} else if pref.Get("game type").(string) == Sym {
 			num = rand.Intn(pref.Get("symbols count").(int)-1) + 1
