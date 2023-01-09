@@ -122,7 +122,7 @@ func NewSceneOptions() *SceneOptions {
 	})
 	s.Add(s.optPause)
 
-	values, _ := data.GetDb().ReadAllGamesScore()
+	values, _ := data.GetDb().ReadAllGamesScore(0, "", "")
 	max := values.Max
 	if max == 0 {
 		max = 1

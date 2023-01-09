@@ -42,7 +42,11 @@ func (s *ScoresData) PlotData() (idx, maxs, averages, strs list.List) {
 		idx.PushBack(i)
 		maxs.PushBack(v.Max)
 		averages.PushBack(v.Avg)
-		strs.PushBack(v.String())
+		if v.Games > 0 {
+			strs.PushBack(v.String())
+		} else {
+			strs.PushBack("")
+		}
 		i++
 	}
 	return

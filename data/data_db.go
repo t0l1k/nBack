@@ -284,13 +284,24 @@ func (d *Db) ReadTodayGames() {
 	}
 }
 
-func (d *Db) ReadAllGamesScore() (*ScoreData, string) {
+func (d *Db) ReadAllGamesScore(period int, from, to string) (*ScoreData, string) {
 	values := &ScoreData{}
 	resultStr := ui.GetLocale().Get("scrResultNil")
 	if d.conn == nil {
 		return values, resultStr
 	}
-	qry := "SELECT count(level) games, max(level) max, round(avg(level),2) average FROM simple;"
+	var qry string
+	switch period {
+	case 0:
+		qry = "SELECT count(level) games, max(level) max, round(avg(level),2) average FROM simple;"
+	case 365:
+		qry = "SELECT count(level) games, max(level) max, round(avg(level),2) average FROM simple WHERE DATE(dtBeg)>= DATE('" + from + "') AND DATE(dtBeg)< DATE('" + to + "')"
+	case 31:
+		qry = "SELECT count(level) games, max(level) max, round(avg(level),2) average FROM simple WHERE DATE(dtBeg)>= DATE('" + from + "') AND DATE(dtBeg)< DATE('" + to + "')"
+	case 7:
+		qry = "SELECT count(level) games, max(level) max, round(avg(level),2) average FROM simple WHERE DATE(dtBeg)>= DATE('" + from + "') AND DATE(dtBeg)< DATE('" + to + "');"
+	}
+
 	rows, err := d.conn.Query(qry)
 	if err != nil {
 		panic(err)
@@ -314,32 +325,99 @@ func (d *Db) ReadAllGamesScore() (*ScoreData, string) {
 	return values, resultStr
 }
 
-func (d *Db) ReadAllGamesForScoresByDays() {
+func (d *Db) ReadAllGamesForScoresByDays(period int, from, to string) {
 	if d.conn == nil {
 		return
 	}
-	qry := "SELECT count() games,max(level)max,round( avg(level),2)average, strftime('%Y-%m-%d',datetime(dtBeg)) day FROM simple GROUP BY day;"
+	var qry string
+	switch period {
+	case 0:
+		qry = "SELECT count() games,max(level)max,round( avg(level),2)average, strftime('%Y-%m-%d',datetime(dtBeg)) day FROM simple GROUP BY day;"
+	case 365:
+		qry = "SELECT count() games, max(level)max, round(avg(level),2)average, strftime('%Y-%m-%d',datetime(dtBeg)) day FROM simple WHERE DATE(dtBeg)>= DATE('" + from + "') AND DATE(dtBeg)< DATE('" + to + "') GROUP BY day;"
+	case 31:
+		qry = "SELECT count() games, max(level)max, round(avg(level),2)average, strftime('%Y-%m-%d',datetime(dtBeg)) day FROM simple WHERE DATE(dtBeg)>= DATE('" + from + "') AND DATE(dtBeg)< DATE('" + to + "') GROUP BY day;"
+	case 7:
+		qry = "SELECT count() games, max(level)max, round(avg(level),2)average, strftime('%Y-%m-%d',datetime(dtBeg)) day FROM simple WHERE DATE(dtBeg)>= DATE('" + from + "') AND DATE(dtBeg)< DATE('" + to + "') GROUP BY day;"
+	}
+
 	d.ScoresData = make(ScoresData)
 	rows, err := d.conn.Query(qry)
 	if err != nil {
 		panic(err)
 	}
 	dtFormat := "2006-01-02"
-	i := 1
-	for rows.Next() {
-		values := &ScoreData{}
-		var dStr string
-		err = rows.Scan(&values.Games, &values.Max, &values.Avg, &dStr)
-		if err != nil && err != sql.ErrNoRows {
-			panic(err)
+	if from == "" {
+		i := 1
+		for rows.Next() {
+			values := &ScoreData{}
+			var dStr string
+			err = rows.Scan(&values.Games, &values.Max, &values.Avg, &dStr)
+			if err != nil && err != sql.ErrNoRows {
+				panic(err)
+			}
+			dt, err := time.Parse(dtFormat, dStr)
+			if err != nil {
+				panic(err)
+			}
+			values.Dt = dt
+			d.ScoresData[i] = values
+			i++
 		}
-		dt, err := time.Parse(dtFormat, dStr)
+	} else {
+		dtFrom, err := time.Parse(dtFormat, from)
 		if err != nil {
 			panic(err)
 		}
-		values.Dt = dt
-		d.ScoresData[i] = values
-		i++
+		dtTo, err := time.Parse(dtFormat, to)
+		if err != nil {
+			panic(err)
+		}
+		var (
+			dt           time.Time
+			dStr         string
+			newRequest   bool = true
+			i            int  = 1
+			values, last *ScoreData
+		)
+		last = &ScoreData{}
+		for dtFrom.Before(dtTo) {
+			if newRequest {
+				if rows.Next() {
+					values = &ScoreData{}
+					err = rows.Scan(&values.Games, &values.Max, &values.Avg, &dStr)
+					if err != nil && err != sql.ErrNoRows {
+						panic(err)
+					}
+					dt, err = time.Parse(dtFormat, dStr)
+					if err != nil {
+						break
+					}
+					values.Dt = dt
+				} else {
+					values = nil
+				}
+				newRequest = false
+			}
+			if values != nil && values.Dt == dtFrom {
+				d.ScoresData[i] = values
+				i++
+				dtFrom = dtFrom.AddDate(0, 0, 1)
+				newRequest = true
+				last = &ScoreData{}
+				last.Max = values.Max
+				last.Avg = values.Avg
+				continue
+			} else {
+				tmpValues := &ScoreData{}
+				tmpValues.Dt = dtFrom
+				tmpValues.Avg = last.Avg
+				tmpValues.Max = last.Max
+				d.ScoresData[i] = tmpValues
+				i++
+				dtFrom = dtFrom.AddDate(0, 0, 1)
+			}
+		}
 	}
 }
 
@@ -349,4 +427,27 @@ func (d *Db) Close() {
 	}
 	d.conn.Close()
 	log.Println("DB Closed.")
+}
+
+func (d *Db) GetFirstDate() (dt time.Time) {
+	if d.conn == nil {
+		return time.Time{}
+	}
+	rows, err := d.conn.Query("SELECT * FROM simple ORDER BY ROWID ASC LIMIT 1;")
+	if err != nil {
+		panic(err)
+	}
+	dtFormat := "2006-01-02 15:04:05.000"
+	for rows.Next() {
+		values := &GameData{}
+		err = rows.Scan(&values.Id, &values.GameType, &values.DtBeg, &values.DtEnd, &values.Level, &values.Lives, &values.Percent, &values.Correct, &values.Wrong, &values.Missed, &values.Moves, &values.Totalmoves, &values.Manual, &values.Advance, &values.Fallback, &values.Resetonerror)
+		if err != nil && err != sql.ErrNoRows {
+			panic(err)
+		}
+		dt, err = time.Parse(dtFormat, values.DtBeg)
+		if err != nil {
+			panic(err)
+		}
+	}
+	return dt
 }

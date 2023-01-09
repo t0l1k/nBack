@@ -10,43 +10,20 @@ import (
 	"github.com/t0l1k/nBack/data"
 )
 
-type period int
-
-const (
-	week period = iota
-	month
-	year
-	all
-)
-
-func (p period) String() string {
-	s := "all"
-	switch p {
-	case week:
-		s = "week"
-	case month:
-		s = "month"
-	case year:
-		s = "year"
-	default:
-		s = "all"
-	}
-	return s
-}
-
 type SceneScore struct {
+	ui.ContainerDefault
 	lblName, lblPeriodResult, lblDt *ui.Label
 	btnQuit                         *ui.Button
 	plotScore                       *ScorePlot
-	scorePeriod                     period
+	scorePeriod                     data.Period
 	rect                            *ui.Rect
-	ui.ContainerDefault
+	mn                              int
 }
 
 func NewSceneScore() *SceneScore {
 	s := &SceneScore{
 		rect:        ui.NewRect([]int{0, 0, 1, 1}),
-		scorePeriod: all,
+		scorePeriod: data.All,
 	}
 	rect := []int{0, 0, 1, 1}
 	s.btnQuit = ui.NewButton("<", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.Pop() })
@@ -63,28 +40,61 @@ func NewSceneScore() *SceneScore {
 }
 
 func (s *SceneScore) Entered() {
-	data.GetDb().ReadAllGamesForScoresByDays()
-	_, str := data.GetDb().ReadAllGamesScore()
-	s.lblPeriodResult.SetText(str)
+	s.checkPeriod(s.mn)
 	s.Resize()
 	log.Println("Entered SceneScore")
 }
 
 func (s *SceneScore) Update(dt int) {
-	s.lblDt.SetText(ui.GetUi().UpdateUpTime())
 	for _, value := range s.Container {
 		value.Update(dt)
 	}
+	s.lblDt.SetText(ui.GetUi().UpdateUpTime())
 	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
 		ui.Push(NewSceneGame())
-	}
-	if inpututil.IsKeyJustReleased(ebiten.KeyP) {
-		s.scorePeriod++
-		if s.scorePeriod > all {
-			s.scorePeriod = week
-		}
+	} else if inpututil.IsKeyJustReleased(ebiten.KeyP) {
+		s.mn = 0
+		s.scorePeriod.Next()
+		s.plotScore.SetPeriod(s.scorePeriod)
 		s.lblName.SetText(fmt.Sprintf("%v %v", ui.GetLocale().Get("scrName"), s.scorePeriod))
+		s.checkPeriod(s.mn)
+	} else if inpututil.IsKeyJustReleased(ebiten.KeyArrowLeft) {
+		if s.checkPeriod(s.mn + 1) {
+			s.mn++
+		}
+	} else if inpututil.IsKeyJustReleased(ebiten.KeyArrowRight) {
+		if s.checkPeriod(s.mn - 1) {
+			s.mn--
+		}
 	}
+}
+
+func (s *SceneScore) checkPeriod(mn int) bool {
+	var (
+		from, to string
+		result   bool = true
+	)
+	switch s.scorePeriod {
+	case data.Week:
+		from, to, result = data.NextWeek(mn)
+	case data.Month:
+		from, to, result = data.NextMonth(mn)
+	case data.Year:
+		from, to, result = data.NextYear(mn)
+	case data.All:
+	}
+	if !result {
+		return result
+	}
+	s.updateData(from, to)
+	s.plotScore.Dirty = true
+	return result
+}
+
+func (s *SceneScore) updateData(from, to string) {
+	data.GetDb().ReadAllGamesForScoresByDays(s.scorePeriod.Len(), from, to)
+	_, str := data.GetDb().ReadAllGamesScore(s.scorePeriod.Len(), from, to)
+	s.lblPeriodResult.SetText(str)
 }
 
 func (s *SceneScore) Draw(surface *ebiten.Image) {

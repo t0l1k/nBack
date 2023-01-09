@@ -13,26 +13,43 @@ import (
 )
 
 type ScorePlot struct {
-	rect          *ui.Rect
-	Image         *ebiten.Image
-	Dirty, Visibe bool
-	bg, fg        color.Color
+	rect           *ui.Rect
+	Image          *ebiten.Image
+	Dirty, Visible bool
+	bg, fg         color.Color
+	period         data.Period
 }
 
 func NewScorePlot(rect []int) *ScorePlot {
 	return &ScorePlot{
-		rect:   ui.NewRect(rect),
-		bg:     ui.GetTheme().Get("bg"),
-		fg:     ui.GetTheme().Get("fg"),
-		Dirty:  true,
-		Visibe: true,
+		rect:    ui.NewRect(rect),
+		bg:      ui.GetTheme().Get("bg"),
+		fg:      ui.GetTheme().Get("fg"),
+		Dirty:   true,
+		Visible: true,
+		period:  data.All,
 	}
 }
+
+func (r *ScorePlot) SetPeriod(period data.Period) {
+	if r.period == period {
+		return
+	}
+	r.period = period
+	r.Dirty = true
+}
+
 func (r *ScorePlot) Layout() {
 	xArr, yArr, avgArr, strsArr := data.GetDb().ScoresData.PlotData()
 	axisXMax := xArr.Len()
-	score, _ := data.GetDb().ReadAllGamesScore()
-	axisYMax := score.Max + 1
+	var axisYMax int
+	for e := yArr.Front(); e != nil; e = e.Next() {
+		x := e.Value
+		if axisYMax < x.(int) {
+			axisYMax = x.(int)
+		}
+	}
+	axisYMax += 1
 	w0, h0 := r.rect.Size()
 	if r.Image == nil {
 		r.Image = ebiten.NewImage(w0, h0)
@@ -71,12 +88,14 @@ func (r *ScorePlot) Layout() {
 		x1, y1 := xPos(float64(x)), axisRect.Bottom()
 		x2, y2 := xPos(float64(x)), axisRect.Bottom()+margin/4
 		ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
-		x1, y1 = xPos(float64(x)), axisRect.Bottom()
-		x2, y2 = xPos(float64(x)), axisRect.Top()
-		ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg2)
+		if r.period < data.Year {
+			x1, y1 = xPos(float64(x)), axisRect.Bottom()
+			x2, y2 = xPos(float64(x)), axisRect.Top()
+			ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg2)
+		}
 		gridWidth = int(xPos(float64(x))) - int(xPos(float64(lastW)))
 		lastW = x
-		if i%5 == 0 || i == 1 || i == xTicks {
+		if (r.period != data.Year && (i%5 == 0 || i == 1 || i == xTicks)) || (r.period == data.Year && i%(365/12) == 0) {
 			xL, yL := int(xPos(float64(x))-float64(margin)/2), axisRect.Bottom()+int(float64(margin)*0.1)
 			w, h = margin, margin
 			lbl := ui.NewLabel(strconv.Itoa(x), []int{xL, yL, w, h}, bg, fg)
@@ -150,7 +169,7 @@ func (r *ScorePlot) Layout() {
 		return r
 	}
 
-	{ // label
+	if r.period <= data.Month { // label
 		points := zip(xArr, yArr)
 		var results1, results2 []float64
 		for e := points.Front(); e != nil; e = e.Next() {
@@ -166,13 +185,18 @@ func (r *ScorePlot) Layout() {
 		for e := strsArr.Front(); e != nil; e = e.Next() {
 			strs = append(strs, e.Value.(string))
 		}
+		var max = yPos(float64(axisYMax))
 		k := 0
 		for i, j := 0, 1; j < len(results1); i, j = i+2, j+2 {
+			if len(strs[k]) == 0 {
+				k++
+				continue
+			}
 			x1, y1 := results2[i], results2[j]
 			var x, y, w, h, boxSize float64
 			boxSize = float64(gridWidth) / 2
 			x, y = 0, 0
-			w, h = results2[j]-results1[j], boxSize
+			w, h = results2[j]-max, boxSize
 			rect := []int{int(x), int(y), int(w), int(h)}
 			lbl := ui.NewLabel(strs[k], rect, ui.GetTheme().Get("correct color"), fg)
 			defer lbl.Close()
@@ -203,7 +227,7 @@ func (r *ScorePlot) Layout() {
 		}
 		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 {
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
-			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, ui.GetTheme().Get("regular color"))
+			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, ui.GetTheme().Get("error color"))
 		}
 	}
 	{ // parse data - average line
@@ -221,7 +245,7 @@ func (r *ScorePlot) Layout() {
 		}
 		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 {
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
-			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, ui.GetTheme().Get("warning color"))
+			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, ui.GetTheme().Get("regular color"))
 		}
 	}
 
@@ -232,7 +256,7 @@ func (r *ScorePlot) Draw(surface *ebiten.Image) {
 	if r.Dirty {
 		r.Layout()
 	}
-	if r.Visibe {
+	if r.Visible {
 		op := &ebiten.DrawImageOptions{}
 		x, y := r.rect.Pos()
 		op.GeoM.Translate(float64(x), float64(y))

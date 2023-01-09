@@ -14,11 +14,11 @@ import (
 
 type TodayGamesData map[int]*GameData
 
-func (t *TodayGamesData) getToday() string {
+func (t *TodayGamesData) GetToday() string {
 	return time.Now().Format("2006.01.02")
 }
 
-func (t *TodayGamesData) getCount() (count int) {
+func (t *TodayGamesData) GetCount() (count int) {
 	return len(*t)
 }
 
@@ -31,11 +31,11 @@ func (t *TodayGamesData) GetMax() (max int) {
 	return max
 }
 
-func (t *TodayGamesData) getAvg() (sum float64) {
+func (t *TodayGamesData) GetAvg() (sum float64) {
 	for _, v := range *t {
 		sum += float64(v.Level)
 	}
-	if t.getCount() > 0 {
+	if t.GetCount() > 0 {
 		sum /= float64(len(*t))
 		return math.Round(sum*100) / 100
 	}
@@ -43,7 +43,7 @@ func (t *TodayGamesData) getAvg() (sum float64) {
 }
 
 func (t *TodayGamesData) getGamesTimeDuraton() (result string) {
-	if t.getCount() == 0 {
+	if t.GetCount() == 0 {
 		return
 	}
 	dtFormat := "2006-01-02 15:04:05.000"
@@ -159,15 +159,15 @@ func (t *TodayGamesData) LongStr() (str string) {
 	return str
 }
 func (t *TodayGamesData) String() string {
-	s := fmt.Sprintf("%v", t.getToday())
-	if t.getCount() > 0 {
+	s := fmt.Sprintf("%v", t.GetToday())
+	if t.GetCount() > 0 {
 		s = fmt.Sprintf("%v #%v %v:%v, %v:%v [%v]",
-			t.getToday(),
-			t.getCount(),
+			t.GetToday(),
+			t.GetCount(),
 			ui.GetLocale().Get("wordMax"),
 			t.GetMax(),
 			ui.GetLocale().Get("wordAvg"),
-			t.getAvg(),
+			t.GetAvg(),
 			t.getGamesTimeDuraton(),
 		)
 	}
