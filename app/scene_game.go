@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -17,7 +18,7 @@ type SceneGame struct {
 	movesLine                                     *MovesLine
 	btnStart, btnQuit                             *ui.Button
 	rect                                          *ui.Rect
-	stopper, pauseTimer                           int
+	stopper, pauseTimer, warningTimer             int
 	board                                         *game.Board
 	count, level, lives                           int
 	delayBeginCellShow, delayBeginCellHide        int
@@ -50,7 +51,7 @@ func (s *SceneGame) initGame() {
 		s.level = ui.GetPreferences().Get("default level").(int)
 		s.lives = ui.GetPreferences().Get("threshold fallback sessions").(int)
 	}
-	ss := fmt.Sprintf("#%v %v %v %v.", s.count, ui.GetLocale().Get("btnStart"), s.level, ui.GetLocale().Get("wordstepback"))
+	ss := fmt.Sprintf("#%v %v %v %v.", s.count+1, ui.GetLocale().Get("btnStart"), s.level, ui.GetLocale().Get("wordstepback"))
 	res := ""
 	tp := ui.GetPreferences().Get("game type").(string)
 	switch tp {
@@ -177,7 +178,7 @@ func (s *SceneGame) Update(dt int) {
 			var motiv string
 			count := data.GetDb().TodayGamesCount
 			s.level, s.lives, motiv = data.GetDb().TodayData[count].NextLevel()
-			ss := data.GetDb().TodayData[count].String()
+			ss := "#" + strconv.Itoa(count) + data.GetDb().TodayData[count].String()
 			s.lblResult.SetText(ss)
 			log.Printf("Game result: %v", ss)
 			s.count += 1
@@ -201,16 +202,24 @@ func (s *SceneGame) Update(dt int) {
 			if s.paused {
 				s.pauseTimer -= dt
 				s.lblTimer.SetText(fmt.Sprintf("%v", s.pauseTimer/1000))
+				if s.warningTimer > 0 {
+					s.warningTimer -= dt
+				}
 			} else {
 				s.pauseTimer += dt
 				s.lblTimer.SetText(fmt.Sprintf("%02v:%02v", s.pauseTimer/1000/60, s.pauseTimer/1000%60))
 				s.btnStart.Visible = true
+				if s.warningTimer > 0 {
+					s.warningTimer -= dt
+				} else {
+					s.lblTimer.SetBg(ui.GetTheme().Get("correct color"))
+				}
 			}
 		} else if s.pauseTimer <= 0 {
 			if s.paused {
 				s.paused = false
 				s.pauseTimer += ui.GetPreferences().Get("pause to rest").(int) * 1000
-				s.lblTimer.SetBg(ui.GetTheme().Get("correct color"))
+				s.lblTimer.SetBg(ui.GetTheme().Get("warning color"))
 			}
 		}
 	}
@@ -293,6 +302,8 @@ func (s *SceneGame) SaveGame() {
 	}
 	data.GetDb().InsertGame(values)
 	log.Println("Game Saved in DB.")
+	dur := s.board.DtEnd.Sub(s.board.DtBeg) / 2
+	s.warningTimer = int(dur.Seconds()) * 1000
 }
 
 func (s *SceneGame) Draw(surface *ebiten.Image) {
