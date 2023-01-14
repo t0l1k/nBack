@@ -9,16 +9,16 @@ import (
 
 type SceneOptions struct {
 	ui.ContainerDefault
-	topBar                                           *TopBarOpt
-	btnAppOpt, btnGameOpt, btnClassicGame, btnManual *ui.Button
+	topBar                                                     *TopBarOpt
+	btnAppOpt, btnGameOpt, btnClassicGame, btnManual, btnMoves *ui.Button
 }
 
 func NewSceneOptions() *SceneOptions {
 	s := &SceneOptions{}
 	rect := []int{0, 0, 1, 1}
 	s.topBar = NewTopBarOpt(nil, nil)
-	s.topBar.btnReset.Disable()
-	s.topBar.btnApply.Disable()
+	s.topBar.btnReset.Visible = false
+	s.topBar.btnApply.Visible = false
 	s.Add(s.topBar)
 	s.btnAppOpt = ui.NewButton("App Options", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) {
 		ui.Push(NewAppOpt())
@@ -38,6 +38,11 @@ func NewSceneOptions() *SceneOptions {
 		ui.Push(NewManualOpt())
 	})
 	s.Add(s.btnManual)
+
+	s.btnMoves = ui.NewButton("Настройка числа ходов(сложность)", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) {
+		ui.Push(NewMovesOpt())
+	})
+	s.Add(s.btnMoves)
 
 	return s
 }
@@ -73,6 +78,8 @@ func (s *SceneOptions) Resize() {
 	s.btnClassicGame.Resize([]int{x, y, w1, hTop - 2})
 	y += hTop
 	s.btnManual.Resize([]int{x, y, w1, hTop - 2})
+	y += hTop
+	s.btnMoves.Resize([]int{x, y, w1, hTop - 2})
 	y += hTop
 	s.btnGameOpt.Resize([]int{x, y, w1, hTop - 2})
 }
