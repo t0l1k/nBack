@@ -10,17 +10,17 @@ import (
 	"github.com/t0l1k/nBack/game"
 )
 
-type ManualOpt struct {
+type OptThreePigs struct {
 	ui.ContainerDefault
-	topBar                                 *TopBarOpt
-	lblResult                              *ui.Label
-	optDefLevel, optGameType, optManualAdv *ui.Combobox
-	optResetOnWrong, optManual             *ui.Checkbox
-	pref                                   *ui.Preferences
+	topBar                   *TopBarOpt
+	lblResult                *ui.Label
+	optDefLevel, optGameType *ui.Combobox
+	optResetOnWrong          *ui.Checkbox
+	pref                     *ui.Preferences
 }
 
-func NewManualOpt() *ManualOpt {
-	s := &ManualOpt{}
+func NewOptThreePigs() *OptThreePigs {
+	s := &OptThreePigs{}
 	s.pref = LoadPreferences()
 	rect := []int{0, 0, 1, 1}
 	s.topBar = NewTopBarOpt(s.Reset, s.Apply)
@@ -34,7 +34,7 @@ func NewManualOpt() *ManualOpt {
 	s.optGameType = ui.NewCombobox(s.getGameType(), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), gamesType, idx, func(b *ui.Combobox) {
 		s.pref.Set("game type", s.optGameType.Value().(string))
 		s.optGameType.SetText(s.getGameType())
-		s.lblResult.SetText(fmt.Sprintf("Выбрать играть на ручнике уровень:%v, %v, ходов:%v", s.pref.Get("default level").(int), s.getGameType(), game.TotalMoves(s.pref.Get("default level").(int))))
+		s.lblResult.SetText(fmt.Sprintf("Выбрать играть спасти трех поросят уовень:%v, %v, ходов:%v", s.pref.Get("default level").(int), s.getGameType(), game.TotalMoves(s.pref.Get("default level").(int))))
 
 	})
 	s.Add(s.optGameType)
@@ -54,23 +54,9 @@ func NewManualOpt() *ManualOpt {
 	}
 	s.optDefLevel = ui.NewCombobox(ui.GetLocale().Get("optdeflev"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arr, current, func(c *ui.Combobox) {
 		s.pref.Set("default level", s.optDefLevel.Value().(int))
-		s.lblResult.SetText(fmt.Sprintf("Выбрать играть на ручнике уровень:%v, %v, ходов:%v", s.pref.Get("default level").(int), s.getGameType(), game.TotalMoves(s.pref.Get("default level").(int))))
-
+		s.lblResult.SetText(fmt.Sprintf("Выбрать играть спасти трех поросят уовень:%v, %v, ходов:%v", s.pref.Get("default level").(int), s.getGameType(), game.TotalMoves(s.pref.Get("default level").(int))))
 	})
 	s.Add(s.optDefLevel)
-
-	arrAdvManual := []interface{}{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	idx = 0
-	s.optManualAdv = ui.NewCombobox(ui.GetLocale().Get("optdeflevadv"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrAdvManual, idx, func(b *ui.Combobox) {
-		s.pref.Set("manual advance", s.optManualAdv.Value().(int))
-	})
-	s.Add(s.optManualAdv)
-
-	s.optManual = ui.NewCheckbox(ui.GetLocale().Get("optmanual"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), func(c *ui.Checkbox) {
-		s.pref.Set("manual mode", s.optManual.Checked())
-		log.Printf("Manual: %v", s.pref.Get("manual mode").(bool))
-	})
-	s.Add(s.optManual)
 
 	s.optResetOnWrong = ui.NewCheckbox(ui.GetLocale().Get("optreset"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), func(c *ui.Checkbox) {
 		s.pref.Set("reset on first wrong", s.optResetOnWrong.Checked())
@@ -81,7 +67,7 @@ func NewManualOpt() *ManualOpt {
 	return s
 }
 
-func (s *ManualOpt) getGameType() string {
+func (s *OptThreePigs) getGameType() string {
 	result := ui.GetLocale().Get("optgmtp") + " "
 	tp := ui.GetPreferences().Get("game type").(string)
 	switch tp {
@@ -97,48 +83,45 @@ func (s *ManualOpt) getGameType() string {
 	return result
 }
 
-func (s *ManualOpt) Setup(sets *ui.Preferences) {
+func (s *OptThreePigs) Setup(sets *ui.Preferences) {
 	s.optGameType.SetValue(sets.Get("game type").(string))
 	s.optDefLevel.SetValue(sets.Get("default level").(int))
-	sets.Set("manual advance", 0)
-	s.optManualAdv.SetValue(sets.Get("manual advance").(int))
+	sets.Set("manual advance", 3)
 	sets.Set("manual mode", true)
-	s.optManual.SetChecked(sets.Get("manual mode").(bool))
 	s.optResetOnWrong.SetChecked(sets.Get("reset on first wrong").(bool))
-	s.lblResult.SetText(fmt.Sprintf("Выбрать играть на ручнике уровень:%v, %v, ходов:%v", sets.Get("default level").(int), s.getGameType(), game.TotalMoves(s.pref.Get("default level").(int))))
-
+	s.lblResult.SetText(fmt.Sprintf("Выбрать играть спасти трех поросят уовень:%v, %v, ходов:%v", sets.Get("default level").(int), s.getGameType(), game.TotalMoves(sets.Get("default level").(int))))
 }
 
-func (s *ManualOpt) Reset(b *ui.Button) {
+func (s *OptThreePigs) Reset(b *ui.Button) {
 	s.pref = ui.GetUi().ApplyPreferences(NewPref())
 	s.Setup(s.pref)
 	log.Println("Reset All Options to Defaults")
 }
 
-func (s *ManualOpt) Apply(b *ui.Button) {
+func (s *OptThreePigs) Apply(b *ui.Button) {
 	data.GetDb().InsertSettings(s.pref)
 	log.Println("Apply Settings")
 	ui.Pop()
 }
 
-func (r *ManualOpt) Update(dt int) {
+func (r *OptThreePigs) Update(dt int) {
 	for _, value := range r.Container {
 		value.Update(dt)
 	}
 }
 
-func (r *ManualOpt) Draw(surface *ebiten.Image) {
+func (r *OptThreePigs) Draw(surface *ebiten.Image) {
 	for _, value := range r.Container {
 		value.Draw(surface)
 	}
 }
 
-func (s *ManualOpt) Entered() {
+func (s *OptThreePigs) Entered() {
 	s.Setup(LoadPreferences())
 	s.Resize()
 }
 
-func (s *ManualOpt) Resize() {
+func (s *OptThreePigs) Resize() {
 	s.topBar.Resize()
 	w, h := ui.GetUi().GetScreenSize()
 	hTop := int(float64(h) * 0.05)
@@ -152,15 +135,10 @@ func (s *ManualOpt) Resize() {
 	y += hTop
 	s.optDefLevel.Resize([]int{x, y, w1, hTop - 2})
 	y += hTop
-	s.optManual.Resize([]int{x, y, w1, hTop - 2})
-	y += hTop
-	s.optManualAdv.Resize([]int{x, y, w1, hTop - 2})
-	y += hTop
 	s.optResetOnWrong.Resize([]int{x, y, w1, hTop - 2})
-
 }
 
-func (r *ManualOpt) Close() {
+func (r *OptThreePigs) Close() {
 	for _, v := range r.Container {
 		v.Close()
 	}

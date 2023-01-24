@@ -9,8 +9,8 @@ import (
 
 type SceneOptions struct {
 	ui.ContainerDefault
-	topBar                                                     *TopBarOpt
-	btnAppOpt, btnGameOpt, btnClassicGame, btnManual, btnMoves *ui.Button
+	topBar                                                                                *TopBarOpt
+	btnAppOpt, btnGameOpt, btnClassicGame, btnManual, btnMoves, btnThreePigs, btnUglyDuck *ui.Button
 }
 
 func NewSceneOptions() *SceneOptions {
@@ -43,6 +43,16 @@ func NewSceneOptions() *SceneOptions {
 		ui.Push(NewMovesOpt())
 	})
 	s.Add(s.btnMoves)
+
+	s.btnThreePigs = ui.NewButton("Играть спасти трех поросят", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) {
+		ui.Push(NewOptThreePigs())
+	})
+	s.Add(s.btnThreePigs)
+
+	s.btnUglyDuck = ui.NewButton("Играть преобразить гадкого утенка", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) {
+		ui.Push(NewOptUglyDuck())
+	})
+	s.Add(s.btnUglyDuck)
 
 	return s
 }
@@ -78,6 +88,10 @@ func (s *SceneOptions) Resize() {
 	s.btnClassicGame.Resize([]int{x, y, w1, hTop - 2})
 	y += hTop
 	s.btnManual.Resize([]int{x, y, w1, hTop - 2})
+	y += hTop
+	s.btnUglyDuck.Resize([]int{x, y, w1, hTop - 2})
+	y += hTop
+	s.btnThreePigs.Resize([]int{x, y, w1, hTop - 2})
 	y += hTop
 	s.btnMoves.Resize([]int{x, y, w1, hTop - 2})
 	y += hTop

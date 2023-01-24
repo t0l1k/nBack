@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -12,6 +13,7 @@ import (
 type ClassicOpt struct {
 	ui.ContainerDefault
 	topBar                   *TopBarOpt
+	lblResult                *ui.Label
 	optDefLevel, optGameType *ui.Combobox
 	pref                     *ui.Preferences
 }
@@ -22,7 +24,8 @@ func NewClassicOpt() *ClassicOpt {
 	rect := []int{0, 0, 1, 1}
 	s.topBar = NewTopBarOpt(s.Reset, s.Apply)
 	s.Add(s.topBar)
-
+	s.lblResult = ui.NewLabel("Classic NBack rulez", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.Add(s.lblResult)
 	values, _ := data.GetDb().ReadAllGamesScore(0, "", "")
 	max := values.Max
 	if max == 0 {
@@ -38,6 +41,7 @@ func NewClassicOpt() *ClassicOpt {
 	}
 	s.optDefLevel = ui.NewCombobox(ui.GetLocale().Get("optdeflev"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arr, current, func(c *ui.Combobox) {
 		s.pref.Set("default level", s.optDefLevel.Value().(int))
+		s.lblResult.SetText(fmt.Sprintf("Выбрать игру классический NBack уровень:%v, %v, ходов:%v", s.pref.Get("default level").(int), s.getGameType(), game.TotalMoves(s.pref.Get("default level").(int))))
 	})
 	s.Add(s.optDefLevel)
 
@@ -46,6 +50,8 @@ func NewClassicOpt() *ClassicOpt {
 	s.optGameType = ui.NewCombobox(s.getGameType(), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), gamesType, idx, func(b *ui.Combobox) {
 		s.pref.Set("game type", s.optGameType.Value().(string))
 		s.optGameType.SetText(s.getGameType())
+		s.lblResult.SetText(fmt.Sprintf("Выбрать игру классический NBack уровень:%v, %v, ходов:%v", s.pref.Get("default level").(int), s.getGameType(), game.TotalMoves(s.pref.Get("default level").(int))))
+
 	})
 	s.Add(s.optGameType)
 
@@ -69,8 +75,12 @@ func (s *ClassicOpt) getGameType() string {
 }
 
 func (s *ClassicOpt) Setup(sets *ui.Preferences) {
-	s.optGameType.SetValue(sets.Get("game type").(string))
+	sets.Set("trials", 20)
+	sets.Set("trials factor", 1)
+	sets.Set("trials exponent", 2)
 	s.optDefLevel.SetValue(sets.Get("default level").(int))
+	s.optGameType.SetValue(sets.Get("game type").(string))
+	s.lblResult.SetText(fmt.Sprintf("Выбрать игру классический NBack уровень:%v, %v, ходов:%v", sets.Get("default level").(int), s.getGameType(), game.TotalMoves(s.pref.Get("default level").(int))))
 }
 
 func (s *ClassicOpt) Reset(b *ui.Button) {
@@ -120,6 +130,8 @@ func (s *ClassicOpt) Resize() {
 	w1, h1 := int(float64(w)*0.6), rect.H/2-hTop*2
 	x, y := rect.CenterX()-w1/2, hTop
 	y += h1
+	s.lblResult.Resize([]int{x, y, w1, hTop - 2})
+	y += hTop
 	s.optDefLevel.Resize([]int{x, y, w1, hTop - 2})
 	y += hTop
 	s.optGameType.Resize([]int{x, y, w1, hTop - 2})

@@ -105,20 +105,21 @@ func (t *TodayGamesData) getWinCountInManual() (bool, bool, int) {
 	}
 	sort.Ints(keys)
 	count := 0
-	adv := (*ui.GetPreferences()).Get("manual advance").(int)
+	advPercent := ui.GetPreferences().Get("threshold advance").(int)
+	advCount := (*ui.GetPreferences()).Get("manual advance").(int)
 	lastLvl := GetDb().TodayData[len(keys)].Level
 	ok := false
 	for i := len(keys); i > 0; i-- {
 		v := GetDb().TodayData[i]
-		if adv == 0 || !v.Manual && count < adv {
+		if advCount == 0 || !v.Manual && count < advCount {
 			return false, false, count
-		} else if v.Manual && v.Percent == 100 && v.Level == lastLvl {
+		} else if v.Manual && v.Percent >= advPercent && v.Level == lastLvl {
 			count++
 			ok = true
-			if count == adv {
+			if count == advCount {
 				return true, ok, count
 			}
-		} else if v.Manual && v.Percent < 100 && v.Level == lastLvl {
+		} else if v.Manual && v.Percent < advPercent && v.Level == lastLvl {
 			ok = true
 			return false, ok, count
 		}
@@ -127,7 +128,7 @@ func (t *TodayGamesData) getWinCountInManual() (bool, bool, int) {
 		}
 		lastLvl = v.Level
 	}
-	return count >= adv, ok, count
+	return count >= advCount, ok, count
 }
 
 func (t *TodayGamesData) ListShortStr() (strs []string, clrs []color.Color) {

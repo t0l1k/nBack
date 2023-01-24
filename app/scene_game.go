@@ -43,15 +43,18 @@ func (s *SceneGame) Entered() {
 }
 
 func (s *SceneGame) initGame() {
+	var ss string
 	s.count = data.GetDb().TodayGamesCount
 	if s.count > 0 {
 		s.level, s.lives, _ = data.GetDb().TodayData[s.count].NextLevel()
+		ss = fmt.Sprintf("#%v ", s.count+1)
 	} else {
 		s.count = 1
 		s.level = ui.GetPreferences().Get("default level").(int)
 		s.lives = ui.GetPreferences().Get("threshold fallback sessions").(int)
+		ss = fmt.Sprintf("#%v ", s.count)
 	}
-	ss := fmt.Sprintf("#%v %v %v %v.", s.count+1, ui.GetLocale().Get("btnStart"), s.level, ui.GetLocale().Get("wordstepback"))
+	ss += fmt.Sprintf("%v %v %v.", ui.GetLocale().Get("btnStart"), s.level, ui.GetLocale().Get("wordstepback"))
 	res := ""
 	tp := ui.GetPreferences().Get("game type").(string)
 	switch tp {
