@@ -9,8 +9,10 @@ import (
 
 type SceneOptions struct {
 	ui.ContainerDefault
-	topBar                                                                                *TopBarOpt
-	btnAppOpt, btnGameOpt, btnClassicGame, btnManual, btnMoves, btnThreePigs, btnUglyDuck *ui.Button
+	topBar                                           *TopBarOpt
+	lblSelectGame, lblSelectOptios                   *ui.Label
+	btnAppOpt, btnGameOpt, btnClassicGame, btnManual *ui.Button
+	btnMoves, btnThreePigs, btnUglyDuck, btnModals   *ui.Button
 }
 
 func NewSceneOptions() *SceneOptions {
@@ -20,26 +22,33 @@ func NewSceneOptions() *SceneOptions {
 	s.topBar.btnReset.Visible = false
 	s.topBar.btnApply.Visible = false
 	s.Add(s.topBar)
-	s.btnAppOpt = ui.NewButton("App Options", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) {
+
+	s.lblSelectGame = ui.NewLabel("Выбрать игру", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.Add(s.lblSelectGame)
+
+	s.lblSelectOptios = ui.NewLabel("Настройки", rect, ui.GetTheme().Get("warning color"), ui.GetTheme().Get("fg"))
+	s.Add(s.lblSelectOptios)
+
+	s.btnAppOpt = ui.NewButton("Настройки приложения", rect, ui.GetTheme().Get("warning color"), ui.GetTheme().Get("fg"), func(b *ui.Button) {
 		ui.Push(NewAppOpt())
 	})
 	s.Add(s.btnAppOpt)
-	s.btnGameOpt = ui.NewButton("All Game Options", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) {
+	s.btnGameOpt = ui.NewButton("Все настройки игры", rect, ui.GetTheme().Get("warning color"), ui.GetTheme().Get("fg"), func(b *ui.Button) {
 		ui.Push(NewGameOpt())
 	})
 	s.Add(s.btnGameOpt)
 
-	s.btnClassicGame = ui.NewButton("Классический нназад(BrainWorkshop)", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) {
+	s.btnClassicGame = ui.NewButton("Классический nBack(BrainWorkshop)", rect, ui.GetTheme().Get("regular color"), ui.GetTheme().Get("fg"), func(b *ui.Button) {
 		ui.Push(NewClassicOpt())
 	})
 	s.Add(s.btnClassicGame)
 
-	s.btnManual = ui.NewButton("Игра на ручние", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) {
+	s.btnManual = ui.NewButton("Играть на ручнике", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) {
 		ui.Push(NewManualOpt())
 	})
 	s.Add(s.btnManual)
 
-	s.btnMoves = ui.NewButton("Настройка числа ходов(сложность)", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) {
+	s.btnMoves = ui.NewButton("Настройка числа ходов(сложность)", rect, ui.GetTheme().Get("warning color"), ui.GetTheme().Get("fg"), func(b *ui.Button) {
 		ui.Push(NewMovesOpt())
 	})
 	s.Add(s.btnMoves)
@@ -53,6 +62,11 @@ func NewSceneOptions() *SceneOptions {
 		ui.Push(NewOptUglyDuck())
 	})
 	s.Add(s.btnUglyDuck)
+
+	s.btnModals = ui.NewButton("Настройка модальностей", rect, ui.GetTheme().Get("warning color"), ui.GetTheme().Get("fg"), func(b *ui.Button) {
+		ui.Push(NewOptModals())
+	})
+	s.Add(s.btnModals)
 
 	return s
 }
@@ -80,10 +94,10 @@ func (s *SceneOptions) Resize() {
 	w, h := ui.GetUi().GetScreenSize()
 	hTop := int(float64(h) * 0.05)
 	rect := ui.NewRect([]int{0, hTop, w, h - hTop})
-	w1, h1 := int(float64(w)*0.6), rect.H/2-hTop*4
+	w1, h1 := int(float64(w)*0.6), rect.H/2-hTop*6
 	x, y := rect.CenterX()-w1/2, hTop
 	y += h1
-	s.btnAppOpt.Resize([]int{x, y, w1, hTop - 2})
+	s.lblSelectGame.Resize([]int{x, y, w1, hTop - 2})
 	y += hTop
 	s.btnClassicGame.Resize([]int{x, y, w1, hTop - 2})
 	y += hTop
@@ -92,6 +106,12 @@ func (s *SceneOptions) Resize() {
 	s.btnUglyDuck.Resize([]int{x, y, w1, hTop - 2})
 	y += hTop
 	s.btnThreePigs.Resize([]int{x, y, w1, hTop - 2})
+	y += hTop * 2
+	s.lblSelectOptios.Resize([]int{x, y, w1, hTop - 2})
+	y += hTop
+	s.btnAppOpt.Resize([]int{x, y, w1, hTop - 2})
+	y += hTop
+	s.btnModals.Resize([]int{x, y, w1, hTop - 2})
 	y += hTop
 	s.btnMoves.Resize([]int{x, y, w1, hTop - 2})
 	y += hTop

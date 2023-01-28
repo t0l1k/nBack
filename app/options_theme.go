@@ -4,9 +4,7 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	ui "github.com/t0l1k/eui"
-	"github.com/t0l1k/nBack/game"
 )
 
 type OptTheme struct {
@@ -27,7 +25,7 @@ func NewOptTheme(rect []int) *OptTheme {
 }
 func (r *OptTheme) Layout() {
 	w, h := r.rect.Size()
-	cellWidth, cellHeight := w, h/4
+	cellWidth, cellHeight := w, h/3
 	if r.Image == nil {
 		r.Image = ebiten.NewImage(w, h)
 	} else {
@@ -82,15 +80,6 @@ func (r *OptTheme) Layout() {
 	errorLbl := ui.NewLabel("color error", rect, ui.GetTheme().Get("error color"), ui.GetTheme().Get("fg"))
 	errorLbl.SetRect(true)
 	errorLbl.Draw(r.Image)
-
-	x, y = 0, cellHeight*3
-	w, h = cellWidth/len(game.Colors), cellHeight
-	sz := len(game.Colors)
-	for i, v := range game.Colors {
-		cellX := i % sz * w
-		ebitenutil.DrawRect(r.Image, float64(cellX), float64(y), float64(w), float64(h), v)
-	}
-
 	r.Dirty = false
 }
 func (r *OptTheme) Update(dt int) {}

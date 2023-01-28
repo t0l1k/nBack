@@ -13,17 +13,17 @@ import (
 )
 
 type SceneGame struct {
-	name                                          string
-	lblName, lblResult, lblMotiv, lblTimer, lblDt *ui.Label
-	movesLine                                     *MovesLine
-	btnStart, btnQuit                             *ui.Button
-	rect                                          *ui.Rect
-	stopper, pauseTimer, warningTimer             int
-	board                                         *game.Board
-	count, level, lives                           int
-	delayBeginCellShow, delayBeginCellHide        int
-	timeToNextCell, timeShowCell                  int
-	paused                                        bool
+	name                                                     string
+	lblName, lblDt, lblTimer, lblMotiv, lblResult, lblHelper *ui.Label
+	movesLine                                                *MovesLine
+	btnStart, btnQuit                                        *ui.Button
+	rect                                                     *ui.Rect
+	stopper, pauseTimer, warningTimer                        int
+	board                                                    *game.Board
+	count, level, lives                                      int
+	delayBeginCellShow, delayBeginCellHide                   int
+	timeToNextCell, timeShowCell                             int
+	paused                                                   bool
 	ui.ContainerDefault
 }
 
@@ -120,6 +120,8 @@ func (s *SceneGame) initUi() {
 	s.Add(s.lblDt)
 	s.movesLine = NewMovesLine(rect)
 	s.Add(s.movesLine)
+	s.lblHelper = ui.NewLabel(ui.GetLocale().Get("btnHelperInGame"), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.Add(s.lblHelper)
 }
 
 func (s *SceneGame) Update(dt int) {
@@ -187,6 +189,7 @@ func (s *SceneGame) Update(dt int) {
 			s.count += 1
 			s.lblMotiv.SetText(motiv)
 			s.lblMotiv.SetBg(data.GetDb().TodayData[count].BgColor())
+			s.lblName.Visible = true
 			s.lblName.SetRect(true)
 			s.lblName.SetText(s.name)
 			s.lblName.SetBg(ui.GetTheme().Get("correct color"))
@@ -200,6 +203,7 @@ func (s *SceneGame) Update(dt int) {
 			s.pauseTimer = ui.GetPreferences().Get("pause to rest").(int) * 1000
 			s.paused = true
 			s.lblDt.Visible = true
+			s.lblHelper.Visible = true
 		}
 		if s.pauseTimer > 0 {
 			if s.paused {
@@ -237,6 +241,7 @@ func (s *SceneGame) newSession() {
 	s.btnQuit.Visible = false
 	s.lblDt.Visible = false
 	s.movesLine.Visible = false
+	s.lblHelper.Visible = false
 	if ui.GetPreferences().Get("feedback on user move").(bool) {
 		x, y, w, h := 0, 0, int(float64(s.rect.W)*0.20), int(float64(s.rect.H)*0.05)
 		s.lblName.Resize([]int{x, y, w, h})
@@ -317,36 +322,46 @@ func (s *SceneGame) Draw(surface *ebiten.Image) {
 }
 
 func (s *SceneGame) Resize() {
-	w, h := ui.GetUi().GetScreenSize()
-	s.rect = ui.NewRect([]int{0, 0, w, h})
-	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)*0.05)
-	s.btnQuit.Resize([]int{x, y, w, h})
-	x, w = h, int(float64(s.rect.W)*0.20)
-	s.lblName.Resize([]int{x, y, w, h})
+	w0, h0 := ui.GetUi().GetScreenSize()
+	s.rect = ui.NewRect([]int{0, 0, w0, h0})
+	x, y, w, hTop := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)*0.05)
+	s.btnQuit.Resize([]int{x, y, w, hTop})
+	x, w = hTop, int(float64(s.rect.W)*0.20)
+	s.lblName.Resize([]int{x, y, w, hTop})
 	x = s.rect.Right() - w
-	s.lblDt.Resize([]int{x, y, w, h})
+	s.lblDt.Resize([]int{x, y, w, hTop})
 
 	sz := s.rect.GetLowestSize()
 	cellSize := float64(sz)/3 - float64(sz)*0.02
 	marginX := float64(s.rect.W)/2 - cellSize*3/2
 	marginY := float64(s.rect.H)/2 - cellSize*3/2
-	x, y = int(marginX), int(marginY)+h/2
+	x, y = int(marginX), int(marginY)+hTop/2
 	s.board.Resize([]int{x, y, int(cellSize) * 3, int(cellSize) * 3})
-	w, h = int(float64(s.rect.W)*0.5), int(float64(s.rect.H)*0.15)
-	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*1)
-	s.btnStart.Resize([]int{x, y, w, h})
-	w, h = int(float64(s.rect.W)*0.9), int(float64(s.rect.H)*0.08)
-	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*3.5)
-	s.lblResult.Resize([]int{x, y, w, h})
-	w, h = int(float64(s.rect.W)*0.7), int(float64(s.rect.H)*0.08)
-	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*5.5)
-	s.lblMotiv.Resize([]int{x, y, w, h})
-	w, h = int(float64(s.rect.W)*0.5), int(float64(s.rect.H)*0.2)
-	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*4)
-	s.lblTimer.Resize([]int{x, y, w, h})
-	w, h = int(float64(s.rect.W)*0.9), int(float64(s.rect.H)*0.05)
-	x, y = (s.rect.W-w)/2, s.rect.H-int(float64(h)*6.7)
-	s.movesLine.Resize([]int{x, y, w, h})
+
+	wBtn, hBtn := int(float64(s.rect.W)*0.5), int(float64(s.rect.H)*0.15)
+	w2 := int(float64(s.rect.W) * 0.87)
+
+	x = (s.rect.W - wBtn) / 2
+	y = s.rect.H - hTop*12 - hBtn
+	s.lblTimer.Resize([]int{x, y, wBtn, hBtn})
+
+	x = (s.rect.W - w2) / 2
+	y = s.rect.H - hTop*8 - hBtn
+	s.lblMotiv.Resize([]int{x, y, w2, hTop * 2})
+
+	x = (s.rect.W - w2) / 2
+	y = s.rect.H - hTop*6 - hBtn
+	s.movesLine.Resize([]int{x, y, w2, hTop})
+
+	x = (s.rect.W - w2) / 2
+	y = s.rect.H - hTop*5 - hBtn
+	s.lblResult.Resize([]int{x, y, w2, hTop * 2})
+
+	x = (s.rect.W - wBtn) / 2
+	y = s.rect.H - hTop*2 - hBtn
+	s.btnStart.Resize([]int{x, y, wBtn, hBtn})
+	x, y = 0, s.rect.H-hTop
+	s.lblHelper.Resize([]int{x, y, w0, hTop})
 }
 
 func (s *SceneGame) Close() {

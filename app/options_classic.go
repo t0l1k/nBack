@@ -127,7 +127,7 @@ func (s *ClassicOpt) Resize() {
 	w, h := ui.GetUi().GetScreenSize()
 	hTop := int(float64(h) * 0.05)
 	rect := ui.NewRect([]int{0, hTop, w, h - hTop})
-	w1, h1 := int(float64(w)*0.6), rect.H/2-hTop*2
+	w1, h1 := int(float64(w)*0.6), rect.H/2-hTop*6
 	x, y := rect.CenterX()-w1/2, hTop
 	y += h1
 	s.lblResult.Resize([]int{x, y, w1, hTop - 2})

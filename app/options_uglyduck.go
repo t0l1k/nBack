@@ -89,7 +89,7 @@ func (s *OptUglyDuck) Setup(sets *ui.Preferences) {
 	sets.Set("manual advance", 1)
 	sets.Set("manual mode", true)
 	s.optResetOnWrong.SetChecked(sets.Get("reset on first wrong").(bool))
-	s.lblResult.SetText(fmt.Sprintf("Выбрать играть преобразить гадкого утенка уовень:%v, %v, ходов:%v", sets.Get("default level").(int), s.getGameType(), game.TotalMoves(sets.Get("default level").(int))))
+	s.lblResult.SetText(fmt.Sprintf("Выбрать играть преобразить гадкого утенка уровень:%v, %v, ходов:%v", sets.Get("default level").(int), s.getGameType(), game.TotalMoves(sets.Get("default level").(int))))
 }
 
 func (s *OptUglyDuck) Reset(b *ui.Button) {
