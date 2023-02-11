@@ -2,6 +2,7 @@ package app
 
 import (
 	"log"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -45,7 +46,7 @@ func NewSceneToday() *SceneToday {
 	s.lblHelper = ui.NewLabel(ui.GetLocale().Get("btnHelper"), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblHelper)
 	s.plotResult = NewResultPlot(rect)
-	s.plotResult.Visibe = false
+	s.plotResult.Visible = false
 	s.Add(s.plotResult)
 	s.toggleResults = false
 	s.btnPlot = ui.NewButton(ui.GetLocale().Get("btnPlot"), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { s.togglePlot() })
@@ -58,7 +59,7 @@ func NewSceneToday() *SceneToday {
 }
 
 func (s *SceneToday) Entered() {
-	data.GetDb().ReadTodayGames()
+	data.GetDb().ReadTodayGames(time.Now().Format("2006-01-02"))
 	s.lblPeriodResult.SetText(data.GetDb().TodayData.String())
 	a, b := data.GetDb().TodayData.ListShortStr()
 	s.lblsResult.SetList(a, b)
@@ -90,10 +91,10 @@ func (s *SceneToday) togglePlot() {
 	s.toggleResults = !s.toggleResults
 	if s.toggleResults {
 		s.plotResult.Dirty = true
-		s.plotResult.Visibe = true
+		s.plotResult.Visible = true
 		s.lblsResult.Visible = false
 	} else {
-		s.plotResult.Visibe = false
+		s.plotResult.Visible = false
 		s.lblsResult.Visible = true
 		s.lblsResult.Dirty = true
 	}

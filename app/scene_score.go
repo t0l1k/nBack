@@ -15,6 +15,7 @@ type SceneScore struct {
 	lblName, lblPeriodResult, lblDt *ui.Label
 	btnQuit                         *ui.Button
 	plotScore                       *ScorePlot
+	plotResult                      *ResultPlot
 	scorePeriod                     data.Period
 	rect                            *ui.Rect
 	mn                              int
@@ -36,6 +37,9 @@ func NewSceneScore() *SceneScore {
 	s.Add(s.plotScore)
 	s.lblDt = ui.NewLabel(" ", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
 	s.Add(s.lblDt)
+	s.plotResult = NewResultPlot(rect)
+	s.plotResult.Visible = false
+	s.Add(s.plotResult)
 	return s
 }
 
@@ -56,6 +60,7 @@ func (s *SceneScore) Update(dt int) {
 		s.mn = 0
 		s.scorePeriod.Next()
 		s.plotScore.SetPeriod(s.scorePeriod)
+		s.plotResult.SetPeriod(s.scorePeriod)
 		s.lblName.SetText(fmt.Sprintf("%v %v", ui.GetLocale().Get("scrName"), s.scorePeriod))
 		s.checkPeriod(s.mn)
 	} else if inpututil.IsKeyJustReleased(ebiten.KeyArrowLeft) {
@@ -75,6 +80,9 @@ func (s *SceneScore) checkPeriod(mn int) bool {
 		result   bool = true
 	)
 	switch s.scorePeriod {
+	case data.Day:
+		from, to, result = data.NextDay(mn)
+		s.plotResult.Visible = true
 	case data.Week:
 		from, to, result = data.NextWeek(mn)
 	case data.Month:
@@ -86,15 +94,28 @@ func (s *SceneScore) checkPeriod(mn int) bool {
 	if !result {
 		return result
 	}
-	s.updateData(from, to)
+	result = s.updateData(from, to)
+	if !result {
+		return result
+	}
 	s.plotScore.Dirty = true
+	s.plotResult.Dirty = true
 	return result
 }
 
-func (s *SceneScore) updateData(from, to string) {
+func (s *SceneScore) updateData(from, to string) bool {
 	data.GetDb().ReadAllGamesForScoresByDays(s.scorePeriod.Len(), from, to)
 	_, str := data.GetDb().ReadAllGamesScore(s.scorePeriod.Len(), from, to)
+	if s.scorePeriod == data.Day {
+		data.GetDb().ReadTodayGames(from)
+		str = data.GetDb().TodayData.String()
+		fmt.Println(str)
+		if len(str) == 0 {
+			return false
+		}
+	}
 	s.lblPeriodResult.SetText(str)
+	return true
 }
 
 func (s *SceneScore) Draw(surface *ebiten.Image) {
@@ -119,6 +140,7 @@ func (s *SceneScore) Resize() {
 	w, h = int(float64(s.rect.W)*0.9), int(float64(s.rect.H)*0.85)
 	x = (s.rect.W - w) / 2
 	s.plotScore.Resize([]int{x, y, w, h})
+	s.plotResult.Resize([]int{x, y, w, h})
 }
 
 func (s *SceneScore) Close() {

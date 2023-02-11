@@ -5,7 +5,8 @@ import (
 )
 
 const (
-	Week Period = iota
+	Day Period = iota
+	Week
 	Month
 	Year
 	All
@@ -20,13 +21,13 @@ func NewPeriod(p *Period) *Period {
 func (p *Period) Next() {
 	*p++
 	if *p > All {
-		*p = Week
+		*p = Day
 	}
 }
 
 func (p *Period) Prev() {
 	*p--
-	if *p < Week {
+	if *p < Day {
 		*p = All
 	}
 }
@@ -34,6 +35,8 @@ func (p *Period) Prev() {
 func (p Period) Len() int {
 	result := 0
 	switch p {
+	case Day:
+		result = 1
 	case Week:
 		result = 7
 	case Month:
@@ -49,6 +52,8 @@ func (p Period) Len() int {
 func (p Period) String() string {
 	s := "all"
 	switch p {
+	case Day:
+		s = "day"
 	case Week:
 		s = "week"
 	case Month:
@@ -105,4 +110,16 @@ func NextWeek(k int) (string, string, bool) {
 		return "", "", false
 	}
 	return dt.Format("2006-01-02"), dtTo.Format("2006-01-02"), true
+}
+
+func NextDay(k int) (string, string, bool) {
+	if k < 0 {
+		return "", "", false
+	}
+	firstDt := GetDb().GetFirstDate()
+	dt := time.Now().AddDate(0, 0, -k)
+	if dt.Before(firstDt) {
+		return "", "", false
+	}
+	return dt.Format("2006-01-02"), dt.Format("2006-01-02"), true
 }

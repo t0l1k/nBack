@@ -13,21 +13,37 @@ import (
 )
 
 type ResultPlot struct {
-	rect          *ui.Rect
-	Image         *ebiten.Image
-	Dirty, Visibe bool
-	bg, fg        color.Color
+	rect           *ui.Rect
+	Image          *ebiten.Image
+	Dirty, Visible bool
+	bg, fg         color.Color
+	period         data.Period
 }
 
 func NewResultPlot(rect []int) *ResultPlot {
 	return &ResultPlot{
-		rect:   ui.NewRect(rect),
-		bg:     ui.GetTheme().Get("bg"),
-		fg:     ui.GetTheme().Get("fg"),
-		Dirty:  true,
-		Visibe: true,
+		rect:    ui.NewRect(rect),
+		bg:      ui.GetTheme().Get("bg"),
+		fg:      ui.GetTheme().Get("fg"),
+		Dirty:   true,
+		Visible: true,
 	}
 }
+
+func (r *ResultPlot) SetPeriod(period data.Period) {
+	if r.period == period {
+		return
+	}
+	if period == data.Day {
+		r.Visible = true
+	} else {
+		r.Visible = false
+		return
+	}
+	r.period = period
+	r.Dirty = true
+}
+
 func (r *ResultPlot) Layout() {
 	xArr, yArr, lvlValues, percents, movesPercent, colors := data.GetDb().TodayData.PlotTodayData()
 	axisXMax := xArr.Len()
@@ -228,7 +244,7 @@ func (r *ResultPlot) Draw(surface *ebiten.Image) {
 	if r.Dirty {
 		r.Layout()
 	}
-	if r.Visibe {
+	if r.Visible {
 		op := &ebiten.DrawImageOptions{}
 		x, y := r.rect.Pos()
 		op.GeoM.Translate(float64(x), float64(y))

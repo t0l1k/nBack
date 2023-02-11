@@ -254,7 +254,7 @@ func (d *Db) InsertGame(values *GameData) {
 	log.Println("DB: Inserted:", gametype, dtBeg, dtEnd, level, lives, percent, correct, wrong, missed, moves, totalmoves, manual, advance, fallback, resetonerror)
 }
 
-func (d *Db) ReadTodayGames() {
+func (d *Db) ReadTodayGames(from string) {
 	d.TodayData = make(map[int]*GameData)
 	d.TodayGamesCount = 0
 	if d.conn == nil {
@@ -264,9 +264,14 @@ func (d *Db) ReadTodayGames() {
 	if err != nil {
 		panic(err)
 	}
-	now := time.Now()
-	todayBeginDt := time.Date(now.Year(), now.Month(), now.Day(), 4, 0, 0, 0, now.Location())
+
 	dtFormat := "2006-01-02 15:04:05.000"
+	dt, err := time.Parse("2006-01-02", from)
+	if err != nil {
+		panic(err)
+	}
+	todayBeginDt := time.Date(dt.Year(), dt.Month(), dt.Day(), 4, 0, 0, 0, dt.Location())
+	todayEndDt := time.Date(dt.Year(), dt.Month(), dt.Day()+1, 4, 0, 0, 0, dt.Location())
 	for rows.Next() {
 		values := &GameData{}
 		err = rows.Scan(&values.Id, &values.GameType, &values.DtBeg, &values.DtEnd, &values.Level, &values.Lives, &values.Percent, &values.Correct, &values.Wrong, &values.Missed, &values.Moves, &values.Totalmoves, &values.Manual, &values.Advance, &values.Fallback, &values.Resetonerror)
@@ -277,7 +282,7 @@ func (d *Db) ReadTodayGames() {
 		if err != nil {
 			panic(err)
 		}
-		if dt.After(todayBeginDt) {
+		if dt.After(todayBeginDt) && dt.Before(todayEndDt) {
 			d.TodayGamesCount += 1
 			d.TodayData[d.TodayGamesCount] = values
 		}

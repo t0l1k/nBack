@@ -35,6 +35,12 @@ func (r *ScorePlot) SetPeriod(period data.Period) {
 	if r.period == period {
 		return
 	}
+	if period == data.Day {
+		r.Visible = false
+		return
+	} else {
+		r.Visible = true
+	}
 	r.period = period
 	r.Dirty = true
 }

@@ -15,6 +15,14 @@ import (
 type TodayGamesData map[int]*GameData
 
 func (t *TodayGamesData) GetToday() string {
+	dtFormat := "2006-01-02 15:04:05.000"
+	for _, v := range *t {
+		dtBeg, err := time.Parse(dtFormat, v.DtBeg)
+		if err != nil {
+			panic(err)
+		}
+		return dtBeg.Format("2006.01.02")
+	}
 	return time.Now().Format("2006.01.02")
 }
 
