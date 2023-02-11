@@ -94,28 +94,23 @@ func (s *SceneScore) checkPeriod(mn int) bool {
 	if !result {
 		return result
 	}
-	result = s.updateData(from, to)
-	if !result {
-		return result
-	}
+	s.updateData(from, to)
 	s.plotScore.Dirty = true
 	s.plotResult.Dirty = true
 	return result
 }
 
-func (s *SceneScore) updateData(from, to string) bool {
+func (s *SceneScore) updateData(from, to string) {
 	data.GetDb().ReadAllGamesForScoresByDays(s.scorePeriod.Len(), from, to)
 	_, str := data.GetDb().ReadAllGamesScore(s.scorePeriod.Len(), from, to)
 	if s.scorePeriod == data.Day {
 		data.GetDb().ReadTodayGames(from)
 		str = data.GetDb().TodayData.String()
-		fmt.Println(str)
-		if len(str) == 0 {
-			return false
+		if len(str) <= 10 {
+			str = from
 		}
 	}
 	s.lblPeriodResult.SetText(str)
-	return true
 }
 
 func (s *SceneScore) Draw(surface *ebiten.Image) {
