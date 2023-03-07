@@ -43,17 +43,23 @@ func (s *SceneGame) Entered() {
 }
 
 func (s *SceneGame) initGame() {
-	var ss string
 	s.count = data.GetDb().TodayGamesCount
+	var count int
 	if s.count > 0 {
 		s.level, s.lives, _ = data.GetDb().TodayData[s.count].NextLevel()
-		ss = fmt.Sprintf("#%v ", s.count+1)
+		count = s.count + 1
 	} else {
 		s.count = 1
 		s.level = ui.GetPreferences().Get("default level").(int)
 		s.lives = ui.GetPreferences().Get("threshold fallback sessions").(int)
-		ss = fmt.Sprintf("#%v ", s.count)
+		count = s.count
 	}
+	s.parseResult(count)
+}
+
+func (s *SceneGame) parseResult(count int) {
+	var ss string
+	ss += fmt.Sprintf("#%v ", count)
 	ss += fmt.Sprintf("%v %v %v.", ui.GetLocale().Get("btnStart"), s.level, ui.GetLocale().Get("wordstepback"))
 	res := ""
 	tp := ui.GetPreferences().Get("game type").(string)
@@ -160,6 +166,33 @@ func (s *SceneGame) Update(dt int) {
 			ss := fmt.Sprintf("%v %v %v %v %v", ui.GetLocale().Get("dec"), ui.GetLocale().Get("opttmnc"), ui.GetLocale().Get("by"), curPause, ui.GetLocale().Get("sec"))
 			ui.GetUi().ShowNotification(ss)
 			log.Println(ss)
+		}
+	} else if inpututil.IsKeyJustReleased(ebiten.KeyR) {
+		if !s.board.InGame {
+			s.level = ui.GetPreferences().Get("default level").(int)
+			s.parseResult(s.count)
+			ss := fmt.Sprintf("Обнулен уровень нназад на уровень по умолчанию на %v", s.level)
+			ui.GetUi().ShowNotification(ss)
+		}
+	} else if inpututil.IsKeyJustReleased(ebiten.KeyF1) {
+		if !s.board.InGame {
+			values, _ := data.GetDb().ReadAllGamesScore(0, "", "")
+			max := values.Max
+			if max > s.level {
+				s.level += 1
+			}
+			s.parseResult(s.count)
+			ss := fmt.Sprintf("Увеличен уровень нназад на %v", s.level)
+			ui.GetUi().ShowNotification(ss)
+		}
+	} else if inpututil.IsKeyJustReleased(ebiten.KeyF2) {
+		if !s.board.InGame {
+			if s.level > 1 {
+				s.level -= 1
+				s.parseResult(s.count)
+				ss := fmt.Sprintf("Уменьшен уровень нназад на %v", s.level)
+				ui.GetUi().ShowNotification(ss)
+			}
 		}
 	}
 	if s.board.InGame {
