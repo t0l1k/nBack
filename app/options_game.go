@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -174,21 +175,27 @@ func NewGameOpt() *GameOpt {
 		}
 	}
 	s.optTmNextCell = ui.NewCombobox(ui.GetLocale().Get("opttmnc"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrTimeNextCell, idx, func(b *ui.Combobox) {
-		tmnc := s.pref.Get("time to next cell").(float64)
-		tmsc := s.pref.Get("time to show cell").(float64)
-		if tmnc-0.5 > tmsc {
-			s.pref.Set("time to next cell", s.optTmNextCell.Value().(float64))
-		}
+		s.pref.Set("time to next cell", s.optTmNextCell.Value().(float64))
 	})
 	s.Add(s.optTmNextCell)
 
-	arrShow := []interface{}{0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5}
-	idx = 0
+	arrShow := []interface{}{50, 65, 75, 85, 90}
+	value := int(s.pref.Get("time to show cell").(float64) * 100)
+	for i, v := range arrShow {
+		if v == value {
+			idx = i
+			fmt.Println("OK!!!", value, idx)
+		}
+	}
 	s.optTmShowCell = ui.NewCombobox(ui.GetLocale().Get("opttmsc"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrShow, idx, func(b *ui.Combobox) {
-		tmnc := s.pref.Get("time to next cell").(float64)
-		value := s.optTmShowCell.Value().(float64)
-		if value < tmnc {
-			s.pref.Set("time to show cell", value)
+		value := s.optTmShowCell.Value().(int)
+		if value < arrShow[0].(int) { // support prev version
+			s.pref.Set("time to show cell", 0.85)
+			log.Println("Reset new time show cell", 0.85)
+		} else {
+			val := float64(value) / 100
+			s.pref.Set("time to show cell", val)
+			log.Println("Setup new time show cell", val)
 		}
 	})
 	s.Add(s.optTmShowCell)

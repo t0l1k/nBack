@@ -91,7 +91,7 @@ func (s *ClassicOpt) Reset(b *ui.Button) {
 
 func (s *ClassicOpt) Apply(b *ui.Button) {
 	s.pref.Set("time to next cell", 3.0)
-	s.pref.Set("time to show cell", 2.5)
+	s.pref.Set("time to show cell", 0.75)
 	s.pref.Set("trials", 20) //20 classic = trials+factor*level**exponent
 	s.pref.Set("trials factor", 1)
 	s.pref.Set("trials exponent", 2)

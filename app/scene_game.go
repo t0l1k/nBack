@@ -22,7 +22,7 @@ type SceneGame struct {
 	board                                                    *game.Board
 	count, level, lives                                      int
 	delayBeginCellShow, delayBeginCellHide                   int
-	timeToNextCell, timeShowCell                             int
+	timeToNextCell                                           int
 	paused                                                   bool
 	ui.ContainerDefault
 }
@@ -84,14 +84,16 @@ func (s *SceneGame) parseResult(count int) {
 }
 func (s *SceneGame) initGameTimers() {
 	s.timeToNextCell = int(ui.GetPreferences().Get("time to next cell").(float64) * 1000)
-	s.timeShowCell = int(ui.GetPreferences().Get("time to show cell").(float64) * 1000)
-	if s.timeShowCell+500 > s.timeToNextCell {
-		s.timeShowCell = s.timeToNextCell - 500
+	tm := ui.GetPreferences().Get("time to show cell").(float64)
+	if tm > 0.9 {
+		tm = 0.85
 	}
+	timeShowCell := int(float64(s.timeToNextCell) * tm)
 	s.stopper = 0
-	delay := (s.timeToNextCell - s.timeShowCell) / 2
+	delay := (s.timeToNextCell - timeShowCell) / 2
 	s.delayBeginCellShow = delay
-	s.delayBeginCellHide = delay + s.timeShowCell
+	s.delayBeginCellHide = delay + timeShowCell
+	log.Println("init board tm:", tm, s.timeToNextCell, timeShowCell, delay, s.delayBeginCellShow, s.delayBeginCellHide)
 }
 
 func (s *SceneGame) initUi() {
@@ -150,7 +152,6 @@ func (s *SceneGame) Update(dt int) {
 		if curPause < 5 {
 			curPause += 0.5
 			ui.GetPreferences().Set("time to next cell", curPause)
-			ui.GetPreferences().Set("time to show cell", curPause-0.5)
 			s.initGameTimers()
 			ss := fmt.Sprintf("%v %v %v %v %v", ui.GetLocale().Get("inc"), ui.GetLocale().Get("opttmnc"), ui.GetLocale().Get("by"), curPause, ui.GetLocale().Get("sec"))
 			ui.GetUi().ShowNotification(ss)
@@ -161,7 +162,6 @@ func (s *SceneGame) Update(dt int) {
 		if curPause >= 1.5 {
 			curPause -= 0.5
 			ui.GetPreferences().Set("time to next cell", curPause)
-			ui.GetPreferences().Set("time to show cell", curPause-0.5)
 			s.initGameTimers()
 			ss := fmt.Sprintf("%v %v %v %v %v", ui.GetLocale().Get("dec"), ui.GetLocale().Get("opttmnc"), ui.GetLocale().Get("by"), curPause, ui.GetLocale().Get("sec"))
 			ui.GetUi().ShowNotification(ss)
