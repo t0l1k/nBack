@@ -9,10 +9,10 @@ import (
 
 type SceneOptions struct {
 	ui.ContainerDefault
-	topBar                                           *TopBarOpt
-	lblSelectGame, lblSelectOptios                   *ui.Label
-	btnAppOpt, btnGameOpt, btnClassicGame, btnManual *ui.Button
-	btnMoves, btnThreePigs, btnUglyDuck, btnModals   *ui.Button
+	topBar                                                          *TopBarOpt
+	lblSelectGame, lblSelectOptios                                  *ui.Label
+	btnAppOpt, btnGameOpt, btnClassicGame, btnJaeggiGame, btnManual *ui.Button
+	btnMoves, btnThreePigs, btnUglyDuck, btnModals                  *ui.Button
 }
 
 func NewSceneOptions() *SceneOptions {
@@ -42,6 +42,11 @@ func NewSceneOptions() *SceneOptions {
 		ui.Push(NewClassicOpt())
 	})
 	s.Add(s.btnClassicGame)
+
+	s.btnJaeggiGame = ui.NewButton("Jaeggi nBack mode", rect, ui.Fuchsia, ui.GetTheme().Get("fg"), func(b *ui.Button) {
+		ui.Push(NewJaeggiOpt())
+	})
+	s.Add(s.btnJaeggiGame)
 
 	s.btnManual = ui.NewButton("Играть на ручнике", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) {
 		ui.Push(NewManualOpt())
@@ -100,6 +105,8 @@ func (s *SceneOptions) Resize() {
 	s.lblSelectGame.Resize([]int{x, y, w1, hTop - 2})
 	y += hTop
 	s.btnClassicGame.Resize([]int{x, y, w1, hTop - 2})
+	y += hTop
+	s.btnJaeggiGame.Resize([]int{x, y, w1, hTop - 2})
 	y += hTop
 	s.btnManual.Resize([]int{x, y, w1, hTop - 2})
 	y += hTop
