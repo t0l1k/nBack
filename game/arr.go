@@ -42,7 +42,7 @@ func genArr(moves int, pref *ui.Preferences) (a []int) {
 	for len(a) < moves {
 		gt := pref.Get("game type").(string)
 		if gt == Pos {
-			num = rand.Intn((dim * dim) - 1)
+			num = rand.Intn((dim * dim))
 			if num != center && !pref.Get("use center cell").(bool) || pref.Get("use center cell").(bool) {
 				a = append(a, num)
 			}
