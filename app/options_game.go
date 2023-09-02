@@ -63,7 +63,7 @@ func NewGameOpt() *GameOpt {
 	})
 	s.Add(s.optShowCross)
 
-	lvls := []interface{}{3, 4, 5, 6, 7}
+	lvls := []interface{}{2, 3, 4, 5, 6, 7, 8, 9}
 	idx := 1
 	s.optGridSize = ui.NewCombobox(ui.GetLocale().Get("optgridsz"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), lvls, idx, func(c *ui.Combobox) {
 		s.pref.Set("grid size", s.optGridSize.Value().(int))
