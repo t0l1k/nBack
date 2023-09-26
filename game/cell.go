@@ -7,11 +7,11 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 )
 
 type Cell struct {
-	rect                                      *ui.Rect
+	rect                                      *eui.Rect
 	Image                                     *ebiten.Image
 	Dirty, Visibe, DrawRect, IsCenter, Active bool
 	bg, fg, activeColor                       color.Color
@@ -23,7 +23,7 @@ type Cell struct {
 
 func NewCell(rect []int, isCenter bool, bg, fg, activeColor color.Color) *Cell {
 	return &Cell{
-		rect:        ui.NewRect(rect),
+		rect:        eui.NewRect(rect),
 		Image:       nil,
 		IsCenter:    isCenter,
 		Dirty:       true,
@@ -55,11 +55,11 @@ func (c *Cell) Layout() {
 	}
 	if c.sym > 0 && c.Active && !c.ariphmetic {
 		res := fmt.Sprintf("%v", strconv.Itoa(c.sym))
-		l := ui.NewLabel(res, []int{0, 0, w, h}, c.bg, c.activeColor)
+		l := eui.NewLabel(res, []int{0, 0, w, h}, c.bg, c.activeColor)
 		defer l.Close()
 		l.Draw(c.Image)
 	} else if c.sym > 0 && c.Active && c.ariphmetic {
-		l := ui.NewLabel(c.text, []int{0, 0, w, h}, c.bg, c.activeColor)
+		l := eui.NewLabel(c.text, []int{0, 0, w, h}, c.bg, c.activeColor)
 		defer l.Close()
 		l.Draw(c.Image)
 	}
@@ -94,7 +94,7 @@ func (c *Cell) SetSymbol(value int) {
 
 func (c *Cell) SetAriphmetic(value int) {
 	c.ariphmetic = true
-	max := ui.GetPreferences().Get("ariphmetic max").(int)
+	max := eui.GetPreferences().Get("ariphmetic max").(int)
 	c.sym = value
 	oper := NewOperation()
 	oper.Rand()
@@ -121,7 +121,7 @@ func (c *Cell) Draw(surface *ebiten.Image) {
 }
 
 func (c *Cell) Resize(rect []int) {
-	c.rect = ui.NewRect(rect)
+	c.rect = eui.NewRect(rect)
 	c.Dirty = true
 	c.Image = nil
 }

@@ -1,30 +1,31 @@
-package app
+package options
 
 import (
 	"fmt"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/data"
 	"github.com/t0l1k/nBack/game"
+	"github.com/t0l1k/nBack/ui/app"
 )
 
 type ClassicOpt struct {
-	ui.ContainerDefault
+	eui.ContainerDefault
 	topBar                   *TopBarOpt
-	lblResult                *ui.Label
-	optDefLevel, optGameType *ui.Combobox
-	pref                     *ui.Preferences
+	lblResult                *eui.Label
+	optDefLevel, optGameType *eui.Combobox
+	pref                     *eui.Preferences
 }
 
 func NewClassicOpt() *ClassicOpt {
 	s := &ClassicOpt{}
-	s.pref = LoadPreferences()
+	s.pref = app.LoadPreferences()
 	rect := []int{0, 0, 1, 1}
 	s.topBar = NewTopBarOpt(s.Reset, s.Apply)
 	s.Add(s.topBar)
-	s.lblResult = ui.NewLabel("Classic NBack rulez", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.lblResult = eui.NewLabel("Classic NBack rulez", rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"))
 	s.Add(s.lblResult)
 	values, _ := data.GetDb().ReadAllGamesScore(0, "", "")
 	max := values.Max
@@ -39,7 +40,7 @@ func NewClassicOpt() *ClassicOpt {
 			current = i - 1
 		}
 	}
-	s.optDefLevel = ui.NewCombobox(ui.GetLocale().Get("optdeflev"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arr, current, func(c *ui.Combobox) {
+	s.optDefLevel = eui.NewCombobox(eui.GetLocale().Get("optdeflev"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arr, current, func(c *eui.Combobox) {
 		s.pref.Set("default level", s.optDefLevel.Value().(int))
 		s.lblResult.SetText(fmt.Sprintf("Выбрать игру классический NBack уровень:%v, %v, ходов:%v", s.pref.Get("default level").(int), s.getGameType(), game.TotalMoves(s.pref.Get("default level").(int))))
 	})
@@ -47,7 +48,7 @@ func NewClassicOpt() *ClassicOpt {
 
 	gamesType := []interface{}{game.Pos, game.Col, game.Sym, game.Ari}
 	idx := 0
-	s.optGameType = ui.NewCombobox(s.getGameType(), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), gamesType, idx, func(b *ui.Combobox) {
+	s.optGameType = eui.NewCombobox(s.getGameType(), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), gamesType, idx, func(b *eui.Combobox) {
 		s.pref.Set("game type", s.optGameType.Value().(string))
 		s.optGameType.SetText(s.getGameType())
 		s.lblResult.SetText(fmt.Sprintf("Выбрать игру классический NBack уровень:%v, %v, ходов:%v", s.pref.Get("default level").(int), s.getGameType(), game.TotalMoves(s.pref.Get("default level").(int))))
@@ -59,22 +60,22 @@ func NewClassicOpt() *ClassicOpt {
 }
 
 func (s *ClassicOpt) getGameType() string {
-	result := ui.GetLocale().Get("optgmtp") + " "
-	tp := ui.GetPreferences().Get("game type").(string)
+	result := eui.GetLocale().Get("optgmtp") + " "
+	tp := eui.GetPreferences().Get("game type").(string)
 	switch tp {
 	case game.Pos:
-		result += ui.GetLocale().Get("optpos")
+		result += eui.GetLocale().Get("optpos")
 	case game.Col:
-		result += ui.GetLocale().Get("optcol")
+		result += eui.GetLocale().Get("optcol")
 	case game.Sym:
-		result += ui.GetLocale().Get("optsym")
+		result += eui.GetLocale().Get("optsym")
 	case game.Ari:
-		result += ui.GetLocale().Get("optari")
+		result += eui.GetLocale().Get("optari")
 	}
 	return result
 }
 
-func (s *ClassicOpt) Setup(sets *ui.Preferences) {
+func (s *ClassicOpt) Setup(sets *eui.Preferences) {
 	sets.Set("trials", 20)
 	sets.Set("trials factor", 1)
 	sets.Set("trials exponent", 2)
@@ -83,13 +84,13 @@ func (s *ClassicOpt) Setup(sets *ui.Preferences) {
 	s.lblResult.SetText(fmt.Sprintf("Выбрать игру классический NBack уровень:%v, %v, ходов:%v", sets.Get("default level").(int), s.getGameType(), game.TotalMoves(s.pref.Get("default level").(int))))
 }
 
-func (s *ClassicOpt) Reset(b *ui.Button) {
-	s.pref = ui.GetUi().ApplyPreferences(NewPref())
+func (s *ClassicOpt) Reset(b *eui.Button) {
+	s.pref = eui.GetUi().ApplyPreferences(app.NewPref())
 	s.Setup(s.pref)
 	log.Println("Reset All Options to Defaults")
 }
 
-func (s *ClassicOpt) Apply(b *ui.Button) {
+func (s *ClassicOpt) Apply(b *eui.Button) {
 	s.pref.Set("time to next cell", 3.0)
 	s.pref.Set("time to show cell", 0.75)
 	s.pref.Set("trials", 20) //20 classic = trials+factor*level**exponent
@@ -102,7 +103,7 @@ func (s *ClassicOpt) Apply(b *ui.Button) {
 	s.pref.Set("manual mode", false)
 	data.GetDb().InsertSettings(s.pref)
 	log.Println("Apply Settings")
-	ui.Pop()
+	eui.Pop()
 }
 
 func (r *ClassicOpt) Update(dt int) {
@@ -118,15 +119,15 @@ func (r *ClassicOpt) Draw(surface *ebiten.Image) {
 }
 
 func (s *ClassicOpt) Entered() {
-	s.Setup(LoadPreferences())
+	s.Setup(app.LoadPreferences())
 	s.Resize()
 }
 
 func (s *ClassicOpt) Resize() {
 	s.topBar.Resize()
-	w, h := ui.GetUi().GetScreenSize()
+	w, h := eui.GetUi().GetScreenSize()
 	hTop := int(float64(h) * 0.05)
-	rect := ui.NewRect([]int{0, hTop, w, h - hTop})
+	rect := eui.NewRect([]int{0, hTop, w, h - hTop})
 	w1, h1 := int(float64(w)*0.6), rect.H/2-hTop*6
 	x, y := rect.CenterX()-w1/2, hTop
 	y += h1

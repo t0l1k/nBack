@@ -1,4 +1,4 @@
-package app
+package options
 
 import (
 	"fmt"
@@ -6,29 +6,30 @@ import (
 	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/data"
 	"github.com/t0l1k/nBack/game"
+	"github.com/t0l1k/nBack/ui/app"
 )
 
 type MovesOpt struct {
-	ui.ContainerDefault
+	eui.ContainerDefault
 	topBar                            *TopBarOpt
-	lblResult                         *ui.Label
-	optDefLevel                       *ui.Combobox
-	optTrials, optFactor, optExponent *ui.Combobox
-	pref                              *ui.Preferences
+	lblResult                         *eui.Label
+	optDefLevel                       *eui.Combobox
+	optTrials, optFactor, optExponent *eui.Combobox
+	pref                              *eui.Preferences
 	dirty                             bool
 }
 
 func NewMovesOpt() *MovesOpt {
 	s := &MovesOpt{}
-	s.pref = LoadPreferences()
+	s.pref = app.LoadPreferences()
 	rect := []int{0, 0, 1, 1}
 	s.topBar = NewTopBarOpt(s.Reset, s.Apply)
 	s.Add(s.topBar)
 
-	s.lblResult = ui.NewLabel("Moves:", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.lblResult = eui.NewLabel("Moves:", rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"))
 	s.Add(s.lblResult)
 
 	values, _ := data.GetDb().ReadAllGamesScore(0, "", "")
@@ -44,7 +45,7 @@ func NewMovesOpt() *MovesOpt {
 			current = i - 1
 		}
 	}
-	s.optDefLevel = ui.NewCombobox(ui.GetLocale().Get("optdeflev"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arr, current, func(c *ui.Combobox) {
+	s.optDefLevel = eui.NewCombobox(eui.GetLocale().Get("optdeflev"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arr, current, func(c *eui.Combobox) {
 		s.pref.Set("default level", s.optDefLevel.Value().(int))
 		s.dirty = true
 	})
@@ -52,7 +53,7 @@ func NewMovesOpt() *MovesOpt {
 
 	arrTrials := []interface{}{5, 10, 20, 30, 50}
 	idx := 0
-	s.optTrials = ui.NewCombobox(ui.GetLocale().Get("optmv"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrTrials, idx, func(b *ui.Combobox) {
+	s.optTrials = eui.NewCombobox(eui.GetLocale().Get("optmv"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arrTrials, idx, func(b *eui.Combobox) {
 		s.pref.Set("trials", s.optTrials.Value().(int))
 		s.dirty = true
 	})
@@ -60,7 +61,7 @@ func NewMovesOpt() *MovesOpt {
 
 	arrFactor := []interface{}{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	idx = 0
-	s.optFactor = ui.NewCombobox(ui.GetLocale().Get("optfc"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrFactor, idx, func(b *ui.Combobox) {
+	s.optFactor = eui.NewCombobox(eui.GetLocale().Get("optfc"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arrFactor, idx, func(b *eui.Combobox) {
 		s.pref.Set("trials factor", s.optFactor.Value().(int))
 		s.dirty = true
 	})
@@ -68,7 +69,7 @@ func NewMovesOpt() *MovesOpt {
 
 	arrExp := []interface{}{1, 2, 3}
 	idx = 1
-	s.optExponent = ui.NewCombobox(ui.GetLocale().Get("optexp"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrExp, idx, func(b *ui.Combobox) {
+	s.optExponent = eui.NewCombobox(eui.GetLocale().Get("optexp"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arrExp, idx, func(b *eui.Combobox) {
 		s.pref.Set("trials exponent", s.optExponent.Value().(int))
 		s.dirty = true
 	})
@@ -76,7 +77,7 @@ func NewMovesOpt() *MovesOpt {
 	return s
 }
 
-func (s *MovesOpt) Setup(sets *ui.Preferences) {
+func (s *MovesOpt) Setup(sets *eui.Preferences) {
 	level := sets.Get("default level").(int)
 	s.optDefLevel.SetValue(level)
 	s.optTrials.SetValue(sets.Get("trials").(int))
@@ -86,16 +87,16 @@ func (s *MovesOpt) Setup(sets *ui.Preferences) {
 	s.lblResult.SetText(fmt.Sprintf("Ходов на уровне %v будет %v", level, strconv.Itoa(moves)))
 }
 
-func (s *MovesOpt) Reset(b *ui.Button) {
-	s.pref = ui.GetUi().ApplyPreferences(NewPref())
+func (s *MovesOpt) Reset(b *eui.Button) {
+	s.pref = eui.GetUi().ApplyPreferences(app.NewPref())
 	s.Setup(s.pref)
 	log.Println("Reset All Options to Defaults")
 }
 
-func (s *MovesOpt) Apply(b *ui.Button) {
+func (s *MovesOpt) Apply(b *eui.Button) {
 	data.GetDb().InsertSettings(s.pref)
 	log.Println("Apply Settings")
-	ui.Pop()
+	eui.Pop()
 }
 
 func (r *MovesOpt) Update(dt int) {
@@ -114,15 +115,15 @@ func (r *MovesOpt) Draw(surface *ebiten.Image) {
 }
 
 func (s *MovesOpt) Entered() {
-	s.Setup(LoadPreferences())
+	s.Setup(app.LoadPreferences())
 	s.Resize()
 }
 
 func (s *MovesOpt) Resize() {
 	s.topBar.Resize()
-	w, h := ui.GetUi().GetScreenSize()
+	w, h := eui.GetUi().GetScreenSize()
 	hTop := int(float64(h) * 0.05)
-	rect := ui.NewRect([]int{0, hTop, w, h - hTop})
+	rect := eui.NewRect([]int{0, hTop, w, h - hTop})
 	w1, h1 := int(float64(w)*0.6), rect.H/2-hTop*6
 	x, y := rect.CenterX()-w1/2, hTop
 	y += h1

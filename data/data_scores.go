@@ -6,7 +6,7 @@ import (
 	"sort"
 	"time"
 
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 )
 
 type ScoreData struct {
@@ -19,11 +19,11 @@ func (s *ScoreData) String() string {
 	dtFormat := "2006-01-02"
 	return fmt.Sprintf("%v %v:%v %v:%v %v:%v",
 		s.Dt.Format(dtFormat),
-		ui.GetLocale().Get("wordGames"),
+		eui.GetLocale().Get("wordGames"),
 		s.Games,
-		ui.GetLocale().Get("wordMax"),
+		eui.GetLocale().Get("wordMax"),
 		s.Max,
-		ui.GetLocale().Get("wordAvg"),
+		eui.GetLocale().Get("wordAvg"),
 		s.Avg)
 }
 

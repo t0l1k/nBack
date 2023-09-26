@@ -1,37 +1,38 @@
-package app
+package options
 
 import (
 	"fmt"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/data"
 	"github.com/t0l1k/nBack/game"
+	"github.com/t0l1k/nBack/ui/app"
 )
 
 type OptUglyDuck struct {
-	ui.ContainerDefault
+	eui.ContainerDefault
 	topBar                   *TopBarOpt
-	lblResult                *ui.Label
-	optDefLevel, optGameType *ui.Combobox
-	optResetOnWrong          *ui.Checkbox
-	pref                     *ui.Preferences
+	lblResult                *eui.Label
+	optDefLevel, optGameType *eui.Combobox
+	optResetOnWrong          *eui.Checkbox
+	pref                     *eui.Preferences
 }
 
 func NewOptUglyDuck() *OptUglyDuck {
 	s := &OptUglyDuck{}
-	s.pref = LoadPreferences()
+	s.pref = app.LoadPreferences()
 	rect := []int{0, 0, 1, 1}
 	s.topBar = NewTopBarOpt(s.Reset, s.Apply)
 	s.Add(s.topBar)
 
-	s.lblResult = ui.NewLabel("Manual mode", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.lblResult = eui.NewLabel("Manual mode", rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"))
 	s.Add(s.lblResult)
 
 	gamesType := []interface{}{game.Pos, game.Col, game.Sym, game.Ari}
 	idx := 0
-	s.optGameType = ui.NewCombobox(s.getGameType(), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), gamesType, idx, func(b *ui.Combobox) {
+	s.optGameType = eui.NewCombobox(s.getGameType(), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), gamesType, idx, func(b *eui.Combobox) {
 		s.pref.Set("game type", s.optGameType.Value().(string))
 		s.optGameType.SetText(s.getGameType())
 		s.lblResult.SetText(fmt.Sprintf("Выбрать играть преобразить гадкого утенка уовень:%v, %v, ходов:%v", s.pref.Get("default level").(int), s.getGameType(), game.TotalMoves(s.pref.Get("default level").(int))))
@@ -52,13 +53,13 @@ func NewOptUglyDuck() *OptUglyDuck {
 			current = i - 1
 		}
 	}
-	s.optDefLevel = ui.NewCombobox(ui.GetLocale().Get("optdeflev"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arr, current, func(c *ui.Combobox) {
+	s.optDefLevel = eui.NewCombobox(eui.GetLocale().Get("optdeflev"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arr, current, func(c *eui.Combobox) {
 		s.pref.Set("default level", s.optDefLevel.Value().(int))
 		s.lblResult.SetText(fmt.Sprintf("Выбрать играть преобразить гадкого утенка уовень:%v, %v, ходов:%v", s.pref.Get("default level").(int), s.getGameType(), game.TotalMoves(s.pref.Get("default level").(int))))
 	})
 	s.Add(s.optDefLevel)
 
-	s.optResetOnWrong = ui.NewCheckbox(ui.GetLocale().Get("optreset"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), func(c *ui.Checkbox) {
+	s.optResetOnWrong = eui.NewCheckbox(eui.GetLocale().Get("optreset"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), func(c *eui.Checkbox) {
 		s.pref.Set("reset on first wrong", s.optResetOnWrong.Checked())
 		log.Printf("Reset on wrong: %v", s.pref.Get("reset on first wrong").(bool))
 	})
@@ -68,22 +69,22 @@ func NewOptUglyDuck() *OptUglyDuck {
 }
 
 func (s *OptUglyDuck) getGameType() string {
-	result := ui.GetLocale().Get("optgmtp") + " "
-	tp := ui.GetPreferences().Get("game type").(string)
+	result := eui.GetLocale().Get("optgmtp") + " "
+	tp := eui.GetPreferences().Get("game type").(string)
 	switch tp {
 	case game.Pos:
-		result += ui.GetLocale().Get("optpos")
+		result += eui.GetLocale().Get("optpos")
 	case game.Col:
-		result += ui.GetLocale().Get("optcol")
+		result += eui.GetLocale().Get("optcol")
 	case game.Sym:
-		result += ui.GetLocale().Get("optsym")
+		result += eui.GetLocale().Get("optsym")
 	case game.Ari:
-		result += ui.GetLocale().Get("optari")
+		result += eui.GetLocale().Get("optari")
 	}
 	return result
 }
 
-func (s *OptUglyDuck) Setup(sets *ui.Preferences) {
+func (s *OptUglyDuck) Setup(sets *eui.Preferences) {
 	s.optGameType.SetValue(sets.Get("game type").(string))
 	s.optDefLevel.SetValue(sets.Get("default level").(int))
 	sets.Set("manual advance", 1)
@@ -92,16 +93,16 @@ func (s *OptUglyDuck) Setup(sets *ui.Preferences) {
 	s.lblResult.SetText(fmt.Sprintf("Выбрать играть преобразить гадкого утенка уровень:%v, %v, ходов:%v", sets.Get("default level").(int), s.getGameType(), game.TotalMoves(sets.Get("default level").(int))))
 }
 
-func (s *OptUglyDuck) Reset(b *ui.Button) {
-	s.pref = ui.GetUi().ApplyPreferences(NewPref())
+func (s *OptUglyDuck) Reset(b *eui.Button) {
+	s.pref = eui.GetUi().ApplyPreferences(app.NewPref())
 	s.Setup(s.pref)
 	log.Println("Reset All Options to Defaults")
 }
 
-func (s *OptUglyDuck) Apply(b *ui.Button) {
+func (s *OptUglyDuck) Apply(b *eui.Button) {
 	data.GetDb().InsertSettings(s.pref)
 	log.Println("Apply Settings")
-	ui.Pop()
+	eui.Pop()
 }
 
 func (r *OptUglyDuck) Update(dt int) {
@@ -117,15 +118,15 @@ func (r *OptUglyDuck) Draw(surface *ebiten.Image) {
 }
 
 func (s *OptUglyDuck) Entered() {
-	s.Setup(LoadPreferences())
+	s.Setup(app.LoadPreferences())
 	s.Resize()
 }
 
 func (s *OptUglyDuck) Resize() {
 	s.topBar.Resize()
-	w, h := ui.GetUi().GetScreenSize()
+	w, h := eui.GetUi().GetScreenSize()
 	hTop := int(float64(h) * 0.05)
-	rect := ui.NewRect([]int{0, hTop, w, h - hTop})
+	rect := eui.NewRect([]int{0, hTop, w, h - hTop})
 	w1, h1 := int(float64(w)*0.6), rect.H/2-hTop*6
 	x, y := rect.CenterX()-w1/2, hTop
 	y += h1

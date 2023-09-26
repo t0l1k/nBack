@@ -5,13 +5,13 @@ import (
 	"log"
 	"os"
 
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/data"
 	"github.com/t0l1k/nBack/game"
 )
 
-func NewGame() *ui.Ui {
-	ui := ui.GetUi()
+func NewGame() *eui.Ui {
+	ui := eui.GetUi()
 	ui.SetTitle("Single NBack")
 	ui.ApplyPreferences(LoadPreferences())
 	ui.ApplyTheme(NewTheme())
@@ -19,31 +19,31 @@ func NewGame() *ui.Ui {
 	return ui
 }
 
-func LoadPreferences() *ui.Preferences {
-	if ui.GetPreferences() == nil {
+func LoadPreferences() *eui.Preferences {
+	if eui.GetPreferences() == nil {
 		if _, err := os.Stat("games.db"); errors.Is(err, os.ErrNotExist) {
 			log.Println("Load default settings")
 			sets := NewPref()
-			ui.GetUi().SetFullscreen(sets.Get("fullscreen").(bool))
+			eui.GetUi().SetFullscreen(sets.Get("fullscreen").(bool))
 			return sets
 		} else {
 			if sets := data.GetDb().ReadSettings(); sets == nil {
 				log.Println("Load default settings")
 				sets := NewPref()
-				ui.GetUi().SetFullscreen(sets.Get("fullscreen").(bool))
+				eui.GetUi().SetFullscreen(sets.Get("fullscreen").(bool))
 				return sets
 			} else {
 				log.Println("Load saved settings", sets)
-				ui.GetUi().SetFullscreen(sets.Get("fullscreen").(bool))
+				eui.GetUi().SetFullscreen(sets.Get("fullscreen").(bool))
 				return sets
 			}
 		}
 	}
-	return ui.GetPreferences()
+	return eui.GetPreferences()
 }
 
-func NewPref() *ui.Preferences {
-	p := ui.NewPreferences()
+func NewPref() *eui.Preferences {
+	p := eui.NewPreferences()
 	p.Set("fullscreen", false)
 	p.Set("game type", game.Ari)
 	p.Set("time to next cell", 3.0)
@@ -71,22 +71,22 @@ func NewPref() *ui.Preferences {
 	return &p
 }
 
-func NewTheme() *ui.Theme {
-	theme := ui.NewTheme()
-	theme.Set("bg", ui.Gray)
-	theme.Set("fg", ui.White)
-	theme.Set("game bg", ui.Black)
-	theme.Set("game fg", ui.Gray)
-	theme.Set("game active color", ui.Yellow)
-	theme.Set("regular color", ui.Blue)
-	theme.Set("correct color", ui.Green)
-	theme.Set("warning color", ui.Orange)
-	theme.Set("error color", ui.Red)
+func NewTheme() *eui.Theme {
+	theme := eui.NewTheme()
+	theme.Set("bg", eui.Gray)
+	theme.Set("fg", eui.White)
+	theme.Set("game bg", eui.Black)
+	theme.Set("game fg", eui.Gray)
+	theme.Set("game active color", eui.Yellow)
+	theme.Set("regular color", eui.Blue)
+	theme.Set("correct color", eui.Green)
+	theme.Set("warning color", eui.Orange)
+	theme.Set("error color", eui.Red)
 	return &theme
 }
 
-func NewLocale() *ui.Locale {
-	lang := ui.GetPreferences().Get("lang")
+func NewLocale() *eui.Locale {
+	lang := eui.GetPreferences().Get("lang")
 	log.Printf("Setup Locale for %v", lang)
 	switch lang {
 	case "ru":
@@ -96,8 +96,8 @@ func NewLocale() *ui.Locale {
 	}
 }
 
-func NewLocaleEn() *ui.Locale {
-	loc := ui.NewLocale()
+func NewLocaleEn() *eui.Locale {
+	loc := eui.NewLocale()
 	loc.Set("AppName", "N-Back")
 	loc.Set("btnStart", "Play")
 	loc.Set("btnScore", "Score")
@@ -171,8 +171,8 @@ func NewLocaleEn() *ui.Locale {
 	return &loc
 }
 
-func NewLocaleRu() *ui.Locale {
-	loc := ui.NewLocale()
+func NewLocaleRu() *eui.Locale {
+	loc := eui.NewLocale()
 	loc.Set("AppName", "Н-Назад")
 	loc.Set("btnStart", "Играть")
 	loc.Set("btnScore", "Итог")

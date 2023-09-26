@@ -1,4 +1,4 @@
-package app
+package options
 
 import (
 	"fmt"
@@ -6,35 +6,36 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/data"
 	"github.com/t0l1k/nBack/game"
+	"github.com/t0l1k/nBack/ui/app"
 )
 
 type OptModals struct {
-	ui.ContainerDefault
+	eui.ContainerDefault
 	topBar                                   *TopBarOpt
-	lblResult                                *ui.Label
-	optGameType                              *ui.Combobox
-	optGridSize, optMaxSym, optMaxAriphmetic *ui.Combobox
-	optShowCross, optCenterCell, optShowGrid *ui.Checkbox
-	optColors                                *ui.Icon
-	pref                                     *ui.Preferences
+	lblResult                                *eui.Label
+	optGameType                              *eui.Combobox
+	optGridSize, optMaxSym, optMaxAriphmetic *eui.Combobox
+	optShowCross, optCenterCell, optShowGrid *eui.Checkbox
+	optColors                                *eui.Icon
+	pref                                     *eui.Preferences
 }
 
 func NewOptModals() *OptModals {
 	s := &OptModals{}
-	s.pref = LoadPreferences()
+	s.pref = app.LoadPreferences()
 	rect := []int{0, 0, 1, 1}
 	s.topBar = NewTopBarOpt(s.Reset, s.Apply)
 	s.Add(s.topBar)
 
-	s.lblResult = ui.NewLabel("Настройка модальности", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.lblResult = eui.NewLabel("Настройка модальности", rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"))
 	s.Add(s.lblResult)
 
 	gamesType := []interface{}{game.Pos, game.Col, game.Sym, game.Ari}
 	idx := 0
-	s.optGameType = ui.NewCombobox(s.getGameType(), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), gamesType, idx, func(b *ui.Combobox) {
+	s.optGameType = eui.NewCombobox(s.getGameType(), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), gamesType, idx, func(b *eui.Combobox) {
 		s.pref.Set("game type", s.optGameType.Value().(string))
 		s.selectWhatOptShow()
 		s.optGameType.SetText(s.getGameType())
@@ -42,30 +43,30 @@ func NewOptModals() *OptModals {
 	})
 	s.Add(s.optGameType)
 
-	s.optShowCross = ui.NewCheckbox(ui.GetLocale().Get("optcross"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), func(c *ui.Checkbox) {
+	s.optShowCross = eui.NewCheckbox(eui.GetLocale().Get("optcross"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), func(c *eui.Checkbox) {
 		s.pref.Set("show crosshair", s.optShowCross.Checked())
 		log.Printf("Show crosshair: %v", s.pref.Get("show crosshair").(bool))
 	})
 	s.Add(s.optShowCross)
 
 	arrMaxSymbols := []interface{}{10, 20, 50, 100, 200, 500, 1000}
-	s.optMaxSym = ui.NewCombobox(ui.GetLocale().Get("optmaxsym"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrMaxSymbols, 3, func(c *ui.Combobox) {
+	s.optMaxSym = eui.NewCombobox(eui.GetLocale().Get("optmaxsym"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arrMaxSymbols, 3, func(c *eui.Combobox) {
 		s.pref.Set("symbols count", s.optMaxSym.Value().(int))
 	})
 	s.Add(s.optMaxSym)
 
-	s.optMaxAriphmetic = ui.NewCombobox(ui.GetLocale().Get("optmaxari"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrMaxSymbols, 1, func(c *ui.Combobox) {
+	s.optMaxAriphmetic = eui.NewCombobox(eui.GetLocale().Get("optmaxari"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arrMaxSymbols, 1, func(c *eui.Combobox) {
 		s.pref.Set("ariphmetic max", s.optMaxAriphmetic.Value().(int))
 	})
 	s.Add(s.optMaxAriphmetic)
 
-	s.optCenterCell = ui.NewCheckbox(ui.GetLocale().Get("optcc"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), func(c *ui.Checkbox) {
+	s.optCenterCell = eui.NewCheckbox(eui.GetLocale().Get("optcc"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), func(c *eui.Checkbox) {
 		s.pref.Set("use center cell", s.optCenterCell.Checked())
 		log.Printf("Use center cell: %v", s.pref.Get("use center cell").(bool))
 	})
 	s.Add(s.optCenterCell)
 
-	s.optShowGrid = ui.NewCheckbox(ui.GetLocale().Get("optgrid"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), func(c *ui.Checkbox) {
+	s.optShowGrid = eui.NewCheckbox(eui.GetLocale().Get("optgrid"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), func(c *eui.Checkbox) {
 		s.pref.Set("show grid", s.optShowGrid.Checked())
 		log.Printf("Show Grid: %v", s.pref.Get("show grid").(bool))
 	})
@@ -73,13 +74,13 @@ func NewOptModals() *OptModals {
 
 	lvls := []interface{}{2, 3, 4, 5, 6, 7, 8, 9}
 	idx = 1
-	s.optGridSize = ui.NewCombobox(ui.GetLocale().Get("optgridsz"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), lvls, idx, func(c *ui.Combobox) {
+	s.optGridSize = eui.NewCombobox(eui.GetLocale().Get("optgridsz"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), lvls, idx, func(c *eui.Combobox) {
 		s.pref.Set("grid size", s.optGridSize.Value().(int))
 		log.Println("Grid Size changed")
 	})
 	s.Add(s.optGridSize)
 
-	s.optColors = ui.NewIcon(nil, rect)
+	s.optColors = eui.NewIcon(nil, rect)
 	s.Add(s.optColors)
 	s.optColors.SetIcon(s.getColorsIcon())
 	return s
@@ -97,12 +98,12 @@ func (s *OptModals) getColorsIcon() *ebiten.Image {
 		cellX := i % sz * w
 		ebitenutil.DrawRect(image, float64(cellX), float64(y), float64(w), float64(h), v)
 	}
-	ui.DrawRect(image, ui.NewRect([]int{0, 0, w0, h0}), ui.White)
+	eui.DrawRect(image, eui.NewRect([]int{0, 0, w0, h0}), eui.White)
 	return image
 }
 
 func (s *OptModals) selectWhatOptShow() {
-	tp := ui.GetPreferences().Get("game type").(string)
+	tp := eui.GetPreferences().Get("game type").(string)
 	switch tp {
 	case game.Ari:
 		s.optShowCross.Visible = true
@@ -140,22 +141,22 @@ func (s *OptModals) selectWhatOptShow() {
 }
 
 func (s *OptModals) getGameType() string {
-	result := ui.GetLocale().Get("optgmtp") + " "
-	tp := ui.GetPreferences().Get("game type").(string)
+	result := eui.GetLocale().Get("optgmtp") + " "
+	tp := eui.GetPreferences().Get("game type").(string)
 	switch tp {
 	case game.Pos:
-		result += ui.GetLocale().Get("optpos")
+		result += eui.GetLocale().Get("optpos")
 	case game.Col:
-		result += ui.GetLocale().Get("optcol")
+		result += eui.GetLocale().Get("optcol")
 	case game.Sym:
-		result += ui.GetLocale().Get("optsym")
+		result += eui.GetLocale().Get("optsym")
 	case game.Ari:
-		result += ui.GetLocale().Get("optari")
+		result += eui.GetLocale().Get("optari")
 	}
 	return result
 }
 
-func (s *OptModals) Setup(sets *ui.Preferences) {
+func (s *OptModals) Setup(sets *eui.Preferences) {
 	s.selectWhatOptShow()
 	s.optGameType.SetValue(sets.Get("game type").(string))
 	s.optShowCross.SetChecked(sets.Get("show crosshair").(bool))
@@ -167,16 +168,16 @@ func (s *OptModals) Setup(sets *ui.Preferences) {
 	s.lblResult.SetText(fmt.Sprintf("Настроить %v для уровня:%v, ходов:%v", s.getGameType(), s.pref.Get("default level").(int), game.TotalMoves(s.pref.Get("default level").(int))))
 }
 
-func (s *OptModals) Reset(b *ui.Button) {
-	s.pref = ui.GetUi().ApplyPreferences(NewPref())
+func (s *OptModals) Reset(b *eui.Button) {
+	s.pref = eui.GetUi().ApplyPreferences(app.NewPref())
 	s.Setup(s.pref)
 	log.Println("Reset All Options to Defaults")
 }
 
-func (s *OptModals) Apply(b *ui.Button) {
+func (s *OptModals) Apply(b *eui.Button) {
 	data.GetDb().InsertSettings(s.pref)
 	log.Println("Apply Settings")
-	ui.Pop()
+	eui.Pop()
 }
 
 func (r *OptModals) Update(dt int) {
@@ -192,15 +193,15 @@ func (r *OptModals) Draw(surface *ebiten.Image) {
 }
 
 func (s *OptModals) Entered() {
-	s.Setup(LoadPreferences())
+	s.Setup(app.LoadPreferences())
 	s.Resize()
 }
 
 func (s *OptModals) Resize() {
 	s.topBar.Resize()
-	w, h := ui.GetUi().GetScreenSize()
+	w, h := eui.GetUi().GetScreenSize()
 	hTop := int(float64(h) * 0.05)
-	rect := ui.NewRect([]int{0, hTop, w, h - hTop})
+	rect := eui.NewRect([]int{0, hTop, w, h - hTop})
 	w1, h1 := int(float64(w)*0.6), rect.H/2-hTop*6
 	x, y := rect.CenterX()-w1/2, hTop
 	y += h1

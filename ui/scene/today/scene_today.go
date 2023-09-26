@@ -1,4 +1,4 @@
-package app
+package today
 
 import (
 	"log"
@@ -6,54 +6,58 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/data"
+	"github.com/t0l1k/nBack/ui/scene/game"
+	"github.com/t0l1k/nBack/ui/scene/options"
+	"github.com/t0l1k/nBack/ui/scene/plot"
+	"github.com/t0l1k/nBack/ui/scene/score"
 )
 
 type SceneToday struct {
-	lblName, lblPeriodResult, lblDt, lblHelper                  *ui.Label
-	btnScore, btnStart, btnQuit, btnPlot, btnFullScreen, btnOpt *ui.Button
-	lblsResult                                                  *ui.List
-	plotResult                                                  *ResultPlot
+	lblName, lblPeriodResult, lblDt, lblHelper                  *eui.Label
+	btnScore, btnStart, btnQuit, btnPlot, btnFullScreen, btnOpt *eui.Button
+	lblsResult                                                  *eui.List
+	plotResult                                                  *plot.ResultPlot
 	toggleResults                                               bool
-	rect                                                        *ui.Rect
-	ui.ContainerDefault
+	rect                                                        *eui.Rect
+	eui.ContainerDefault
 }
 
 func NewSceneToday() *SceneToday {
 	s := &SceneToday{
-		rect: ui.NewRect([]int{0, 0, 1, 1}),
+		rect: eui.NewRect([]int{0, 0, 1, 1}),
 	}
 	rect := []int{0, 0, 1, 1}
-	s.btnStart = ui.NewButton(ui.GetLocale().Get("btnStart"), rect, ui.GetTheme().Get("game active color"), ui.GetTheme().Get("game bg"), func(b *ui.Button) { ui.Push(NewSceneGame()) })
+	s.btnStart = eui.NewButton(eui.GetLocale().Get("btnStart"), rect, eui.GetTheme().Get("game active color"), eui.GetTheme().Get("game bg"), func(b *eui.Button) { eui.Push(game.NewSceneGame()) })
 	s.Add(s.btnStart)
-	s.btnScore = ui.NewButton(ui.GetLocale().Get("btnScore"), rect, ui.GetTheme().Get("error color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.Push(NewSceneScore()) })
+	s.btnScore = eui.NewButton(eui.GetLocale().Get("btnScore"), rect, eui.GetTheme().Get("error color"), eui.GetTheme().Get("fg"), func(b *eui.Button) { eui.Push(score.NewSceneScore()) })
 	s.Add(s.btnScore)
 	str := "<"
-	if ui.GetUi().IsMainScene() {
+	if eui.GetUi().IsMainScene() {
 		str = "x"
 	}
-	s.btnQuit = ui.NewButton(str, rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.Pop() })
+	s.btnQuit = eui.NewButton(str, rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"), func(b *eui.Button) { eui.Pop() })
 	s.Add(s.btnQuit)
-	s.lblName = ui.NewLabel(ui.GetLocale().Get("AppName"), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.lblName = eui.NewLabel(eui.GetLocale().Get("AppName"), rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"))
 	s.Add(s.lblName)
-	s.lblPeriodResult = ui.NewLabel(data.GetDb().TodayData.String(), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.lblPeriodResult = eui.NewLabel(data.GetDb().TodayData.String(), rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"))
 	s.Add(s.lblPeriodResult)
-	s.lblDt = ui.NewLabel(ui.GetLocale().Get("lblUpTm"), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.lblDt = eui.NewLabel(eui.GetLocale().Get("lblUpTm"), rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"))
 	s.Add(s.lblDt)
-	s.lblsResult = ui.NewList(nil, nil, rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), s.getRows())
+	s.lblsResult = eui.NewList(nil, nil, rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), s.getRows())
 	s.Add(s.lblsResult)
-	s.lblHelper = ui.NewLabel(ui.GetLocale().Get("btnHelper"), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.lblHelper = eui.NewLabel(eui.GetLocale().Get("btnHelper"), rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"))
 	s.Add(s.lblHelper)
-	s.plotResult = NewResultPlot(rect)
+	s.plotResult = plot.NewResultPlot(rect)
 	s.plotResult.Visible = false
 	s.Add(s.plotResult)
 	s.toggleResults = false
-	s.btnPlot = ui.NewButton(ui.GetLocale().Get("btnPlot"), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { s.togglePlot() })
+	s.btnPlot = eui.NewButton(eui.GetLocale().Get("btnPlot"), rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"), func(b *eui.Button) { s.togglePlot() })
 	s.Add(s.btnPlot)
-	s.btnFullScreen = ui.NewButton("[ ]", rect, ui.GetTheme().Get("regular color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.GetUi().ToggleFullscreen() })
+	s.btnFullScreen = eui.NewButton("[ ]", rect, eui.GetTheme().Get("regular color"), eui.GetTheme().Get("fg"), func(b *eui.Button) { eui.GetUi().ToggleFullscreen() })
 	s.Add(s.btnFullScreen)
-	s.btnOpt = ui.NewButton(ui.GetLocale().Get("btnOpt"), rect, ui.GetTheme().Get("warning color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.Push(NewSceneOptions()) })
+	s.btnOpt = eui.NewButton(eui.GetLocale().Get("btnOpt"), rect, eui.GetTheme().Get("warning color"), eui.GetTheme().Get("fg"), func(b *eui.Button) { eui.Push(options.NewSceneOptions()) })
 	s.Add(s.btnOpt)
 	return s
 }
@@ -69,21 +73,21 @@ func (s *SceneToday) Entered() {
 }
 
 func (s *SceneToday) Update(dt int) {
-	s.lblDt.SetText(ui.GetUi().UpdateUpTime())
+	s.lblDt.SetText(eui.GetUi().UpdateUpTime())
 	for _, value := range s.Container {
 		value.Update(dt)
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
-		ui.Push(NewSceneGame())
+		eui.Push(game.NewSceneGame())
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyP) {
 		s.togglePlot()
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyS) {
-		ui.Push(NewSceneScore())
+		eui.Push(score.NewSceneScore())
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeyO) {
-		ui.Push(NewSceneOptions())
+		eui.Push(options.NewSceneOptions())
 	}
 }
 
@@ -107,8 +111,8 @@ func (s *SceneToday) Draw(surface *ebiten.Image) {
 }
 
 func (s *SceneToday) Resize() {
-	w, h := ui.GetUi().GetScreenSize()
-	s.rect = ui.NewRect([]int{0, 0, w, h})
+	w, h := eui.GetUi().GetScreenSize()
+	s.rect = eui.NewRect([]int{0, 0, w, h})
 	x, y, w, h := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)*0.05)
 	s.btnQuit.Resize([]int{x, y, w, h})
 	x, w = h, int(float64(s.rect.W)*0.20)

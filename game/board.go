@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 )
 
 const (
@@ -29,36 +29,36 @@ const (
 	Error   Status = "wrong"
 )
 
-var Colors = []color.Color{ui.Blue, ui.Aqua, ui.Green, ui.Olive, ui.Yellow, ui.Red, ui.Purple, ui.Orange, ui.White, ui.Gray}
+var Colors = []color.Color{eui.Blue, eui.Aqua, eui.Green, eui.Olive, eui.Yellow, eui.Red, eui.Purple, eui.Orange, eui.White, eui.Gray}
 
 type Board struct {
-	rect                                  *ui.Rect
+	rect                                  *eui.Rect
 	InGame, UserMoved, reset              bool
 	gameCount, level, TotalMoves, Move    int
-	grid                                  *ui.GridView
+	grid                                  *eui.GridView
 	field                                 []*Cell
-	container                             []ui.Drawable
+	container                             []eui.Drawable
 	moveValue                             int
 	arr, moves                            []int
 	CountCorrect, CountWrong, CountMissed int
 	DtBeg, DtEnd                          time.Time
 	MoveStatus                            Status
 	MovesStatus                           map[int]Status
-	pref                                  *ui.Preferences
-	theme                                 *ui.Theme
+	pref                                  *eui.Preferences
+	theme                                 *eui.Theme
 }
 
-func NewBoard(rect []int, pref *ui.Preferences, theme *ui.Theme) *Board {
+func NewBoard(rect []int, pref *eui.Preferences, theme *eui.Theme) *Board {
 	rand.Seed(time.Now().UnixNano())
 	b := &Board{
-		rect:   ui.NewRect(rect),
+		rect:   eui.NewRect(rect),
 		InGame: false,
 		pref:   pref,
 		theme:  theme,
 	}
 	if b.pref.Get("show grid").(bool) && b.pref.Get("game type").(string) == Pos {
 		gridSz := b.pref.Get("grid size").(int)
-		b.grid = ui.NewGridView(rect, ui.NewPoint(float64(gridSz), float64(gridSz)), b.theme.Get("game bg"), b.theme.Get("game fg"))
+		b.grid = eui.NewGridView(rect, eui.NewPoint(float64(gridSz), float64(gridSz)), b.theme.Get("game bg"), b.theme.Get("game fg"))
 		b.Add(b.grid)
 	}
 	b.field = b.initCells()
@@ -252,7 +252,7 @@ func (b *Board) initCells() (field []*Cell) {
 func (b *Board) Layout() {
 }
 
-func (b *Board) Add(item ui.Drawable) {
+func (b *Board) Add(item eui.Drawable) {
 	b.container = append(b.container, item)
 }
 func (b *Board) Update(dt int) {
@@ -276,7 +276,7 @@ func (b *Board) String() string {
 }
 
 func (b *Board) Resize(rect []int) {
-	b.rect = ui.NewRect(rect)
+	b.rect = eui.NewRect(rect)
 	if b.pref.Get("show grid").(bool) && b.pref.Get("game type").(string) == Pos {
 		b.grid.Resize(rect)
 	}
@@ -312,8 +312,8 @@ func (b *Board) Close() {
 }
 
 func TotalMoves(level int) int {
-	trials := ui.GetPreferences().Get("trials").(int)
-	factor := ui.GetPreferences().Get("trials factor").(int)
-	exponent := ui.GetPreferences().Get("trials exponent").(int)
+	trials := eui.GetPreferences().Get("trials").(int)
+	factor := eui.GetPreferences().Get("trials factor").(int)
+	exponent := eui.GetPreferences().Get("trials exponent").(int)
 	return trials + factor*int(math.Pow(float64(level), float64(exponent)))
 }

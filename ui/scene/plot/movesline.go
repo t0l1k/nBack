@@ -1,4 +1,4 @@
-package app
+package plot
 
 import (
 	"container/list"
@@ -7,12 +7,12 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/data"
 )
 
 type MovesLine struct {
-	rect           *ui.Rect
+	rect           *eui.Rect
 	Image          *ebiten.Image
 	Dirty, Visible bool
 	bg, fg         color.Color
@@ -20,9 +20,9 @@ type MovesLine struct {
 
 func NewMovesLine(rect []int) *MovesLine {
 	return &MovesLine{
-		rect:    ui.NewRect(rect),
-		bg:      ui.GetTheme().Get("game bg"),
-		fg:      ui.GetTheme().Get("game fg"),
+		rect:    eui.NewRect(rect),
+		bg:      eui.GetTheme().Get("game bg"),
+		fg:      eui.GetTheme().Get("game fg"),
 		Dirty:   false,
 		Visible: false,
 	}
@@ -54,7 +54,7 @@ func (p *MovesLine) Layout() {
 	margin := int(float64(p.rect.GetLowestSize()) * 0.2)
 	x, y := margin, margin
 	w, h := w0-margin*2, h0-margin*2
-	axisRect := ui.NewRect([]int{x, y, w, h})
+	axisRect := eui.NewRect([]int{x, y, w, h})
 
 	lerp := func(t, inStart, inEnd, outStart, outEnd float64) float64 {
 		return outStart + (t-inStart)/(inEnd-inStart)*(outEnd-outStart)
@@ -88,7 +88,7 @@ func (p *MovesLine) Layout() {
 		boxSize := margin * 2
 		xL, yL := axisRect.Right()-boxSize*3, axisRect.Bottom()-boxSize
 		w, h = boxSize*3, boxSize
-		lbl := ui.NewLabel(ui.GetLocale().Get("optmv"), []int{xL, yL, w, h}, fg2, fg)
+		lbl := eui.NewLabel(eui.GetLocale().Get("optmv"), []int{xL, yL, w, h}, fg2, fg)
 		defer lbl.Close()
 		lbl.SetBg(bg)
 		lbl.Draw(p.Image)
@@ -147,7 +147,7 @@ func (p *MovesLine) Draw(surface *ebiten.Image) {
 }
 
 func (p *MovesLine) Resize(rect []int) {
-	p.rect = ui.NewRect(rect)
+	p.rect = eui.NewRect(rect)
 	p.Dirty = true
 	p.Image = nil
 }

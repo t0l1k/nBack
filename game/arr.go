@@ -5,10 +5,10 @@ import (
 	"math/rand"
 	"time"
 
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 )
 
-func getArr(level, moves int, pref *ui.Preferences) (arr []int) {
+func getArr(level, moves int, pref *eui.Preferences) (arr []int) {
 	start := time.Now()
 	pause := 3
 	count := 0
@@ -35,7 +35,7 @@ func getArr(level, moves int, pref *ui.Preferences) (arr []int) {
 	return arr
 }
 
-func genArr(moves int, pref *ui.Preferences) (a []int) {
+func genArr(moves int, pref *eui.Preferences) (a []int) {
 	dim := pref.Get("grid size").(int)
 	center := (dim*dim - 1) / 2
 	num := 0
@@ -60,7 +60,7 @@ func genArr(moves int, pref *ui.Preferences) (a []int) {
 	return a
 }
 
-func checkRR(a []int, level int, pref *ui.Preferences) (bool, int) {
+func checkRR(a []int, level int, pref *eui.Preferences) (bool, int) {
 	RR := pref.Get("random repition").(float64)
 	count := 0
 	for i, v := range a {

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 )
 
 type Db struct {
@@ -64,7 +64,7 @@ func (d *Db) createSettingsTable() {
 	log.Println("Created table for settings.")
 }
 
-func (d *Db) InsertSettings(values *ui.Preferences) {
+func (d *Db) InsertSettings(values *eui.Preferences) {
 	if d.conn == nil {
 		d.Setup()
 	}
@@ -124,7 +124,7 @@ func (d *Db) dropSettingsTable() {
 	log.Println("Drop table settings done.")
 }
 
-func (d *Db) ReadSettings() (values *ui.Preferences) {
+func (d *Db) ReadSettings() (values *eui.Preferences) {
 	if d.conn == nil {
 		d.Setup()
 	}
@@ -132,7 +132,7 @@ func (d *Db) ReadSettings() (values *ui.Preferences) {
 	if err != nil {
 		panic(err)
 	}
-	v := ui.NewPreferences()
+	v := eui.NewPreferences()
 	for rows.Next() {
 		id := 0
 		tmnc := 0.1
@@ -291,7 +291,7 @@ func (d *Db) ReadTodayGames(from string) {
 
 func (d *Db) ReadAllGamesScore(period int, from, to string) (*ScoreData, string) {
 	values := &ScoreData{}
-	resultStr := ui.GetLocale().Get("scrResultNil")
+	resultStr := eui.GetLocale().Get("scrResultNil")
 	if d.conn == nil {
 		return values, resultStr
 	}
@@ -320,11 +320,11 @@ func (d *Db) ReadAllGamesScore(period int, from, to string) (*ScoreData, string)
 			panic(err)
 		}
 		resultStr = fmt.Sprintf("%v: %v %v:%v %v:%v",
-			ui.GetLocale().Get("scrResultTtl"),
+			eui.GetLocale().Get("scrResultTtl"),
 			values.Games,
-			ui.GetLocale().Get("wordMax"),
+			eui.GetLocale().Get("wordMax"),
 			values.Max,
-			ui.GetLocale().Get("wordAvg"),
+			eui.GetLocale().Get("wordAvg"),
 			values.Avg)
 	}
 	return values, resultStr

@@ -1,4 +1,4 @@
-package app
+package plot
 
 import (
 	"container/list"
@@ -8,46 +8,54 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/data"
 )
 
-type ResultPlot struct {
-	rect           *ui.Rect
+type ScorePlot struct {
+	rect           *eui.Rect
 	Image          *ebiten.Image
 	Dirty, Visible bool
 	bg, fg         color.Color
 	period         data.Period
 }
 
-func NewResultPlot(rect []int) *ResultPlot {
-	return &ResultPlot{
-		rect:    ui.NewRect(rect),
-		bg:      ui.GetTheme().Get("bg"),
-		fg:      ui.GetTheme().Get("fg"),
+func NewScorePlot(rect []int) *ScorePlot {
+	return &ScorePlot{
+		rect:    eui.NewRect(rect),
+		bg:      eui.GetTheme().Get("bg"),
+		fg:      eui.GetTheme().Get("fg"),
 		Dirty:   true,
 		Visible: true,
+		period:  data.All,
 	}
 }
 
-func (r *ResultPlot) SetPeriod(period data.Period) {
+func (r *ScorePlot) SetPeriod(period data.Period) {
 	if r.period == period {
 		return
 	}
 	if period == data.Day {
-		r.Visible = true
-	} else {
 		r.Visible = false
 		return
+	} else {
+		r.Visible = true
 	}
 	r.period = period
 	r.Dirty = true
 }
 
-func (r *ResultPlot) Layout() {
-	xArr, yArr, lvlValues, percents, movesPercent, colors := data.GetDb().TodayData.PlotTodayData()
+func (r *ScorePlot) Layout() {
+	xArr, yArr, avgArr, strsArr := data.GetDb().ScoresData.PlotData()
 	axisXMax := xArr.Len()
-	axisYMax := data.GetDb().TodayData.GetMax() + 1
+	var axisYMax int
+	for e := yArr.Front(); e != nil; e = e.Next() {
+		x := e.Value
+		if axisYMax < x.(int) {
+			axisYMax = x.(int)
+		}
+	}
+	axisYMax += 1
 	w0, h0 := r.rect.Size()
 	if r.Image == nil {
 		r.Image = ebiten.NewImage(w0, h0)
@@ -63,7 +71,7 @@ func (r *ResultPlot) Layout() {
 	margin := int(float64(r.rect.GetLowestSize()) * 0.05)
 	x, y := margin, margin
 	w, h := w0-margin*2, h0-margin*2
-	axisRect := ui.NewRect([]int{x, y, w, h})
+	axisRect := eui.NewRect([]int{x, y, w, h})
 
 	lerp := func(t, inStart, inEnd, outStart, outEnd float64) float64 {
 		return outStart + (t-inStart)/(inEnd-inStart)*(outEnd-outStart)
@@ -86,15 +94,17 @@ func (r *ResultPlot) Layout() {
 		x1, y1 := xPos(float64(x)), axisRect.Bottom()
 		x2, y2 := xPos(float64(x)), axisRect.Bottom()+margin/4
 		ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
-		x1, y1 = xPos(float64(x)), axisRect.Bottom()
-		x2, y2 = xPos(float64(x)), axisRect.Top()
-		ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg2)
+		if r.period < data.Year {
+			x1, y1 = xPos(float64(x)), axisRect.Bottom()
+			x2, y2 = xPos(float64(x)), axisRect.Top()
+			ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg2)
+		}
 		gridWidth = int(xPos(float64(x))) - int(xPos(float64(lastW)))
 		lastW = x
-		if i%5 == 0 || i == 1 || i == xTicks {
+		if (r.period != data.Year && (i%5 == 0 || i == 1 || i == xTicks)) || (r.period == data.Year && i%(365/12) == 0) {
 			xL, yL := int(xPos(float64(x))-float64(margin)/2), axisRect.Bottom()+int(float64(margin)*0.1)
 			w, h = margin, margin
-			lbl := ui.NewLabel(strconv.Itoa(x), []int{xL, yL, w, h}, bg, fg)
+			lbl := eui.NewLabel(strconv.Itoa(x), []int{xL, yL, w, h}, bg, fg)
 			defer lbl.Close()
 			lbl.SetBg(bg)
 			lbl.Draw(r.Image)
@@ -107,7 +117,7 @@ func (r *ResultPlot) Layout() {
 		boxSize := margin
 		xL, yL := axisRect.Right()-boxSize*3, axisRect.Bottom()-boxSize
 		w, h = boxSize*3, boxSize
-		lbl := ui.NewLabel(ui.GetLocale().Get("lblGmNr"), []int{xL, yL, w, h}, bg, fg)
+		lbl := eui.NewLabel(eui.GetLocale().Get("lblDays"), []int{xL, yL, w, h}, bg, fg)
 		defer lbl.Close()
 		lbl.SetBg(bg)
 		lbl.Draw(r.Image)
@@ -128,7 +138,7 @@ func (r *ResultPlot) Layout() {
 		boxSize := int(float64(axisRect.GetLowestSize()) * 0.05)
 		xL, yL := axisRect.Left()-int(float64(boxSize)*1.2), int(yPos(float64(y))-float64(boxSize)/2)
 		w, h = boxSize, boxSize
-		lbl := ui.NewLabel(strconv.Itoa(y), []int{xL, yL, w, h}, bg, fg)
+		lbl := eui.NewLabel(strconv.Itoa(y), []int{xL, yL, w, h}, bg, fg)
 		defer lbl.Close()
 		lbl.SetBg(bg)
 		lbl.Draw(r.Image)
@@ -137,7 +147,7 @@ func (r *ResultPlot) Layout() {
 		boxSize := margin
 		xL, yL := axisRect.Left()+int(float64(boxSize)*0.2), axisRect.Top()-boxSize
 		w, h = int(float64(boxSize)*1.5), boxSize
-		lbl := ui.NewLabel(ui.GetLocale().Get("lblLevel"), []int{xL, yL, w, h}, bg, fg)
+		lbl := eui.NewLabel(eui.GetLocale().Get("lblLevel"), []int{xL, yL, w, h}, bg, fg)
 		defer lbl.Close()
 		lbl.SetBg(bg)
 		lbl.Draw(r.Image)
@@ -145,13 +155,12 @@ func (r *ResultPlot) Layout() {
 	{
 		boxSize := margin * 7
 		xL, yL := axisRect.Right()/2-boxSize/2, axisRect.Top()-int(float64(boxSize)/4.5)
-		w, h = boxSize, boxSize/4
-		lbl := ui.NewLabel(ui.GetLocale().Get("lblDTl"), []int{xL, yL, w, h}, bg, fg)
+		w, h = boxSize, boxSize/3
+		lbl := eui.NewLabel(eui.GetLocale().Get("btnScore"), []int{xL, yL, w, h}, bg, fg)
 		defer lbl.Close()
 		lbl.SetBg(bg)
 		lbl.Draw(r.Image)
 	}
-
 	zip := func(a, b list.List) *list.List {
 		if a.Len() != b.Len() {
 			panic("len(a) != len(b)")
@@ -165,14 +174,10 @@ func (r *ResultPlot) Layout() {
 		}
 		return r
 	}
-	{ // parse data green line, moves line
+
+	if r.period <= data.Month { // label
 		points := zip(xArr, yArr)
-		var results1, results2, results3 []float64
-		xx := xPos(float64(axisXMax) * float64(0) / float64(xArr.Len()))
-		yy := yPos(float64(0))
-		results1 = append(results1, xx, yy)
-		results2 = append(results2, xx, yy)
-		results3 = append(results3, xx, yy)
+		var results1, results2 []float64
 		for e := points.Front(); e != nil; e = e.Next() {
 			x := e.Value.(*list.List).Front().Value
 			y := e.Value.(*list.List).Back().Value
@@ -182,65 +187,78 @@ func (r *ResultPlot) Layout() {
 			results1 = append(results1, xx, yy)
 			results2 = append(results2, xx, yy2)
 		}
-		points2 := zip(xArr, movesPercent)
-		for e := points2.Front(); e != nil; e = e.Next() {
-			x := e.Value.(*list.List).Front().Value
-			percent := e.Value.(*list.List).Back().Value
-			xx := xPos(float64(axisXMax) * float64(x.(int)) / float64(xArr.Len()))
-			yy := yPos(float64(percent.(float64)))
-			results3 = append(results3, xx, yy)
+		var strs []string
+		for e := strsArr.Front(); e != nil; e = e.Next() {
+			strs = append(strs, e.Value.(string))
 		}
-		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 { // level line
-			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
-			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, ui.GetTheme().Get("correct color"))
+		var max = yPos(float64(axisYMax))
+		k := 0
+		for i, j := 0, 1; j < len(results1); i, j = i+2, j+2 {
+			if len(strs[k]) == 0 {
+				k++
+				continue
+			}
+			x1, y1 := results2[i], results2[j]
+			var x, y, w, h, boxSize float64
+			boxSize = float64(gridWidth) / 2
+			x, y = 0, 0
+			w, h = results2[j]-max, boxSize
+			rect := []int{int(x), int(y), int(w), int(h)}
+			lbl := eui.NewLabel(strs[k], rect, eui.GetTheme().Get("correct color"), fg)
+			defer lbl.Close()
+			lbl.Layout()
+			w1, h1 := lbl.Image.Size()
+			op := ebiten.DrawImageOptions{}
+			op.GeoM.Translate(-float64(w1)/2, -float64(h1)/2)
+			count := -90
+			op.GeoM.Rotate(float64(count%360) * 2 * math.Pi / 360)
+			op.GeoM.Translate(x1, y1-float64(w1)/2)
+			r.Image.DrawImage(lbl.Image, &op)
+			k++
 		}
-		for i, j := 0, 1; j < len(results2); i, j = i+2, j+2 { // total moves line
-			x1, y1, x2, y2 := results1[i], results1[j], results2[i], results2[j]
-			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, ui.GetTheme().Get("correct color"))
-		}
-		for i, j := 0, 1; j < len(results3); i, j = i+2, j+2 { // moves line
-			x1, y1, x2, y2 := results1[i], results1[j], results3[i], results3[j]
-			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, ui.GetTheme().Get("error color"))
-		}
-
 	}
-	{ // blue line and circle
-		points := zip(xArr, lvlValues)
+
+	{ // parse data - max line
+		points := zip(xArr, yArr)
 		var results1 []float64
+		xx := xPos(float64(axisXMax) * float64(0) / float64(xArr.Len()))
+		yy := yPos(float64(0))
+		results1 = append(results1, xx, yy)
 		for e := points.Front(); e != nil; e = e.Next() {
 			x := e.Value.(*list.List).Front().Value
 			y := e.Value.(*list.List).Back().Value
 			xx := xPos(float64(axisXMax) * float64(x.(int)) / float64(xArr.Len()))
-			yy := yPos(y.(float64))
+			yy := yPos(float64(y.(int)))
 			results1 = append(results1, xx, yy)
 		}
-		var perc []int
-		for e := percents.Front(); e != nil; e = e.Next() {
-			perc = append(perc, e.Value.(int))
-		}
-		var clrs []color.Color
-		for e := colors.Front(); e != nil; e = e.Next() {
-			clrs = append(clrs, e.Value.(color.Color))
-		}
-		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 { // max line
+		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 {
 			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
-			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, ui.GetTheme().Get("regular color"))
-		}
-		k := 0
-		for i, j := 0, 1; j < len(results1); i, j = i+2, j+2 {
-			x1, y1 := results1[i], results1[j]
-			boxSize := gridWidth / 2
-			lbl := ui.NewLabel(strconv.Itoa(perc[k]), []int{int(x1) - boxSize/2, int(y1) - boxSize/2, boxSize, boxSize}, clrs[k], fg)
-			defer lbl.Close()
-			ui.DrawCircle(r.Image, x1, y1, float64(boxSize), clrs[k], true)
-			lbl.Draw(r.Image)
-			k++
+			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, eui.GetTheme().Get("error color"))
 		}
 	}
+	{ // parse data - average line
+		points := zip(xArr, avgArr)
+		var results1 []float64
+		xx := xPos(float64(axisXMax) * float64(0) / float64(xArr.Len()))
+		yy := yPos(float64(0))
+		results1 = append(results1, xx, yy)
+		for e := points.Front(); e != nil; e = e.Next() {
+			x := e.Value.(*list.List).Front().Value
+			y := e.Value.(*list.List).Back().Value
+			xx := xPos(float64(axisXMax) * float64(x.(int)) / float64(xArr.Len()))
+			yy := yPos(float64(y.(float64)))
+			results1 = append(results1, xx, yy)
+		}
+		for i, j := 0, 1; j < len(results1)-2; i, j = i+2, j+2 {
+			x1, y1, x2, y2 := results1[i], results1[j], results1[i+2], results1[j+2]
+			ebitenutil.DrawLine(r.Image, x1, y1, x2, y2, eui.GetTheme().Get("regular color"))
+		}
+	}
+
 	r.Dirty = false
 }
-func (r *ResultPlot) Update(dt int) {}
-func (r *ResultPlot) Draw(surface *ebiten.Image) {
+func (r *ScorePlot) Update(dt int) {}
+func (r *ScorePlot) Draw(surface *ebiten.Image) {
 	if r.Dirty {
 		r.Layout()
 	}
@@ -252,11 +270,12 @@ func (r *ResultPlot) Draw(surface *ebiten.Image) {
 	}
 }
 
-func (r *ResultPlot) Resize(rect []int) {
-	r.rect = ui.NewRect(rect)
+func (r *ScorePlot) Resize(rect []int) {
+	r.rect = eui.NewRect(rect)
 	r.Dirty = true
 	r.Image = nil
 }
-func (r *ResultPlot) Close() {
+
+func (r *ScorePlot) Close() {
 	r.Image.Dispose()
 }

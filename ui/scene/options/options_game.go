@@ -1,63 +1,64 @@
-package app
+package options
 
 import (
 	"fmt"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/data"
 	"github.com/t0l1k/nBack/game"
+	"github.com/t0l1k/nBack/ui/app"
 )
 
 type GameOpt struct {
-	ui.ContainerDefault
+	eui.ContainerDefault
 	topBar                                    *TopBarOpt
-	pref                                      *ui.Preferences
-	optCenterCell, optResetOnWrong, optManual *ui.Checkbox
-	optShowGrid, optShowCross                 *ui.Checkbox
-	optRR                                     *ui.Combobox
-	optGridSize, optDefLevel, optManualAdv    *ui.Combobox
-	optAdv, optFall, optFallSessions          *ui.Combobox
-	optTrials, optFactor, optExponent         *ui.Combobox
-	optTmNextCell, optTmShowCell              *ui.Combobox
-	optGameType                               *ui.Combobox
-	optMaxSym, optMaxAriphmetic               *ui.Combobox
+	pref                                      *eui.Preferences
+	optCenterCell, optResetOnWrong, optManual *eui.Checkbox
+	optShowGrid, optShowCross                 *eui.Checkbox
+	optRR                                     *eui.Combobox
+	optGridSize, optDefLevel, optManualAdv    *eui.Combobox
+	optAdv, optFall, optFallSessions          *eui.Combobox
+	optTrials, optFactor, optExponent         *eui.Combobox
+	optTmNextCell, optTmShowCell              *eui.Combobox
+	optGameType                               *eui.Combobox
+	optMaxSym, optMaxAriphmetic               *eui.Combobox
 }
 
 func NewGameOpt() *GameOpt {
 	s := &GameOpt{}
 	rect := []int{0, 0, 1, 1}
-	s.pref = LoadPreferences()
+	s.pref = app.LoadPreferences()
 	s.topBar = NewTopBarOpt(s.Reset, s.Apply)
 	s.Add(s.topBar)
 
 	// opt for game feedback resetOnWrong RR pause
-	s.optCenterCell = ui.NewCheckbox(ui.GetLocale().Get("optcc"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), func(c *ui.Checkbox) {
+	s.optCenterCell = eui.NewCheckbox(eui.GetLocale().Get("optcc"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), func(c *eui.Checkbox) {
 		s.pref.Set("use center cell", s.optCenterCell.Checked())
 		log.Printf("Use center cell: %v", s.pref.Get("use center cell").(bool))
 	})
 	s.Add(s.optCenterCell)
 
-	s.optResetOnWrong = ui.NewCheckbox(ui.GetLocale().Get("optreset"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), func(c *ui.Checkbox) {
+	s.optResetOnWrong = eui.NewCheckbox(eui.GetLocale().Get("optreset"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), func(c *eui.Checkbox) {
 		s.pref.Set("reset on first wrong", s.optResetOnWrong.Checked())
 		log.Printf("Reset on wrong: %v", s.pref.Get("reset on first wrong").(bool))
 	})
 	s.Add(s.optResetOnWrong)
 
-	s.optManual = ui.NewCheckbox(ui.GetLocale().Get("optmanual"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), func(c *ui.Checkbox) {
+	s.optManual = eui.NewCheckbox(eui.GetLocale().Get("optmanual"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), func(c *eui.Checkbox) {
 		s.pref.Set("manual mode", s.optManual.Checked())
 		log.Printf("Manual: %v", s.pref.Get("manual mode").(bool))
 	})
 	s.Add(s.optManual)
 
-	s.optShowGrid = ui.NewCheckbox(ui.GetLocale().Get("optgrid"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), func(c *ui.Checkbox) {
+	s.optShowGrid = eui.NewCheckbox(eui.GetLocale().Get("optgrid"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), func(c *eui.Checkbox) {
 		s.pref.Set("show grid", s.optShowGrid.Checked())
 		log.Printf("Show Grid: %v", s.pref.Get("show grid").(bool))
 	})
 	s.Add(s.optShowGrid)
 
-	s.optShowCross = ui.NewCheckbox(ui.GetLocale().Get("optcross"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), func(c *ui.Checkbox) {
+	s.optShowCross = eui.NewCheckbox(eui.GetLocale().Get("optcross"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), func(c *eui.Checkbox) {
 		s.pref.Set("show crosshair", s.optShowCross.Checked())
 		log.Printf("Show crosshair: %v", s.pref.Get("show crosshair").(bool))
 	})
@@ -65,7 +66,7 @@ func NewGameOpt() *GameOpt {
 
 	lvls := []interface{}{2, 3, 4, 5, 6, 7, 8, 9}
 	idx := 1
-	s.optGridSize = ui.NewCombobox(ui.GetLocale().Get("optgridsz"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), lvls, idx, func(c *ui.Combobox) {
+	s.optGridSize = eui.NewCombobox(eui.GetLocale().Get("optgridsz"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), lvls, idx, func(c *eui.Combobox) {
 		s.pref.Set("grid size", s.optGridSize.Value().(int))
 		log.Println("Grid Size changed")
 	})
@@ -82,7 +83,7 @@ func NewGameOpt() *GameOpt {
 			idx = j
 		}
 	}
-	s.optRR = ui.NewCombobox(ui.GetLocale().Get("optrr"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), rrData, idx, func(c *ui.Combobox) {
+	s.optRR = eui.NewCombobox(eui.GetLocale().Get("optrr"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), rrData, idx, func(c *eui.Combobox) {
 		s.pref.Set("random repition", s.optRR.Value().(float64))
 	})
 	s.Add(s.optRR)
@@ -100,14 +101,14 @@ func NewGameOpt() *GameOpt {
 			current = i - 1
 		}
 	}
-	s.optDefLevel = ui.NewCombobox(ui.GetLocale().Get("optdeflev"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arr, current, func(c *ui.Combobox) {
+	s.optDefLevel = eui.NewCombobox(eui.GetLocale().Get("optdeflev"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arr, current, func(c *eui.Combobox) {
 		s.pref.Set("default level", s.optDefLevel.Value().(int))
 	})
 	s.Add(s.optDefLevel)
 
 	arrAdvManual := []interface{}{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	idx = 0
-	s.optManualAdv = ui.NewCombobox(ui.GetLocale().Get("optdeflevadv"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrAdvManual, idx, func(b *ui.Combobox) {
+	s.optManualAdv = eui.NewCombobox(eui.GetLocale().Get("optdeflevadv"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arrAdvManual, idx, func(b *eui.Combobox) {
 		s.pref.Set("manual advance", s.optManualAdv.Value().(int))
 	})
 	s.Add(s.optManualAdv)
@@ -120,7 +121,7 @@ func NewGameOpt() *GameOpt {
 				idx = j
 			}
 		}
-		s.optAdv = ui.NewCombobox(ui.GetLocale().Get("optadv"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrAdv, idx, func(b *ui.Combobox) {
+		s.optAdv = eui.NewCombobox(eui.GetLocale().Get("optadv"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arrAdv, idx, func(b *eui.Combobox) {
 			s.pref.Set("threshold advance", s.optAdv.Value().(int))
 		})
 		s.Add(s.optAdv)
@@ -133,7 +134,7 @@ func NewGameOpt() *GameOpt {
 				idx = j
 			}
 		}
-		s.optFall = ui.NewCombobox(ui.GetLocale().Get("optfall"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrFall, idx, func(b *ui.Combobox) {
+		s.optFall = eui.NewCombobox(eui.GetLocale().Get("optfall"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arrFall, idx, func(b *eui.Combobox) {
 			s.pref.Set("threshold fallback", s.optFall.Value().(int))
 		})
 		s.Add(s.optFall)
@@ -141,28 +142,28 @@ func NewGameOpt() *GameOpt {
 
 	arrFallSessions := []interface{}{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	idx = 3
-	s.optFallSessions = ui.NewCombobox(ui.GetLocale().Get("optgmadv"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrFallSessions, idx, func(b *ui.Combobox) {
+	s.optFallSessions = eui.NewCombobox(eui.GetLocale().Get("optgmadv"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arrFallSessions, idx, func(b *eui.Combobox) {
 		s.pref.Set("threshold fallback sessions", s.optFallSessions.Value().(int))
 	})
 	s.Add(s.optFallSessions)
 
 	arrTrials := []interface{}{5, 10, 20, 30, 50}
 	idx = 0
-	s.optTrials = ui.NewCombobox(ui.GetLocale().Get("optmv"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrTrials, idx, func(b *ui.Combobox) {
+	s.optTrials = eui.NewCombobox(eui.GetLocale().Get("optmv"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arrTrials, idx, func(b *eui.Combobox) {
 		s.pref.Set("trials", s.optTrials.Value().(int))
 	})
 	s.Add(s.optTrials)
 
 	arrFactor := []interface{}{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	idx = 0
-	s.optFactor = ui.NewCombobox(ui.GetLocale().Get("optfc"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrFactor, idx, func(b *ui.Combobox) {
+	s.optFactor = eui.NewCombobox(eui.GetLocale().Get("optfc"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arrFactor, idx, func(b *eui.Combobox) {
 		s.pref.Set("trials factor", s.optFactor.Value().(int))
 	})
 	s.Add(s.optFactor)
 
 	arrExp := []interface{}{1, 2, 3}
 	idx = 1
-	s.optExponent = ui.NewCombobox(ui.GetLocale().Get("optexp"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrExp, idx, func(b *ui.Combobox) {
+	s.optExponent = eui.NewCombobox(eui.GetLocale().Get("optexp"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arrExp, idx, func(b *eui.Combobox) {
 		s.pref.Set("trials exponent", s.optExponent.Value().(int))
 	})
 	s.Add(s.optExponent)
@@ -174,7 +175,7 @@ func NewGameOpt() *GameOpt {
 			idx = j
 		}
 	}
-	s.optTmNextCell = ui.NewCombobox(ui.GetLocale().Get("opttmnc"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrTimeNextCell, idx, func(b *ui.Combobox) {
+	s.optTmNextCell = eui.NewCombobox(eui.GetLocale().Get("opttmnc"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arrTimeNextCell, idx, func(b *eui.Combobox) {
 		s.pref.Set("time to next cell", s.optTmNextCell.Value().(float64))
 	})
 	s.Add(s.optTmNextCell)
@@ -187,7 +188,7 @@ func NewGameOpt() *GameOpt {
 			fmt.Println("OK!!!", value, idx)
 		}
 	}
-	s.optTmShowCell = ui.NewCombobox(ui.GetLocale().Get("opttmsc"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrShow, idx, func(b *ui.Combobox) {
+	s.optTmShowCell = eui.NewCombobox(eui.GetLocale().Get("opttmsc"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arrShow, idx, func(b *eui.Combobox) {
 		value := s.optTmShowCell.Value().(int)
 		if value < arrShow[0].(int) { // support prev version
 			s.pref.Set("time to show cell", 0.85)
@@ -202,19 +203,19 @@ func NewGameOpt() *GameOpt {
 
 	gamesType := []interface{}{game.Pos, game.Col, game.Sym, game.Ari}
 	idx = 0
-	s.optGameType = ui.NewCombobox(s.getGameType(), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), gamesType, idx, func(b *ui.Combobox) {
+	s.optGameType = eui.NewCombobox(s.getGameType(), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), gamesType, idx, func(b *eui.Combobox) {
 		s.pref.Set("game type", s.optGameType.Value().(string))
 		s.optGameType.SetText(s.getGameType())
 	})
 	s.Add(s.optGameType)
 
 	arrMaxSymbols := []interface{}{10, 20, 50, 100, 200, 500, 1000}
-	s.optMaxSym = ui.NewCombobox(ui.GetLocale().Get("optmaxsym"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrMaxSymbols, 3, func(c *ui.Combobox) {
+	s.optMaxSym = eui.NewCombobox(eui.GetLocale().Get("optmaxsym"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arrMaxSymbols, 3, func(c *eui.Combobox) {
 		s.pref.Set("symbols count", s.optMaxSym.Value().(int))
 	})
 	s.Add(s.optMaxSym)
 
-	s.optMaxAriphmetic = ui.NewCombobox(ui.GetLocale().Get("optmaxari"), rect, ui.GetTheme().Get("bg"), ui.GetTheme().Get("fg"), arrMaxSymbols, 1, func(c *ui.Combobox) {
+	s.optMaxAriphmetic = eui.NewCombobox(eui.GetLocale().Get("optmaxari"), rect, eui.GetTheme().Get("bg"), eui.GetTheme().Get("fg"), arrMaxSymbols, 1, func(c *eui.Combobox) {
 		s.pref.Set("ariphmetic max", s.optMaxAriphmetic.Value().(int))
 	})
 	s.Add(s.optMaxAriphmetic)
@@ -222,22 +223,22 @@ func NewGameOpt() *GameOpt {
 }
 
 func (s *GameOpt) getGameType() string {
-	result := ui.GetLocale().Get("optgmtp") + " "
-	tp := ui.GetPreferences().Get("game type").(string)
+	result := eui.GetLocale().Get("optgmtp") + " "
+	tp := eui.GetPreferences().Get("game type").(string)
 	switch tp {
 	case game.Pos:
-		result += ui.GetLocale().Get("optpos")
+		result += eui.GetLocale().Get("optpos")
 	case game.Col:
-		result += ui.GetLocale().Get("optcol")
+		result += eui.GetLocale().Get("optcol")
 	case game.Sym:
-		result += ui.GetLocale().Get("optsym")
+		result += eui.GetLocale().Get("optsym")
 	case game.Ari:
-		result += ui.GetLocale().Get("optari")
+		result += eui.GetLocale().Get("optari")
 	}
 	return result
 }
 
-func (s *GameOpt) Setup(sets *ui.Preferences) {
+func (s *GameOpt) Setup(sets *eui.Preferences) {
 	s.optResetOnWrong.SetChecked(sets.Get("reset on first wrong").(bool))
 	s.optRR.SetValue(sets.Get("random repition").(float64))
 	s.optTmNextCell.SetValue(sets.Get("time to next cell").(float64))
@@ -260,16 +261,16 @@ func (s *GameOpt) Setup(sets *ui.Preferences) {
 	s.optMaxAriphmetic.SetValue(sets.Get("ariphmetic max").(int))
 }
 
-func (s *GameOpt) Reset(b *ui.Button) {
-	s.pref = ui.GetUi().ApplyPreferences(NewPref())
+func (s *GameOpt) Reset(b *eui.Button) {
+	s.pref = eui.GetUi().ApplyPreferences(app.NewPref())
 	s.Setup(s.pref)
 	log.Println("Reset All Options to Defaults")
 }
 
-func (s *GameOpt) Apply(b *ui.Button) {
+func (s *GameOpt) Apply(b *eui.Button) {
 	data.GetDb().InsertSettings(s.pref)
 	log.Println("Apply Settings")
-	ui.Pop()
+	eui.Pop()
 }
 
 func (r *GameOpt) Update(dt int) {
@@ -285,15 +286,15 @@ func (r *GameOpt) Draw(surface *ebiten.Image) {
 }
 
 func (s *GameOpt) Entered() {
-	s.Setup(LoadPreferences())
+	s.Setup(app.LoadPreferences())
 	s.Resize()
 }
 
 func (s *GameOpt) Resize() {
 	s.topBar.Resize()
-	w, h := ui.GetUi().GetScreenSize()
+	w, h := eui.GetUi().GetScreenSize()
 	hTop := int(float64(h) * 0.05)
-	rect := ui.NewRect([]int{0, hTop, w, h - hTop})
+	rect := eui.NewRect([]int{0, hTop, w, h - hTop})
 	w1, h1 := int(float64(w)*0.6), rect.H/20
 	x, y := rect.CenterX()-w1/2, hTop
 	s.optRR.Resize([]int{x, y, w1, h1 - 2})

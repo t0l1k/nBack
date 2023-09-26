@@ -1,4 +1,4 @@
-package app
+package game
 
 import (
 	"fmt"
@@ -7,29 +7,30 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/data"
 	"github.com/t0l1k/nBack/game"
+	"github.com/t0l1k/nBack/ui/scene/plot"
 )
 
 type SceneGame struct {
 	name                                                     string
-	lblName, lblDt, lblTimer, lblMotiv, lblResult, lblHelper *ui.Label
-	movesLine                                                *MovesLine
-	btnStart, btnQuit                                        *ui.Button
-	rect                                                     *ui.Rect
+	lblName, lblDt, lblTimer, lblMotiv, lblResult, lblHelper *eui.Label
+	movesLine                                                *plot.MovesLine
+	btnStart, btnQuit                                        *eui.Button
+	rect                                                     *eui.Rect
 	stopper, pauseTimer, warningTimer                        int
 	board                                                    *game.Board
 	count, level, lives                                      int
 	delayBeginCellShow, delayBeginCellHide                   int
 	timeToNextCell                                           int
 	paused                                                   bool
-	ui.ContainerDefault
+	eui.ContainerDefault
 }
 
 func NewSceneGame() *SceneGame {
 	s := &SceneGame{
-		rect: ui.NewRect([]int{0, 0, 1, 1}),
+		rect: eui.NewRect([]int{0, 0, 1, 1}),
 	}
 	s.initUi()
 	return s
@@ -50,8 +51,8 @@ func (s *SceneGame) initGame() {
 		count = s.count + 1
 	} else {
 		s.count = 1
-		s.level = ui.GetPreferences().Get("default level").(int)
-		s.lives = ui.GetPreferences().Get("threshold fallback sessions").(int)
+		s.level = eui.GetPreferences().Get("default level").(int)
+		s.lives = eui.GetPreferences().Get("threshold fallback sessions").(int)
 		count = s.count
 	}
 	s.parseResult(count)
@@ -60,31 +61,31 @@ func (s *SceneGame) initGame() {
 func (s *SceneGame) parseResult(count int) {
 	var ss string
 	ss += fmt.Sprintf("#%v ", count)
-	ss += fmt.Sprintf("%v %v %v.", ui.GetLocale().Get("btnStart"), s.level, ui.GetLocale().Get("wordstepback"))
+	ss += fmt.Sprintf("%v %v %v.", eui.GetLocale().Get("btnStart"), s.level, eui.GetLocale().Get("wordstepback"))
 	res := ""
-	tp := ui.GetPreferences().Get("game type").(string)
+	tp := eui.GetPreferences().Get("game type").(string)
 	switch tp {
 	case game.Pos:
-		res = ui.GetLocale().Get("optpos")
+		res = eui.GetLocale().Get("optpos")
 	case game.Col:
-		res = ui.GetLocale().Get("optcol")
+		res = eui.GetLocale().Get("optcol")
 	case game.Sym:
-		res = ui.GetLocale().Get("optsym")
+		res = eui.GetLocale().Get("optsym")
 	case game.Ari:
-		res = ui.GetLocale().Get("optari")
+		res = eui.GetLocale().Get("optari")
 	default:
 		res = tp
 	}
-	if ui.GetPreferences().Get("manual mode").(bool) {
-		ss += fmt.Sprintf(" %v(%v) %v.", ui.GetLocale().Get("wordGame"), res, ui.GetLocale().Get("wordhand"))
+	if eui.GetPreferences().Get("manual mode").(bool) {
+		ss += fmt.Sprintf(" %v(%v) %v.", eui.GetLocale().Get("wordGame"), res, eui.GetLocale().Get("wordhand"))
 	} else {
-		ss += fmt.Sprintf(" %v(%v) %v.", ui.GetLocale().Get("wordGame"), res, ui.GetLocale().Get("wordcclassic"))
+		ss += fmt.Sprintf(" %v(%v) %v.", eui.GetLocale().Get("wordGame"), res, eui.GetLocale().Get("wordcclassic"))
 	}
 	s.lblResult.SetText(ss)
 }
 func (s *SceneGame) initGameTimers() {
-	s.timeToNextCell = int(ui.GetPreferences().Get("time to next cell").(float64) * 1000)
-	tm := ui.GetPreferences().Get("time to show cell").(float64)
+	s.timeToNextCell = int(eui.GetPreferences().Get("time to next cell").(float64) * 1000)
+	tm := eui.GetPreferences().Get("time to show cell").(float64)
 	if tm > 0.9 {
 		tm = 0.85
 	}
@@ -98,37 +99,37 @@ func (s *SceneGame) initGameTimers() {
 
 func (s *SceneGame) initUi() {
 	rect := []int{0, 0, 1, 1}
-	s.btnStart = ui.NewButton(
-		ui.GetLocale().Get("wordnewsess"),
+	s.btnStart = eui.NewButton(
+		eui.GetLocale().Get("wordnewsess"),
 		rect,
-		ui.GetTheme().Get("correct color"),
-		ui.GetTheme().Get("fg"),
-		func(b *ui.Button) {
+		eui.GetTheme().Get("correct color"),
+		eui.GetTheme().Get("fg"),
+		func(b *eui.Button) {
 			log.Println("Button new session pressed")
 			s.paused = false
 			s.newSession()
 		})
 	s.Add(s.btnStart)
-	s.btnQuit = ui.NewButton("<", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"), func(b *ui.Button) { ui.Pop() })
+	s.btnQuit = eui.NewButton("<", rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"), func(b *eui.Button) { eui.Pop() })
 	s.Add(s.btnQuit)
-	s.name = ui.GetLocale().Get("AppName") + " " + ui.GetLocale().Get("btnStart")
-	s.lblName = ui.NewLabel(s.name, rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.name = eui.GetLocale().Get("AppName") + " " + eui.GetLocale().Get("btnStart")
+	s.lblName = eui.NewLabel(s.name, rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"))
 	s.Add(s.lblName)
-	s.board = game.NewBoard(rect, ui.GetPreferences(), ui.GetTheme())
+	s.board = game.NewBoard(rect, eui.GetPreferences(), eui.GetTheme())
 	s.Add(s.board)
-	s.lblResult = ui.NewLabel(" ", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.lblResult = eui.NewLabel(" ", rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"))
 	s.Add(s.lblResult)
-	s.lblMotiv = ui.NewLabel(" ", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.lblMotiv = eui.NewLabel(" ", rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"))
 	s.Add(s.lblMotiv)
 	s.lblMotiv.Visible = false
-	s.lblTimer = ui.NewLabel(s.name, rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.lblTimer = eui.NewLabel(s.name, rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"))
 	s.Add(s.lblTimer)
 	s.lblTimer.Visible = false
-	s.lblDt = ui.NewLabel("up: ", rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.lblDt = eui.NewLabel("up: ", rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"))
 	s.Add(s.lblDt)
-	s.movesLine = NewMovesLine(rect)
+	s.movesLine = plot.NewMovesLine(rect)
 	s.Add(s.movesLine)
-	s.lblHelper = ui.NewLabel(ui.GetLocale().Get("btnHelperInGame"), rect, ui.GetTheme().Get("correct color"), ui.GetTheme().Get("fg"))
+	s.lblHelper = eui.NewLabel(eui.GetLocale().Get("btnHelperInGame"), rect, eui.GetTheme().Get("correct color"), eui.GetTheme().Get("fg"))
 	s.Add(s.lblHelper)
 }
 
@@ -148,31 +149,31 @@ func (s *SceneGame) Update(dt int) {
 			s.newSession()
 		}
 	} else if inpututil.IsKeyJustReleased(ebiten.KeyF5) {
-		curPause := ui.GetPreferences().Get("time to next cell").(float64)
+		curPause := eui.GetPreferences().Get("time to next cell").(float64)
 		if curPause < 5 {
 			curPause += 0.5
-			ui.GetPreferences().Set("time to next cell", curPause)
+			eui.GetPreferences().Set("time to next cell", curPause)
 			s.initGameTimers()
-			ss := fmt.Sprintf("%v %v %v %v %v", ui.GetLocale().Get("inc"), ui.GetLocale().Get("opttmnc"), ui.GetLocale().Get("by"), curPause, ui.GetLocale().Get("sec"))
-			ui.GetUi().ShowNotification(ss)
+			ss := fmt.Sprintf("%v %v %v %v %v", eui.GetLocale().Get("inc"), eui.GetLocale().Get("opttmnc"), eui.GetLocale().Get("by"), curPause, eui.GetLocale().Get("sec"))
+			eui.GetUi().ShowNotification(ss)
 			log.Println(ss)
 		}
 	} else if inpututil.IsKeyJustReleased(ebiten.KeyF6) {
-		curPause := ui.GetPreferences().Get("time to next cell").(float64)
+		curPause := eui.GetPreferences().Get("time to next cell").(float64)
 		if curPause >= 1.5 {
 			curPause -= 0.5
-			ui.GetPreferences().Set("time to next cell", curPause)
+			eui.GetPreferences().Set("time to next cell", curPause)
 			s.initGameTimers()
-			ss := fmt.Sprintf("%v %v %v %v %v", ui.GetLocale().Get("dec"), ui.GetLocale().Get("opttmnc"), ui.GetLocale().Get("by"), curPause, ui.GetLocale().Get("sec"))
-			ui.GetUi().ShowNotification(ss)
+			ss := fmt.Sprintf("%v %v %v %v %v", eui.GetLocale().Get("dec"), eui.GetLocale().Get("opttmnc"), eui.GetLocale().Get("by"), curPause, eui.GetLocale().Get("sec"))
+			eui.GetUi().ShowNotification(ss)
 			log.Println(ss)
 		}
 	} else if inpututil.IsKeyJustReleased(ebiten.KeyR) {
 		if !s.board.InGame {
-			s.level = ui.GetPreferences().Get("default level").(int)
+			s.level = eui.GetPreferences().Get("default level").(int)
 			s.parseResult(s.count)
 			ss := fmt.Sprintf("Обнулен уровень нназад на уровень по умолчанию на %v", s.level)
-			ui.GetUi().ShowNotification(ss)
+			eui.GetUi().ShowNotification(ss)
 		}
 	} else if inpututil.IsKeyJustReleased(ebiten.KeyF1) {
 		if !s.board.InGame {
@@ -183,7 +184,7 @@ func (s *SceneGame) Update(dt int) {
 			}
 			s.parseResult(s.count)
 			ss := fmt.Sprintf("Увеличен уровень нназад на %v", s.level)
-			ui.GetUi().ShowNotification(ss)
+			eui.GetUi().ShowNotification(ss)
 		}
 	} else if inpututil.IsKeyJustReleased(ebiten.KeyF2) {
 		if !s.board.InGame {
@@ -191,7 +192,7 @@ func (s *SceneGame) Update(dt int) {
 				s.level -= 1
 				s.parseResult(s.count)
 				ss := fmt.Sprintf("Уменьшен уровень нназад на %v", s.level)
-				ui.GetUi().ShowNotification(ss)
+				eui.GetUi().ShowNotification(ss)
 			}
 		}
 	}
@@ -208,7 +209,7 @@ func (s *SceneGame) Update(dt int) {
 		}
 		s.moveStatus()
 	} else {
-		s.lblDt.SetText(ui.GetUi().UpdateUpTime())
+		s.lblDt.SetText(eui.GetUi().UpdateUpTime())
 		if !s.lblResult.Visible {
 			s.SaveGame()
 			s.movesLine.Visible = true
@@ -225,15 +226,15 @@ func (s *SceneGame) Update(dt int) {
 			s.lblName.Visible = true
 			s.lblName.SetRect(true)
 			s.lblName.SetText(s.name)
-			s.lblName.SetBg(ui.GetTheme().Get("correct color"))
+			s.lblName.SetBg(eui.GetTheme().Get("correct color"))
 			x, y, w, h := int(float64(s.rect.H)*0.05), 0, int(float64(s.rect.W)*0.20), int(float64(s.rect.H)*0.05)
 			s.lblName.Resize([]int{x, y, w, h})
 			s.lblResult.Visible = true
 			s.lblMotiv.Visible = true
 			s.lblTimer.Visible = true
 			s.btnQuit.Visible = true
-			s.lblTimer.SetBg(ui.GetTheme().Get("error color"))
-			s.pauseTimer = ui.GetPreferences().Get("pause to rest").(int) * 1000
+			s.lblTimer.SetBg(eui.GetTheme().Get("error color"))
+			s.pauseTimer = eui.GetPreferences().Get("pause to rest").(int) * 1000
 			s.paused = true
 			s.lblDt.Visible = true
 			s.lblHelper.Visible = true
@@ -252,14 +253,14 @@ func (s *SceneGame) Update(dt int) {
 				if s.warningTimer > 0 {
 					s.warningTimer -= dt
 				} else {
-					s.lblTimer.SetBg(ui.GetTheme().Get("correct color"))
+					s.lblTimer.SetBg(eui.GetTheme().Get("correct color"))
 				}
 			}
 		} else if s.pauseTimer <= 0 {
 			if s.paused {
 				s.paused = false
-				s.pauseTimer += ui.GetPreferences().Get("pause to rest").(int) * 1000
-				s.lblTimer.SetBg(ui.GetTheme().Get("warning color"))
+				s.pauseTimer += eui.GetPreferences().Get("pause to rest").(int) * 1000
+				s.lblTimer.SetBg(eui.GetTheme().Get("warning color"))
 			}
 		}
 	}
@@ -275,7 +276,7 @@ func (s *SceneGame) newSession() {
 	s.lblDt.Visible = false
 	s.movesLine.Visible = false
 	s.lblHelper.Visible = false
-	if ui.GetPreferences().Get("feedback on user move").(bool) {
+	if eui.GetPreferences().Get("feedback on user move").(bool) {
 		x, y, w, h := 0, 0, int(float64(s.rect.W)*0.20), int(float64(s.rect.H)*0.05)
 		s.lblName.Resize([]int{x, y, w, h})
 		s.lblName.SetRect(true)
@@ -291,22 +292,22 @@ func (s *SceneGame) newSession() {
 }
 
 func (s *SceneGame) moveStatus() {
-	if ui.GetPreferences().Get("feedback on user move").(bool) {
+	if eui.GetPreferences().Get("feedback on user move").(bool) {
 		switch s.board.MoveStatus {
 		case game.Correct:
-			s.lblName.SetBg(ui.GetTheme().Get("correct color"))
+			s.lblName.SetBg(eui.GetTheme().Get("correct color"))
 		case game.Error:
-			s.lblName.SetBg(ui.GetTheme().Get("error color"))
+			s.lblName.SetBg(eui.GetTheme().Get("error color"))
 		case game.Warning:
-			s.lblName.SetBg(ui.GetTheme().Get("warning color"))
+			s.lblName.SetBg(eui.GetTheme().Get("warning color"))
 		case game.Regular:
-			s.lblName.SetBg(ui.GetTheme().Get("regular color"))
+			s.lblName.SetBg(eui.GetTheme().Get("regular color"))
 		default:
-			s.lblName.SetBg(ui.GetTheme().Get("game bg"))
+			s.lblName.SetBg(eui.GetTheme().Get("game bg"))
 		}
 	}
 	str1 := ""
-	switch ui.GetPreferences().Get("game type").(string) {
+	switch eui.GetPreferences().Get("game type").(string) {
 	case game.Pos:
 		str1 = "Pos"
 	case game.Col:
@@ -324,7 +325,7 @@ func (s *SceneGame) SaveGame() {
 	dtBeg := s.board.DtBeg.Format("2006-01-02 15:04:05.000")
 	dtEnd := s.board.DtEnd.Format("2006-01-02 15:04:05.000")
 	values := &data.GameData{
-		GameType:     ui.GetPreferences().Get("game type").(string),
+		GameType:     eui.GetPreferences().Get("game type").(string),
 		DtBeg:        dtBeg,
 		DtEnd:        dtEnd,
 		Level:        s.level,
@@ -335,10 +336,10 @@ func (s *SceneGame) SaveGame() {
 		Missed:       s.board.CountMissed,
 		Moves:        s.board.Move,
 		Totalmoves:   s.board.TotalMoves,
-		Manual:       ui.GetPreferences().Get("manual mode").(bool),
-		Advance:      ui.GetPreferences().Get("threshold advance").(int),
-		Fallback:     ui.GetPreferences().Get("threshold fallback").(int),
-		Resetonerror: ui.GetPreferences().Get("reset on first wrong").(bool),
+		Manual:       eui.GetPreferences().Get("manual mode").(bool),
+		Advance:      eui.GetPreferences().Get("threshold advance").(int),
+		Fallback:     eui.GetPreferences().Get("threshold fallback").(int),
+		Resetonerror: eui.GetPreferences().Get("reset on first wrong").(bool),
 		MovesStatus:  s.board.MovesStatus,
 	}
 	data.GetDb().InsertGame(values)
@@ -348,15 +349,15 @@ func (s *SceneGame) SaveGame() {
 }
 
 func (s *SceneGame) Draw(surface *ebiten.Image) {
-	surface.Fill(ui.GetTheme().Get("game bg"))
+	surface.Fill(eui.GetTheme().Get("game bg"))
 	for _, value := range s.Container {
 		value.Draw(surface)
 	}
 }
 
 func (s *SceneGame) Resize() {
-	w0, h0 := ui.GetUi().GetScreenSize()
-	s.rect = ui.NewRect([]int{0, 0, w0, h0})
+	w0, h0 := eui.GetUi().GetScreenSize()
+	s.rect = eui.NewRect([]int{0, 0, w0, h0})
 	x, y, w, hTop := 0, 0, int(float64(s.rect.H)*0.05), int(float64(s.rect.H)*0.05)
 	s.btnQuit.Resize([]int{x, y, w, hTop})
 	x, w = hTop, int(float64(s.rect.W)*0.20)

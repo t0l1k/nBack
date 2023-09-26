@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 )
 
 type TodayGamesData map[int]*GameData
@@ -113,8 +113,8 @@ func (t *TodayGamesData) getWinCountInManual() (bool, bool, int) {
 	}
 	sort.Ints(keys)
 	count := 0
-	advPercent := ui.GetPreferences().Get("threshold advance").(int)
-	advCount := (*ui.GetPreferences()).Get("manual advance").(int)
+	advPercent := eui.GetPreferences().Get("threshold advance").(int)
+	advCount := (*eui.GetPreferences()).Get("manual advance").(int)
 	lastLvl := GetDb().TodayData[len(keys)].Level
 	ok := false
 	for i := len(keys); i > 0; i-- {
@@ -173,9 +173,9 @@ func (t *TodayGamesData) String() string {
 		s = fmt.Sprintf("%v #%v %v:%v, %v:%v [%v]",
 			t.GetToday(),
 			t.GetCount(),
-			ui.GetLocale().Get("wordMax"),
+			eui.GetLocale().Get("wordMax"),
 			t.GetMax(),
-			ui.GetLocale().Get("wordAvg"),
+			eui.GetLocale().Get("wordAvg"),
 			t.GetAvg(),
 			t.getGamesTimeDuraton(),
 		)

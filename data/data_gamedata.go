@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	ui "github.com/t0l1k/eui"
+	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/game"
 )
 
@@ -20,52 +20,52 @@ type GameData struct {
 
 func (d *GameData) NextLevel() (int, int, string) {
 	motiv := ""
-	manual := ui.GetPreferences().Get("manual mode").(bool)
-	adv := ui.GetPreferences().Get("threshold advance").(int)
-	fall := ui.GetPreferences().Get("threshold fallback").(int)
+	manual := eui.GetPreferences().Get("manual mode").(bool)
+	adv := eui.GetPreferences().Get("threshold advance").(int)
+	fall := eui.GetPreferences().Get("threshold fallback").(int)
 	level := d.Level
 	lives := d.Lives
 	win, ok, count := GetDb().TodayData.getWinCountInManual()
 	if manual {
 		if !win && !ok {
-			motiv = ui.GetLocale().Get("strgamemanual") + " " + ui.GetLocale().Get("strmotivdef") + "(" + strconv.Itoa(level) + ")"
-			level = ui.GetPreferences().Get("default level").(int)
+			motiv = eui.GetLocale().Get("strgamemanual") + " " + eui.GetLocale().Get("strmotivdef") + "(" + strconv.Itoa(level) + ")"
+			level = eui.GetPreferences().Get("default level").(int)
 			lives = count
 		} else if !win && ok {
-			motiv = ui.GetLocale().Get("strgamemanual") + " " + ui.GetLocale().Get("strmotivmed") + "(" + strconv.Itoa(level) + ")"
+			motiv = eui.GetLocale().Get("strgamemanual") + " " + eui.GetLocale().Get("strmotivmed") + "(" + strconv.Itoa(level) + ")"
 			lives = count
 		} else if win && ok {
 			level += 1
-			motiv = ui.GetLocale().Get("strgamemanual") + " " + ui.GetLocale().Get("strmotivup") + "(" + strconv.Itoa(level) + ")"
+			motiv = eui.GetLocale().Get("strgamemanual") + " " + eui.GetLocale().Get("strmotivup") + "(" + strconv.Itoa(level) + ")"
 			lives = 0
 		}
 	} else {
 		if lives == 0 || count > 0 {
-			level = ui.GetPreferences().Get("default level").(int)
-			lives = ui.GetPreferences().Get("threshold fallback sessions").(int)
+			level = eui.GetPreferences().Get("default level").(int)
+			lives = eui.GetPreferences().Get("threshold fallback sessions").(int)
 		} else if d.Percent >= adv {
 			level += 1
-			lives = ui.GetPreferences().Get("threshold fallback sessions").(int)
-			motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivup") + "(" + strconv.Itoa(level) + ")"
+			lives = eui.GetPreferences().Get("threshold fallback sessions").(int)
+			motiv = eui.GetLocale().Get("strgameclassic") + " " + eui.GetLocale().Get("strmotivup") + "(" + strconv.Itoa(level) + ")"
 		} else if d.Percent >= fall && d.Percent < adv {
-			motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivmed") + "(" + strconv.Itoa(level) + ")"
+			motiv = eui.GetLocale().Get("strgameclassic") + " " + eui.GetLocale().Get("strmotivmed") + "(" + strconv.Itoa(level) + ")"
 		} else if d.Percent < fall {
 			if lives == 1 {
 				if level > 1 {
 					level -= 1
-					lives = ui.GetPreferences().Get("threshold fallback sessions").(int)
+					lives = eui.GetPreferences().Get("threshold fallback sessions").(int)
 				}
-				motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivdwn") + "(" + strconv.Itoa(level) + ")"
+				motiv = eui.GetLocale().Get("strgameclassic") + " " + eui.GetLocale().Get("strmotivdwn") + "(" + strconv.Itoa(level) + ")"
 			} else if lives > 1 {
 				lives -= 1
-				motiv = ui.GetLocale().Get("strgameclassic") + " " + ui.GetLocale().Get("strmotivadv") + "(" + strconv.Itoa(level) + ")"
+				motiv = eui.GetLocale().Get("strgameclassic") + " " + eui.GetLocale().Get("strmotivadv") + "(" + strconv.Itoa(level) + ")"
 			}
 		}
 	}
 	return level, lives, motiv
 }
 func (d GameData) MovesColor() (moves, colors list.List) {
-	theme := ui.GetTheme()
+	theme := eui.GetTheme()
 	colorNil := theme.Get("game fg")
 	colorRegular := theme.Get("regular color")
 	colorCorrect := theme.Get("correct color")
@@ -96,13 +96,13 @@ func (d GameData) MovesColor() (moves, colors list.List) {
 }
 
 func (d GameData) BgColor() (result color.Color) {
-	theme := ui.GetTheme()
+	theme := eui.GetTheme()
 	colorRegular := theme.Get("regular color")
 	colorCorrect := theme.Get("correct color")
 	colorError := theme.Get("error color")
 	colorWarning := theme.Get("warning color")
-	adv := ui.GetPreferences().Get("threshold advance").(int)
-	fall := ui.GetPreferences().Get("threshold fallback").(int)
+	adv := eui.GetPreferences().Get("threshold advance").(int)
+	fall := eui.GetPreferences().Get("threshold fallback").(int)
 	if d.Percent >= adv {
 		result = colorRegular
 	} else if d.Percent >= fall && d.Percent < adv {
@@ -142,29 +142,29 @@ func (q GameData) String() string {
 		q.GameType,
 		q.Level,
 		q.Percent,
-		ui.GetLocale().Get("wordrgt"),
+		eui.GetLocale().Get("wordrgt"),
 		q.Correct,
-		ui.GetLocale().Get("worderr"),
+		eui.GetLocale().Get("worderr"),
 		q.Wrong,
-		ui.GetLocale().Get("wordmissed"),
+		eui.GetLocale().Get("wordmissed"),
 		q.Missed,
 		q.Wrong+q.Missed,
-		ui.GetLocale().Get("wordmove"),
+		eui.GetLocale().Get("wordmove"),
 		q.Moves,
 		dStr)
-	if ui.GetPreferences().Get("reset on first wrong").(bool) {
+	if eui.GetPreferences().Get("reset on first wrong").(bool) {
 		ss = fmt.Sprintf(" %vB%v %v%% %v:%v (%v:%v %v:%v)%v %v:(%v/%v) [%v]",
 			q.GameType,
 			q.Level,
 			q.Percent,
-			ui.GetLocale().Get("wordrgt"),
+			eui.GetLocale().Get("wordrgt"),
 			q.Correct,
-			ui.GetLocale().Get("worderr"),
+			eui.GetLocale().Get("worderr"),
 			q.Wrong,
-			ui.GetLocale().Get("wordmissed"),
+			eui.GetLocale().Get("wordmissed"),
 			q.Missed,
 			q.Wrong+q.Missed,
-			ui.GetLocale().Get("wordmove"),
+			eui.GetLocale().Get("wordmove"),
 			q.Moves,
 			q.Totalmoves,
 			dStr)

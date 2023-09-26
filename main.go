@@ -1,12 +1,13 @@
 package main
 
 import (
-	ui "github.com/t0l1k/eui"
-	"github.com/t0l1k/nBack/app"
+	"github.com/t0l1k/eui"
+	"github.com/t0l1k/nBack/ui/app"
+	"github.com/t0l1k/nBack/ui/scene/today"
 )
 
 func main() {
-	ui.Init(app.NewGame())
-	ui.Run(app.NewSceneToday())
-	ui.Quit()
+	eui.Init(app.NewGame())
+	eui.Run(today.NewSceneToday())
+	eui.Quit()
 }
