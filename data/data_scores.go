@@ -16,9 +16,10 @@ type ScoreData struct {
 }
 
 func (s *ScoreData) String() string {
-	dtFormat := "2006-01-02"
+	// dtFormat := "2006-01-02"
+	layout := "02 Jan 2006"
 	return fmt.Sprintf("%v %v:%v %v:%v %v:%v",
-		s.Dt.Format(dtFormat),
+		s.Dt.Format(layout),
 		eui.GetLocale().Get("wordGames"),
 		s.Games,
 		eui.GetLocale().Get("wordMax"),

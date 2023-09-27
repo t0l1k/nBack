@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"math"
 	"strconv"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -89,25 +90,72 @@ func (r *ScorePlot) Layout() {
 	xTicks := xArr.Len()
 	gridWidth := 0
 	lastW := 0
+
+	var strs []string
+	for e := strsArr.Front(); e != nil; e = e.Next() {
+		strs = append(strs, e.Value.(string))
+	}
+
 	for i := 1; i < xTicks+1; i++ {
 		x := axisXMax * i / xTicks
-		x1, y1 := xPos(float64(x)), axisRect.Bottom()
-		x2, y2 := xPos(float64(x)), axisRect.Bottom()+margin/4
-		ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
-		if r.period < data.Year {
-			x1, y1 = xPos(float64(x)), axisRect.Bottom()
-			x2, y2 = xPos(float64(x)), axisRect.Top()
-			ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg2)
+		if (r.period < data.Year) || (r.period == data.All && (i == 1 || i == xTicks)) {
+			x1, y1 := int(xPos(float64(x))), axisRect.Bottom()
+			x2, y2 := int(xPos(float64(x))), axisRect.Bottom()+margin/4
+			ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
 		}
 		gridWidth = int(xPos(float64(x))) - int(xPos(float64(lastW)))
 		lastW = x
-		if (r.period != data.Year && (i%5 == 0 || i == 1 || i == xTicks)) || (r.period == data.Year && i%(365/12) == 0) {
+		if r.period == data.All {
+			if i == 1 || i == xTicks {
+				if s := strs[i-1]; len(s) > 0 {
+					xL, yL := int(xPos(float64(x))-float64(margin)/2), axisRect.Bottom()+int(float64(margin)*0.1)
+					w, h = margin*4, margin
+					s = s[:11]
+					x, y := xL-w, yL
+					if i == 1 {
+						x = xL + margin
+					}
+					lbl := eui.NewLabel(s, []int{x, y, w, h}, bg, fg)
+					defer lbl.Close()
+					lbl.SetBg(bg)
+					lbl.Draw(r.Image)
+				}
+			}
+		} else if r.period == data.Year {
+			ok, month := isMonthBegin(i, xArr.Len())
+			if ok {
+				x1, y1 = int(xPos(float64(x))), axisRect.Bottom()
+				x2, y2 = int(xPos(float64(x))), axisRect.Top()
+				ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg2)
+
+				x1, y1 := int(xPos(float64(x))), axisRect.Bottom()
+				x2, y2 := int(xPos(float64(x))), axisRect.Bottom()+margin/4
+				ebitenutil.DrawLine(r.Image, float64(x1), float64(y1), float64(x2), float64(y2), fg)
+
+				mstr := "1" + month.String()[:3]
+				xL, yL := int(xPos(float64(x))-float64(margin)/2), axisRect.Bottom()+int(float64(margin)*0.3)
+				w, h = margin, margin
+				lbl := eui.NewLabel(mstr, []int{xL, yL, w, h}, bg, fg)
+				defer lbl.Close()
+				lbl.SetBg(bg)
+				lbl.Draw(r.Image)
+			}
+		} else if r.period == data.Week || r.period == data.Month {
 			xL, yL := int(xPos(float64(x))-float64(margin)/2), axisRect.Bottom()+int(float64(margin)*0.1)
 			w, h = margin, margin
-			lbl := eui.NewLabel(strconv.Itoa(x), []int{xL, yL, w, h}, bg, fg)
-			defer lbl.Close()
-			lbl.SetBg(bg)
-			lbl.Draw(r.Image)
+			if s := strs[i-1]; len(s) > 0 {
+				s = s[:11]
+				layout := "02 Jan 2006"
+				dt, err := time.Parse(layout, s)
+				if err != nil {
+					panic(err)
+				}
+				s = dt.Weekday().String()[:2]
+				lbl := eui.NewLabel(s, []int{xL, yL, w, h}, bg, fg)
+				defer lbl.Close()
+				lbl.SetBg(bg)
+				lbl.Draw(r.Image)
+			}
 		}
 	}
 	if gridWidth > margin*2 {
@@ -187,10 +235,7 @@ func (r *ScorePlot) Layout() {
 			results1 = append(results1, xx, yy)
 			results2 = append(results2, xx, yy2)
 		}
-		var strs []string
-		for e := strsArr.Front(); e != nil; e = e.Next() {
-			strs = append(strs, e.Value.(string))
-		}
+
 		var max = yPos(float64(axisYMax))
 		k := 0
 		for i, j := 0, 1; j < len(results1); i, j = i+2, j+2 {
@@ -278,4 +323,31 @@ func (r *ScorePlot) Resize(rect []int) {
 
 func (r *ScorePlot) Close() {
 	r.Image.Dispose()
+}
+
+func isMonthBegin(n, year int) (result bool, month time.Month) {
+	days := genDaysCount(year)
+	for i, v := range days {
+		if n == v {
+			return true, time.Month(i + 1)
+		}
+	}
+	return false, 0
+}
+
+func genDaysCount(year int) (result []int) {
+	days := []int{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+	if isLeapYear(year) {
+		days[1] = 29
+	}
+	sum := 1
+	for _, v := range days {
+		result = append(result, sum)
+		sum += v
+	}
+	return result
+}
+
+func isLeapYear(year int) bool {
+	return year%4 == 0 && (year%100 != 0 || year%400 == 0)
 }
