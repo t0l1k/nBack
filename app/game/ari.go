@@ -2,6 +2,9 @@ package game
 
 import (
 	"math/rand"
+
+	"github.com/t0l1k/eui"
+	"github.com/t0l1k/nBack/app"
 )
 
 const (
@@ -79,15 +82,17 @@ func (o Operation) Get(a, c, max int) (int, int) {
 	return a, b
 }
 
-func (o *Operation) Next() {
-	*o++
-	if *o > 3 {
-		*o = 0
-	}
-}
-
 func (o *Operation) Rand() {
-	*o = Operation(rand.Intn(4))
+	conf := eui.GetUi().GetSettings()
+	adds := conf.Get(app.UseAddSub).(bool)
+	muls := conf.Get(app.UseMulDiv).(bool)
+	if adds && !muls {
+		*o = Operation(rand.Intn(2))
+	} else if muls && !adds {
+		*o = Operation(rand.Intn(2) + 2)
+	} else {
+		*o = Operation(rand.Intn(4))
+	}
 }
 
 func (o Operation) String() string {
