@@ -4,6 +4,7 @@ import (
 	"image/color"
 	"log"
 	"math/rand"
+	"time"
 
 	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/app"
@@ -19,6 +20,7 @@ type field struct {
 }
 
 func newField(level, totalMoves int, sym string) []int {
+	beginDt := time.Now()
 	conf := eui.GetUi().GetSettings()
 	f := &field{level: level, totalMoves: totalMoves}
 	f.curModal = sym
@@ -39,7 +41,7 @@ func newField(level, totalMoves int, sym string) []int {
 		}
 		count++
 	}
-	log.Printf("generated modality %v field for level %v, moves %v, count %v, RR percent %v, arr:%v", f.curModal, f.level, f.totalMoves, count, max, best)
+	log.Printf("generated modality %v field for level %v, moves %v, count %v, RR percent %v, arr:%v %v", f.curModal, f.level, f.totalMoves, count, max, best, time.Since(beginDt))
 	return best
 }
 

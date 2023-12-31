@@ -2,6 +2,7 @@ package game
 
 import (
 	"image/color"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/t0l1k/eui"
@@ -59,6 +60,7 @@ func (g *Board) Setup(gameData *data.GameData) {
 	for _, cell := range g.cells {
 		cell.Setup(g.gData.GetModalities())
 	}
+	g.gData.DtBeg = time.Now().Format("2006-01-02 15:04:05.000")
 }
 
 func (g *Board) MakeMove() {

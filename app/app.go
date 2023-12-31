@@ -25,6 +25,7 @@ func setConf(u *eui.Ui) {
 	u.GetSettings().Set(RestDuration, 5)
 	u.GetSettings().Set(RandomRepition, 30)
 	u.GetSettings().Set(GridSize, 3)
+	u.GetSettings().Set(ShowGrid, false)
 	u.GetSettings().Set(UseCenterCell, false)
 	u.GetSettings().Set(ShowCrossHair, true)
 	u.GetSettings().Set(ResetOnFirstWrong, false)
@@ -55,6 +56,7 @@ const (
 	RestDuration
 	RandomRepition
 	GridSize
+	ShowGrid
 	UseCenterCell
 	ShowCrossHair
 	ResetOnFirstWrong

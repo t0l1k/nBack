@@ -12,23 +12,94 @@ type GamesData struct {
 	id   int
 }
 
+func NewGamePos3x3BRRulez() *GamesData {
+	g := &GamesData{id: 0}
+	eui.GetUi().GetSettings().Set(app.Trials, 20)
+	eui.GetUi().GetSettings().Set(app.TrialsFactor, 1)
+	eui.GetUi().GetSettings().Set(app.TrialsExponent, 2)
+	eui.GetUi().GetSettings().Set(app.ThresholdFallbackSessions, 3)
+	eui.GetUi().GetSettings().Set(app.GridSize, 3)
+	eui.GetUi().GetSettings().Set(app.ShowGrid, true)
+	g.Setup([]string{Pos}, 1, 3, 80, 50, false, false, 1.5)
+	return g
+}
+
 func NewGameJaeggiPos3x3Rulez() *GamesData {
 	g := &GamesData{id: 0}
 	eui.GetUi().GetSettings().Set(app.Trials, 20)
+	eui.GetUi().GetSettings().Set(app.TrialsFactor, 1)
+	eui.GetUi().GetSettings().Set(app.TrialsExponent, 1)
+	eui.GetUi().GetSettings().Set(app.ThresholdFallbackSessions, 1)
+	eui.GetUi().GetSettings().Set(app.GridSize, 3)
+	eui.GetUi().GetSettings().Set(app.ShowGrid, false)
 	g.Setup([]string{Pos}, 1, 1, 90, 75, false, false, 1.5)
+	return g
+}
+
+func NewGameJaeggiSymRulez() *GamesData {
+	g := &GamesData{id: 0}
+	eui.GetUi().GetSettings().Set(app.Trials, 20)
+	eui.GetUi().GetSettings().Set(app.TrialsFactor, 1)
+	eui.GetUi().GetSettings().Set(app.TrialsExponent, 1)
+	eui.GetUi().GetSettings().Set(app.ThresholdFallbackSessions, 1)
+	eui.GetUi().GetSettings().Set(app.GridSize, 3)
+	eui.GetUi().GetSettings().Set(app.ShowGrid, false)
+	g.Setup([]string{Sym}, 1, 1, 90, 75, false, false, 1.5)
+	return g
+}
+
+func NewGameJaeggiColRulez() *GamesData {
+	g := &GamesData{id: 0}
+	eui.GetUi().GetSettings().Set(app.Trials, 20)
+	eui.GetUi().GetSettings().Set(app.TrialsFactor, 1)
+	eui.GetUi().GetSettings().Set(app.TrialsExponent, 1)
+	eui.GetUi().GetSettings().Set(app.ThresholdFallbackSessions, 1)
+	eui.GetUi().GetSettings().Set(app.GridSize, 3)
+	eui.GetUi().GetSettings().Set(app.ShowGrid, false)
+	g.Setup([]string{Col}, 1, 1, 90, 75, false, false, 1.5)
+	return g
+}
+
+func NewGameJaeggiAriRulez() *GamesData {
+	g := &GamesData{id: 0}
+	eui.GetUi().GetSettings().Set(app.Trials, 20)
+	eui.GetUi().GetSettings().Set(app.TrialsFactor, 1)
+	eui.GetUi().GetSettings().Set(app.TrialsExponent, 1)
+	eui.GetUi().GetSettings().Set(app.ThresholdFallbackSessions, 1)
+	eui.GetUi().GetSettings().Set(app.GridSize, 3)
+	eui.GetUi().GetSettings().Set(app.ShowGrid, false)
+	g.Setup([]string{Ari}, 1, 1, 90, 75, false, false, 1.5)
 	return g
 }
 
 func NewGameJaeggiPos3x3ColRulez() *GamesData {
 	g := &GamesData{id: 0}
 	eui.GetUi().GetSettings().Set(app.Trials, 20)
+	eui.GetUi().GetSettings().Set(app.TrialsFactor, 1)
+	eui.GetUi().GetSettings().Set(app.TrialsExponent, 1)
+	eui.GetUi().GetSettings().Set(app.ThresholdFallbackSessions, 1)
+	eui.GetUi().GetSettings().Set(app.GridSize, 3)
+	eui.GetUi().GetSettings().Set(app.ShowGrid, false)
 	g.Setup([]string{Pos, Col}, 1, 1, 90, 75, false, false, 1.5)
+	return g
+}
+
+func NewGameUngleDuckPos3x3Rulez() *GamesData {
+	g := &GamesData{id: 0}
+	eui.GetUi().GetSettings().Set(app.Trials, 20)
+	eui.GetUi().GetSettings().Set(app.TrialsFactor, 1)
+	eui.GetUi().GetSettings().Set(app.TrialsExponent, 1)
+	eui.GetUi().GetSettings().Set(app.ThresholdFallbackSessions, 1)
+	eui.GetUi().GetSettings().Set(app.GridSize, 3)
+	eui.GetUi().GetSettings().Set(app.ShowGrid, true)
+	g.Setup([]string{Pos}, 1, 1, 90, 0, false, false, 1.5)
 	return g
 }
 
 func NewGameDevelRulez() *GamesData {
 	g := &GamesData{id: 0}
-	g.Setup([]string{Pos, Col}, 1, 1, 90, 75, false, false, 2.5)
+	eui.GetUi().GetSettings().Set(app.Trials, 5)
+	g.Setup([]string{Pos, Col, Sym}, 1, 1, 90, 75, false, false, 2.0)
 	return g
 }
 

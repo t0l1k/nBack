@@ -67,7 +67,7 @@ func (s *SceneIntro) Entered() {
 	)
 	for _, v := range s.gamesData.Data {
 		if v.IsDone() {
-			str, bg, fg := v.ShortStringWithColors()
+			str, bg, fg := v.ShortResultStringWithColors()
 			strs = append(strs, str)
 			bgs = append(bgs, bg)
 			fgs = append(fgs, fg)

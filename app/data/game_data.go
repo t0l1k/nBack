@@ -34,7 +34,6 @@ func NewGame(id int, mods []*Modality, level, lives, totalMoves, advance, fallba
 		Fallback:     fallback,
 		MoveTime:     moveTime,
 	}
-	g.DtBeg = time.Now().Format("2006-01-02 15:04:05.000")
 	return g
 }
 
@@ -135,7 +134,7 @@ func (g *GameData) GameMode() (result string) {
 	return result
 }
 
-func (g *GameData) ShortStringWithColors() (str string, bg, fg color.Color) {
+func (g *GameData) ShortResultStringWithColors() (str string, bg, fg color.Color) {
 	str = fmt.Sprintf("#%v %v %v%%", g.Id, g.GameMode(), g.Percent)
 	conf := eui.GetUi().GetSettings()
 	clrNeutral := conf.Get(app.ColorNeutral).(color.Color)
