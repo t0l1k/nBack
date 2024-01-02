@@ -160,7 +160,6 @@ func (s *SceneGame) updateLbls() {
 	str.WriteString(strconv.Itoa(s.gameData.TotalMoves))
 	str.WriteString(")")
 	s.lblVar.SetValue(str.String())
-
 	if s.userMoved {
 		s.lblTitle.Bg(s.clrMoved)
 		for _, v := range s.btnsLayout.Container {
@@ -264,29 +263,9 @@ func (s *SceneGame) UpdateData(value interface{}) {
 			clr = s.clrMissed
 		}
 		s.lblTitle.Bg(clr)
-		if v[0] == data.Pos {
-			for _, btn := range s.btnsLayout.Container {
-				if btn.(*eui.Button).GetText() == data.Pos {
-					btn.(*eui.Button).Bg(clr)
-				}
-			}
-		} else if v[0] == data.Col {
-			for _, btn := range s.btnsLayout.Container {
-				if btn.(*eui.Button).GetText() == data.Col {
-					btn.(*eui.Button).Bg(clr)
-				}
-			}
-		} else if v[0] == data.Sym {
-			for _, btn := range s.btnsLayout.Container {
-				if btn.(*eui.Button).GetText() == data.Sym {
-					btn.(*eui.Button).Bg(clr)
-				}
-			}
-		} else if v[0] == data.Ari {
-			for _, btn := range s.btnsLayout.Container {
-				if btn.(*eui.Button).GetText() == data.Ari {
-					btn.(*eui.Button).Bg(clr)
-				}
+		for _, btn := range s.btnsLayout.Container {
+			if btn.(*eui.Button).GetText() == v[0] {
+				btn.(*eui.Button).Bg(clr)
 			}
 		}
 	}
