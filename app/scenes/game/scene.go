@@ -1,7 +1,6 @@
 package scene_game
 
 import (
-	"fmt"
 	"image/color"
 	"log"
 	"strconv"
@@ -20,7 +19,7 @@ type SceneGame struct {
 	lblVar                                                    *eui.StringVar
 	moveTimer                                                 *eui.Timer
 	gameData                                                  *data.GameData
-	game                                                      *game.Board
+	board                                                     *game.Board
 	grid                                                      *eui.GridView
 	btnsLayout                                                *eui.BoxLayout
 	moveTime, delayTimeShowCell, delayTimeHideCell            int
@@ -34,8 +33,8 @@ func New() *SceneGame {
 	s.Add(s.lblTitle)
 	s.lblVar = eui.NewStringVar("")
 	s.lblVar.Attach(s.lblTitle)
-	s.game = game.New()
-	s.Add(s.game)
+	s.board = game.New()
+	s.Add(s.board)
 	s.grid = eui.NewGridView(1, 1)
 	s.Add(s.grid)
 	s.btnsLayout = eui.NewHLayout()
@@ -70,7 +69,7 @@ func (s *SceneGame) Setup(gd *data.GameData) {
 	s.delayTimeShowCell = (s.moveTime - timeShowCell) / 2
 	s.delayTimeHideCell = s.delayTimeShowCell + timeShowCell
 	s.moveTimer = eui.NewTimer(s.moveTime + s.delayTimeShowCell)
-	s.game.Setup(s.gameData)
+	s.board.Setup(s.gameData)
 	s.lblTitle.Bg(s.clrNeutral)
 	log.Println("init:", s.moveTime, timeShowCell, s.delayTimeShowCell, s.delayTimeHideCell)
 }
@@ -80,41 +79,41 @@ func (s *SceneGame) Entered() {
 	eui.GetUi().GetInputKeyboard().Attach(s)
 	s.moveTimer.On()
 	s.moveTimer.SetDuration(s.moveTime)
-	s.game.MakeMove()
-	s.game.Visible(false)
-	log.Println("begin play:00 hide cell", s.game.Move, s.moveTimer.TimePassed())
+	s.board.MakeMove()
+	s.board.Visible(false)
+	log.Println("begin play:00 hide cell", s.board.Move)
 }
 
 func (s *SceneGame) Update(dt int) {
+	s.moveTimer.Update(dt)
 	for _, v := range s.btnsLayout.Container {
 		v.Update(dt)
 	}
-	s.moveTimer.Update(dt)
-	if s.moveTimer.TimePassed() > s.delayTimeShowCell && s.moveTimer.TimePassed() < s.delayTimeHideCell && !s.game.IsVisible() {
+	if s.moveTimer.TimePassed() > s.delayTimeShowCell && s.moveTimer.TimePassed() < s.delayTimeHideCell && !s.board.IsVisible() {
 		s.checkProgress()
-		s.game.NextMove()
-		s.game.Visible(true)
-		log.Println("01 show cell", s.game.Move, s.moveTimer.TimePassed())
+		s.board.NextMove()
+		s.board.Visible(true)
+		log.Println("01 show cell", s.board.Move)
 	}
-	if s.moveTimer.TimePassed() > s.delayTimeHideCell && s.game.IsVisible() {
-		s.game.Visible(false)
-		log.Println("02 hide cell", s.game.Move, s.moveTimer.TimePassed())
+	if s.moveTimer.TimePassed() > s.delayTimeHideCell && s.board.IsVisible() {
+		s.board.Visible(false)
+		log.Println("02 hide cell", s.board.Move)
 	}
 	if s.moveTimer.IsDone() {
-		s.resetColors()
-		if s.game.Move >= s.gameData.TotalMoves {
+		s.resetColorsAfterMove()
+		if s.board.Move >= s.gameData.TotalMoves {
 			log.Println("last move check")
 			s.checkProgress()
 			s.sendResult()
 		} else {
 			s.moveTimer.Reset()
-			log.Println("reset move timer:", s.game.Move)
+			log.Println("reset move timer:", s.board.Move)
 		}
 	}
 	s.updateLbls()
 }
 
-func (s *SceneGame) resetColors() {
+func (s *SceneGame) resetColorsAfterMove() {
 	s.lblTitle.Bg(s.clrNeutral)
 	for _, v := range s.btnsLayout.Container {
 		v.(*eui.Button).Bg(s.clrNeutral)
@@ -122,84 +121,28 @@ func (s *SceneGame) resetColors() {
 }
 
 func (s *SceneGame) checkProgress() {
-	if s.game.Move <= s.gameData.Level {
+	if s.board.Move <= s.gameData.Level {
 		return
 	}
-	var str string
-	for i, v := range s.gameData.Modalities {
+	for _, v := range s.gameData.Modalities {
 		if v.GetSym() == data.Pos {
-			lastMove, testMove := v.GetField()[s.game.LastMove], v.GetField()[s.game.TestMove]
-			str = fmt.Sprintf("game progress for modal[%v] level(%v) moves[%v-%v] values:[%v-%v] timer:%v ", s.gameData.Modalities[i].GetSym(), s.gameData.Level, s.game.Move, s.game.Move-s.gameData.Level, testMove, lastMove, s.moveTimer.TimePassed())
-			if s.posModMove {
-				if lastMove == testMove {
-					s.gameData.Modalities[i].SetCorrect(1)
-					str += "correct answer!"
-				} else {
-					s.gameData.Modalities[i].SetWrong(1)
-					str += "wrong answer!"
-				}
-				s.posModMove = false
-			} else if lastMove == testMove {
-				s.gameData.Modalities[i].SetMissed(1)
-				str += "missed answer!"
-			}
+			str := v.CheckMove(s.posModMove, s.board.LastMove, s.board.TestMove)
+			s.posModMove = false
 			log.Println(str)
 		}
-
 		if v.GetSym() == data.Col {
-			lastMove, testMove := v.GetField()[s.game.LastMove], v.GetField()[s.game.TestMove]
-			str = fmt.Sprintf("game progress for modal[%v] level(%v) moves[%v-%v] values:[%v-%v] timer:%v ", s.gameData.Modalities[i].GetSym(), s.gameData.Level, s.game.Move, s.game.Move-s.gameData.Level, testMove, lastMove, s.moveTimer.TimePassed())
-			if s.colModMove {
-				if lastMove == testMove {
-					s.gameData.Modalities[i].SetCorrect(1)
-					str += "correct answer!"
-				} else {
-					s.gameData.Modalities[i].SetWrong(1)
-					str += "wrong answer!"
-				}
-				s.colModMove = false
-			} else if lastMove == testMove {
-				s.gameData.Modalities[i].SetMissed(1)
-				str += "missed answer!"
-			}
+			str := v.CheckMove(s.colModMove, s.board.LastMove, s.board.TestMove)
+			s.colModMove = false
 			log.Println(str)
 		}
-
 		if v.GetSym() == data.Sym {
-			lastMove, testMove := v.GetField()[s.game.LastMove], v.GetField()[s.game.TestMove]
-			str = fmt.Sprintf("game progress for modal[%v] level(%v) moves[%v-%v] values:[%v-%v] timer:%v ", s.gameData.Modalities[i].GetSym(), s.gameData.Level, s.game.Move, s.game.Move-s.gameData.Level, testMove, lastMove, s.moveTimer.TimePassed())
-			if s.symModMove {
-				if lastMove == testMove {
-					s.gameData.Modalities[i].SetCorrect(1)
-					str += "correct answer!"
-				} else {
-					s.gameData.Modalities[i].SetWrong(1)
-					str += "wrong answer!"
-				}
-				s.symModMove = false
-			} else if lastMove == testMove {
-				s.gameData.Modalities[i].SetMissed(1)
-				str += "missed answer!"
-			}
+			str := v.CheckMove(s.symModMove, s.board.LastMove, s.board.TestMove)
+			s.symModMove = false
 			log.Println(str)
 		}
-
 		if v.GetSym() == data.Ari {
-			lastMove, testMove := v.GetField()[s.game.LastMove], v.GetField()[s.game.TestMove]
-			str = fmt.Sprintf("game progress for modal[%v] level(%v) moves[%v-%v] values:[%v-%v] timer:%v ", s.gameData.Modalities[i].GetSym(), s.gameData.Level, s.game.Move, s.game.Move-s.gameData.Level, testMove, lastMove, s.moveTimer.TimePassed())
-			if s.ariModMove {
-				if lastMove == testMove {
-					s.gameData.Modalities[i].SetCorrect(1)
-					str += "correct answer!"
-				} else {
-					s.gameData.Modalities[i].SetWrong(1)
-					str += "wrong answer!"
-				}
-				s.ariModMove = false
-			} else if lastMove == testMove {
-				s.gameData.Modalities[i].SetMissed(1)
-				str += "missed answer!"
-			}
+			str := v.CheckMove(s.ariModMove, s.board.LastMove, s.board.TestMove)
+			s.ariModMove = false
 			log.Println(str)
 		}
 	}
@@ -212,7 +155,7 @@ func (s *SceneGame) updateLbls() {
 	str.WriteString(strconv.Itoa(s.gameData.Lives))
 	str.WriteString(")")
 	str.WriteString("(")
-	str.WriteString(strconv.Itoa(s.game.Move))
+	str.WriteString(strconv.Itoa(s.board.Move))
 	str.WriteString("/")
 	str.WriteString(strconv.Itoa(s.gameData.TotalMoves))
 	str.WriteString(")")
@@ -225,15 +168,18 @@ func (s *SceneGame) updateLbls() {
 				if v.(*eui.Button).GetText() == data.Pos {
 					v.(*eui.Button).Bg(s.clrMoved)
 				}
-			} else if s.colModMove {
+			}
+			if s.colModMove {
 				if v.(*eui.Button).GetText() == data.Col {
 					v.(*eui.Button).Bg(s.clrMoved)
 				}
-			} else if s.symModMove {
+			}
+			if s.symModMove {
 				if v.(*eui.Button).GetText() == data.Sym {
 					v.(*eui.Button).Bg(s.clrMoved)
 				}
-			} else if s.ariModMove {
+			}
+			if s.ariModMove {
 				if v.(*eui.Button).GetText() == data.Ari {
 					v.(*eui.Button).Bg(s.clrMoved)
 				}
@@ -297,7 +243,7 @@ func (s *SceneGame) userMove(value string) {
 }
 
 func (s *SceneGame) sendResult() {
-	s.gameData.SetGameDone(s.game.Move)
+	s.gameData.SetGameDone(s.board.Move)
 	for _, v := range s.gameData.Modalities {
 		v.Detach(s)
 	}
@@ -354,7 +300,7 @@ func (s *SceneGame) Resize() {
 	s.lblTitle.Resize([]int{x, y, w, h})
 	x = h / 2
 	y += h + h/2
-	s.game.Resize([]int{x, y, w0 - h, h0 - h*4})
+	s.board.Resize([]int{x, y, w0 - h, h0 - h*4})
 	s.grid.Resize([]int{x, y, w0 - h, h0 - h*4})
 	y += h0 - h*4 + h/2
 	s.btnsLayout.Resize([]int{x, y, w0 - h, h * 2})

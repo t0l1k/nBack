@@ -1,6 +1,10 @@
 package data
 
-import "github.com/t0l1k/eui"
+import (
+	"fmt"
+
+	"github.com/t0l1k/eui"
+)
 
 const (
 	Pos string = "p" // Позиции
@@ -57,6 +61,24 @@ func (m *Modality) SetWrong(value int) {
 func (m *Modality) SetMissed(value int) {
 	m.missed += value
 	m.SetValue([]string{m.sym, AddMissed})
+}
+
+func (m *Modality) CheckMove(userMove bool, last, test int) (str string) {
+	lastValue, testValue := m.GetField()[last], m.GetField()[test]
+	str = fmt.Sprintf("progress for modal[%v] moves[%v-%v] values:[%v-%v]", m.GetSym(), last, test, testValue, lastValue)
+	if userMove {
+		if lastValue == testValue {
+			m.SetCorrect(1)
+			str += "correct answer!"
+		} else {
+			m.SetWrong(1)
+			str += "wrong answer!"
+		}
+	} else if lastValue == testValue {
+		m.SetMissed(1)
+		str += "missed answer!"
+	}
+	return str
 }
 
 func (m Modality) GetSym() string {
