@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/t0l1k/eui"
-	"github.com/t0l1k/nBack/app"
 	"github.com/t0l1k/nBack/app/data"
 	scene_intro "github.com/t0l1k/nBack/app/scenes/intro"
 )
@@ -26,97 +25,96 @@ func NewSceneSelectGame() *SceneSelectGame {
 	s.Add(s.topBar)
 	s.lst = map[string]*data.GamesData{
 		"Single nBack Position(3x3) rulez brainworkshop": func() *data.GamesData {
-			eui.GetUi().GetSettings().Set(app.Trials, 20)
-			eui.GetUi().GetSettings().Set(app.TrialsFactor, 1)
-			eui.GetUi().GetSettings().Set(app.TrialsExponent, 2)
-			eui.GetUi().GetSettings().Set(app.ThresholdFallbackSessions, 3)
-			eui.GetUi().GetSettings().Set(app.GridSize, 3)
-			eui.GetUi().GetSettings().Set(app.ShowGrid, true)
 			g := data.NewGamesData()
-			g.Setup([]string{data.Pos}, 1, 3, 80, 50, false, false, 1.5)
+			g.Conf.Set(data.Trials, 20)
+			g.Conf.Set(data.TrialsFactor, 1)
+			g.Conf.Set(data.TrialsExponent, 2)
+			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.GridSize, 3)
+			g.Conf.Set(data.ShowGrid, true)
+			g.Setup([]string{data.Pos}, 1, 3, 80, 50, 1.5)
 			return g
 		}(),
 		"Single nBack Position(3x3) Jaeggi Rulez": func() *data.GamesData {
-			eui.GetUi().GetSettings().Set(app.Trials, 20)
-			eui.GetUi().GetSettings().Set(app.TrialsFactor, 1)
-			eui.GetUi().GetSettings().Set(app.TrialsExponent, 2)
-			eui.GetUi().GetSettings().Set(app.ThresholdFallbackSessions, 3)
-			eui.GetUi().GetSettings().Set(app.GridSize, 3)
-			eui.GetUi().GetSettings().Set(app.ShowGrid, false)
 			g := data.NewGamesData()
-			g.Setup([]string{data.Pos}, 1, 3, 90, 75, false, false, 1.5)
+			g.Conf.Set(data.Trials, 20)
+			g.Conf.Set(data.TrialsFactor, 1)
+			g.Conf.Set(data.TrialsExponent, 2)
+			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.GridSize, 3)
+			g.Conf.Set(data.ShowGrid, false)
+			g.Setup([]string{data.Pos}, 1, 3, 90, 75, 1.5)
 			return g
 		}(),
 		"Single nBack Numbers Jaeggi Rulez": func() *data.GamesData {
-			eui.GetUi().GetSettings().Set(app.Trials, 20)
-			eui.GetUi().GetSettings().Set(app.TrialsFactor, 1)
-			eui.GetUi().GetSettings().Set(app.TrialsExponent, 2)
-			eui.GetUi().GetSettings().Set(app.ThresholdFallbackSessions, 3)
-			eui.GetUi().GetSettings().Set(app.GridSize, 3)
-			eui.GetUi().GetSettings().Set(app.ShowGrid, false)
 			g := data.NewGamesData()
-			g.Setup([]string{data.Sym}, 1, 3, 90, 75, false, false, 1.5)
+			g.Conf.Set(data.Trials, 20)
+			g.Conf.Set(data.TrialsFactor, 1)
+			g.Conf.Set(data.TrialsExponent, 2)
+			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.GridSize, 3)
+			g.Conf.Set(data.ShowGrid, false)
+			g.Setup([]string{data.Sym}, 1, 3, 90, 75, 1.5)
 			return g
 		}(),
 		"Single nBack Colors Jaeggi Rulez": func() *data.GamesData {
-			eui.GetUi().GetSettings().Set(app.Trials, 20)
-			eui.GetUi().GetSettings().Set(app.TrialsFactor, 1)
-			eui.GetUi().GetSettings().Set(app.TrialsExponent, 2)
-			eui.GetUi().GetSettings().Set(app.ThresholdFallbackSessions, 3)
-			eui.GetUi().GetSettings().Set(app.GridSize, 3)
-			eui.GetUi().GetSettings().Set(app.ShowGrid, false)
 			g := data.NewGamesData()
-			g.Setup([]string{data.Col}, 1, 3, 90, 75, false, false, 1.5)
+			g.Conf.Set(data.Trials, 20)
+			g.Conf.Set(data.TrialsFactor, 1)
+			g.Conf.Set(data.TrialsExponent, 2)
+			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.GridSize, 3)
+			g.Conf.Set(data.ShowGrid, false)
+			g.Setup([]string{data.Col}, 1, 3, 90, 75, 1.5)
 			return g
 		}(),
 		"Single nBack Ariphmetics Jaeggi Rulez": func() *data.GamesData {
-			eui.GetUi().GetSettings().Set(app.Trials, 20)
-			eui.GetUi().GetSettings().Set(app.TrialsFactor, 1)
-			eui.GetUi().GetSettings().Set(app.TrialsExponent, 2)
-			eui.GetUi().GetSettings().Set(app.ThresholdFallbackSessions, 3)
-			eui.GetUi().GetSettings().Set(app.GridSize, 3)
-			eui.GetUi().GetSettings().Set(app.ShowGrid, false)
 			g := data.NewGamesData()
-			g.Setup([]string{data.Ari}, 1, 3, 90, 75, false, false, 1.5)
+			g.Conf.Set(data.Trials, 20)
+			g.Conf.Set(data.TrialsFactor, 1)
+			g.Conf.Set(data.TrialsExponent, 2)
+			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.GridSize, 3)
+			g.Conf.Set(data.ShowGrid, false)
+			g.Setup([]string{data.Ari}, 1, 3, 90, 75, 1.5)
 			return g
 		}(),
 		"Dual nBack Position(3x3), Color Jaeggi Rulez": func() *data.GamesData {
-			eui.GetUi().GetSettings().Set(app.Trials, 20)
-			eui.GetUi().GetSettings().Set(app.TrialsFactor, 1)
-			eui.GetUi().GetSettings().Set(app.TrialsExponent, 2)
-			eui.GetUi().GetSettings().Set(app.ThresholdFallbackSessions, 3)
-			eui.GetUi().GetSettings().Set(app.GridSize, 3)
-			eui.GetUi().GetSettings().Set(app.ShowGrid, false)
 			g := data.NewGamesData()
-			g.Setup([]string{data.Pos, data.Col}, 1, 3, 90, 75, false, false, 1.5)
+			g.Conf.Set(data.Trials, 20)
+			g.Conf.Set(data.TrialsFactor, 1)
+			g.Conf.Set(data.TrialsExponent, 2)
+			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.GridSize, 3)
+			g.Conf.Set(data.ShowGrid, false)
+			g.Setup([]string{data.Pos, data.Col}, 1, 3, 90, 75, 1.5)
 			return g
 		}(),
 		"Гадкий утёнок позиции(3x3) легко": func() *data.GamesData {
-			eui.GetUi().GetSettings().Set(app.Trials, 20)
-			eui.GetUi().GetSettings().Set(app.TrialsFactor, 1)
-			eui.GetUi().GetSettings().Set(app.TrialsExponent, 2)
-			eui.GetUi().GetSettings().Set(app.ThresholdFallbackSessions, 3)
-			eui.GetUi().GetSettings().Set(app.GridSize, 3)
-			eui.GetUi().GetSettings().Set(app.ShowGrid, false)
 			g := data.NewGamesData()
-			g.Setup([]string{data.Pos}, 1, 3, 90, 0, false, false, 1.5)
+			g.Conf.Set(data.Trials, 20)
+			g.Conf.Set(data.TrialsFactor, 1)
+			g.Conf.Set(data.TrialsExponent, 2)
+			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.GridSize, 3)
+			g.Conf.Set(data.ShowGrid, false)
+			g.Setup([]string{data.Pos}, 1, 3, 90, 0, 1.5)
 			return g
 		}(),
 		// "Три поросёнка позиции(3x3) легко",
 		"Devel test set": func() *data.GamesData {
-			eui.GetUi().GetSettings().Set(app.Trials, 5)
 			g := data.NewGamesData()
-			g.Setup([]string{data.Pos, data.Col, data.Sym}, 1, 1, 90, 75, false, false, 2.0)
+			g.Conf.Set(data.Trials, 5)
+			g.Setup([]string{data.Sym}, 1, 1, 90, 75, 2.0)
 			return g
 		}(),
 	}
-
 	s.listGames = eui.NewListView()
 	theme := eui.GetUi().GetTheme()
 	bg := theme.Get(eui.ButtonBg)
 	fg := theme.Get(eui.ButtonFg)
 	var lst []string
-	for k, _ := range s.lst {
+	for k := range s.lst {
 		lst = append(lst, k)
 	}
 	s.listGames.SetupListViewButtons(lst, 30, 1, bg, fg, s.btnsLogic)
@@ -144,48 +142,11 @@ func (s *SceneSelectGame) btnsLogic(b *eui.Button) {
 	fmt.Println("selected", b.GetText())
 	for k, v := range s.lst {
 		if k == b.GetText() {
-			sc := scene_intro.NewSceneIntro(v)
+			sc := scene_intro.NewSceneIntro(v, k)
 			eui.GetUi().Push(sc)
 			log.Println("new session started", b.GetText())
 		}
 	}
-	// if b.GetText() == s.lst[0] {
-	// 	sc := scene_intro.NewSceneIntro(data.NewGamePos3x3BRRulez())
-	// 	eui.GetUi().Push(sc)
-	// 	log.Println("new session started", b.GetText())
-	// } else if b.GetText() == s.lst[1] {
-	// 	sc := scene_intro.NewSceneIntro(data.NewGameJaeggiPos3x3Rulez())
-	// 	eui.GetUi().Push(sc)
-	// 	log.Println("new session started", b.GetText())
-	// } else if b.GetText() == s.lst[2] {
-	// 	sc := scene_intro.NewSceneIntro(data.NewGameJaeggiSymRulez())
-	// 	eui.GetUi().Push(sc)
-	// 	log.Println("new session started", b.GetText())
-	// } else if b.GetText() == s.lst[3] {
-	// 	sc := scene_intro.NewSceneIntro(data.NewGameJaeggiColRulez())
-	// 	eui.GetUi().Push(sc)
-	// 	log.Println("new session started", b.GetText())
-	// } else if b.GetText() == s.lst[4] {
-	// 	sc := scene_intro.NewSceneIntro(data.NewGameJaeggiAriRulez())
-	// 	eui.GetUi().Push(sc)
-	// 	log.Println("new session started", b.GetText())
-	// } else if b.GetText() == s.lst[5] {
-	// 	sc := scene_intro.NewSceneIntro(data.NewGameJaeggiPos3x3ColRulez())
-	// 	eui.GetUi().Push(sc)
-	// 	log.Println("new session started", b.GetText())
-	// } else if b.GetText() == s.lst[6] {
-	// 	sc := scene_intro.NewSceneIntro(data.NewGameUngleDuckPos3x3Rulez())
-	// 	eui.GetUi().Push(sc)
-	// 	log.Println("new session started", b.GetText())
-	// } else if b.GetText() == s.lst[7] {
-	// 	sc := scene_intro.NewSceneIntro(data.NewGameDevelRulez())
-	// 	eui.GetUi().Push(sc)
-	// 	log.Println("new session started", b.GetText())
-	// } else if b.GetText() == s.lst[8] {
-	// 	sc := scene_intro.NewSceneIntro(data.NewGameDevelRulez())
-	// 	eui.GetUi().Push(sc)
-	// 	log.Println("new session started", b.GetText())
-	// }
 }
 
 func (s *SceneSelectGame) Resize() {

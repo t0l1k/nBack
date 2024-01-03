@@ -1,7 +1,6 @@
 package game
 
 import (
-	"image/color"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -23,25 +22,23 @@ func New() *Board {
 	g := &Board{}
 	g.SetupView()
 	g.layout = eui.NewGridLayoutRightDown(1, 1)
-	conf := eui.GetUi().GetSettings()
-	g.Bg(conf.Get(app.GameColorBg).(color.Color))
+	theme := eui.GetUi().GetTheme()
+	g.Bg(theme.Get(app.GameColorBg))
 	return g
 }
 
-func (g *Board) Setup(gameData *data.GameData) {
+func (g *Board) Setup(conf data.GameConf, gameData *data.GameData) {
 	g.gData = gameData
 	dim := 1
 	if g.gData.IsContainMod(data.Pos) {
-		conf := eui.GetUi().GetSettings()
-		dim = conf.Get(app.GridSize).(int)
+		dim = conf.Get(data.GridSize).(int)
 	}
 	g.layout.SetRows(dim)
 	g.layout.SetColumns(dim)
 	if len(g.cells) == 0 {
 		for i := 0; i < dim*dim; i++ {
-			conf := eui.GetUi().GetSettings()
-			showCrosshair := conf.Get(app.ShowCrossHair).(bool)
-			useCenterCell := conf.Get(app.UseCenterCell).(bool)
+			showCrosshair := conf.Get(data.ShowCrossHair).(bool)
+			useCenterCell := conf.Get(data.UseCenterCell).(bool)
 			isCenter := false
 			aX := i % dim
 			aY := i / dim
@@ -55,10 +52,10 @@ func (g *Board) Setup(gameData *data.GameData) {
 	}
 	g.Add(g.layout)
 	for _, v := range g.gData.Modalities {
-		v.AddField(newField(gameData.Level, gameData.TotalMoves, v.GetSym()))
+		v.AddField(newField(conf, gameData.Level, gameData.TotalMoves, v.GetSym()))
 	}
 	for _, cell := range g.cells {
-		cell.Setup(g.gData.GetModalities())
+		cell.Setup(conf, g.gData.GetModalities())
 	}
 	g.gData.DtBeg = time.Now().Format("2006-01-02 15:04:05.000")
 }

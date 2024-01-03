@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/t0l1k/eui"
-	"github.com/t0l1k/nBack/app"
 	"github.com/t0l1k/nBack/app/data"
 )
 
@@ -19,15 +18,14 @@ type field struct {
 	useCenter                          bool
 }
 
-func newField(level, totalMoves int, sym string) []int {
+func newField(conf data.GameConf, level, totalMoves int, sym string) []int {
 	beginDt := time.Now()
-	conf := eui.GetUi().GetSettings()
 	f := &field{level: level, totalMoves: totalMoves}
 	f.curModal = sym
-	f.rr = conf.Get(app.RandomRepition).(int)
-	f.maxNum = conf.Get(app.MaxNumber).(int)
-	f.dim = conf.Get(app.GridSize).(int)
-	f.useCenter = conf.Get(app.UseCenterCell).(bool)
+	f.rr = conf.Get(data.RandomRepition).(int)
+	f.maxNum = conf.Get(data.MaxNumber).(int)
+	f.dim = conf.Get(data.GridSize).(int)
+	f.useCenter = conf.Get(data.UseCenterCell).(bool)
 	check := false
 	percent, max := 0, 0
 	best := make([]int, 0)

@@ -16,23 +16,21 @@ type GameData struct {
 	Id, Level, Lives           int
 	Moves, TotalMoves          int
 	Percent, Advance, Fallback int
-	Manual, ResetOnError, done bool
+	done                       bool
 	Duration                   time.Duration
 	MoveTime                   float64
 }
 
-func NewGame(id int, mods []*Modality, level, lives, totalMoves, advance, fallback int, resetOnError, manual bool, moveTime float64) *GameData {
+func NewGame(id int, mods []*Modality, level, lives, totalMoves, advance, fallback int, moveTime float64) *GameData {
 	g := &GameData{
-		Id:           id,
-		Modalities:   mods,
-		Level:        level,
-		Lives:        lives,
-		TotalMoves:   totalMoves,
-		ResetOnError: resetOnError,
-		Manual:       manual,
-		Advance:      advance,
-		Fallback:     fallback,
-		MoveTime:     moveTime,
+		Id:         id,
+		Modalities: mods,
+		Level:      level,
+		Lives:      lives,
+		TotalMoves: totalMoves,
+		Advance:    advance,
+		Fallback:   fallback,
+		MoveTime:   moveTime,
 	}
 	return g
 }
@@ -69,35 +67,6 @@ func (g *GameData) calcPercent() {
 }
 
 func (g GameData) SetupNext() GameData { return g }
-
-func (g *GameData) NextLevel() (level, lives int, result string, col color.Color) {
-	level = g.Level
-	lives = g.Lives
-	conf := eui.GetUi().GetSettings()
-	if g.Percent >= g.Advance {
-		level++
-		lives = conf.Get(app.ThresholdFallbackSessions).(int)
-		result = fmt.Sprintf("Уровень(%v) пройден отлично, вверх на(%v)!", level-1, level)
-		col = conf.Get(app.ColorCorrect).(color.Color)
-	} else if g.Percent >= g.Fallback && g.Percent < g.Advance {
-		result = fmt.Sprintf("Играть уровень(%v) снова!", level)
-		col = conf.Get(app.ColorNeutral).(color.Color)
-	} else if g.Percent < g.Fallback {
-		if lives > 1 {
-			lives--
-			result = fmt.Sprintf("Играть уровень(%v) снова! Попыток осталось(%v)", level, lives)
-			col = conf.Get(app.ColorWrong).(color.Color)
-		} else {
-			if level > 1 {
-				level--
-				lives = conf.Get(app.ThresholdFallbackSessions).(int)
-			}
-			result = fmt.Sprintf("Уровень вниз(%v)!", level)
-			col = conf.Get(app.ColorMissed).(color.Color)
-		}
-	}
-	return level, lives, result, col
-}
 
 func (g *GameData) GetModalities() []*Modality {
 	return g.Modalities
@@ -136,11 +105,11 @@ func (g *GameData) GameMode() (result string) {
 
 func (g *GameData) ShortResultStringWithColors() (str string, bg, fg color.Color) {
 	str = fmt.Sprintf("#%v %v %v%%", g.Id, g.GameMode(), g.Percent)
-	conf := eui.GetUi().GetSettings()
-	clrNeutral := conf.Get(app.ColorNeutral).(color.Color)
-	clrCorrect := conf.Get(app.ColorCorrect).(color.Color)
-	clrWrong := conf.Get(app.ColorWrong).(color.Color)
-	clrMissed := conf.Get(app.ColorMissed).(color.Color)
+	theme := eui.GetUi().GetTheme()
+	clrNeutral := theme.Get(app.ColorNeutral)
+	clrCorrect := theme.Get(app.ColorCorrect)
+	clrWrong := theme.Get(app.ColorWrong)
+	clrMissed := theme.Get(app.ColorMissed)
 	fg = eui.Black
 	if g.Percent >= g.Advance {
 		bg = clrCorrect

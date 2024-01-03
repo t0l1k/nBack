@@ -17,23 +17,25 @@ type cell struct {
 	active, show, center          bool
 	bg, bgActive, fg, fgCrosshair color.Color
 	text                          string
+	conf                          data.GameConf
 }
 
 func newCell(center bool) *cell {
 	c := &cell{}
 	c.SetupIcon(nil)
-	conf := eui.GetUi().GetSettings()
-	c.bg = conf.Get(app.GameColorBg).(color.Color)
-	c.bgActive = conf.Get(app.GameColorActiveBg).(color.Color)
-	c.fg = conf.Get(app.GameColorFg).(color.Color)
-	c.fgCrosshair = conf.Get(app.GameColorFgCrosshair).(color.Color)
+	theme := eui.GetUi().GetTheme()
+	c.bg = theme.Get(app.GameColorBg)
+	c.bgActive = theme.Get(app.GameColorActiveBg)
+	c.fg = theme.Get(app.GameColorFg)
+	c.fgCrosshair = theme.Get(app.GameColorFgCrosshair)
 	c.Bg(c.bg)
 	c.Fg(c.fg)
 	c.center = center
 	return c
 }
 
-func (c *cell) Setup(modals []*data.Modality) {
+func (c *cell) Setup(conf data.GameConf, modals []*data.Modality) {
+	c.conf = conf
 	c.modals = modals
 	c.show = true
 }
@@ -85,10 +87,9 @@ func (c *cell) SetActive(idx int) {
 		case data.Sym:
 			c.text = strconv.Itoa(v.GetField()[idx])
 		case data.Ari:
-			conf := eui.GetUi().GetSettings()
-			maxNum := conf.Get(app.MaxNumber).(int)
+			maxNum := c.conf.Get(data.MaxNumber).(int)
 			oper := NewOperation()
-			oper.Rand()
+			oper.Rand(c.conf)
 			a, b := oper.Get(getNum(v.GetField()[idx]), v.GetField()[idx], maxNum)
 			c.text = fmt.Sprintln(a, oper, b)
 		}

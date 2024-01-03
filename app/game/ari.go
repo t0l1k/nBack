@@ -3,8 +3,7 @@ package game
 import (
 	"math/rand"
 
-	"github.com/t0l1k/eui"
-	"github.com/t0l1k/nBack/app"
+	"github.com/t0l1k/nBack/app/data"
 )
 
 const (
@@ -82,10 +81,9 @@ func (o Operation) Get(a, c, max int) (int, int) {
 	return a, b
 }
 
-func (o *Operation) Rand() {
-	conf := eui.GetUi().GetSettings()
-	adds := conf.Get(app.UseAddSub).(bool)
-	muls := conf.Get(app.UseMulDiv).(bool)
+func (o *Operation) Rand(conf data.GameConf) {
+	adds := conf.Get(data.UseAddSub).(bool)
+	muls := conf.Get(data.UseMulDiv).(bool)
 	if adds && !muls {
 		*o = Operation(rand.Intn(2))
 	} else if muls && !adds {

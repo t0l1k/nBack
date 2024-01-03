@@ -17,8 +17,10 @@ type SceneGame struct {
 	eui.SceneBase
 	lblTitle                                                  *eui.Text
 	lblVar                                                    *eui.StringVar
+	btnQuit                                                   *eui.Button
 	moveTimer                                                 *eui.Timer
 	gameData                                                  *data.GameData
+	gameConf                                                  data.GameConf
 	board                                                     *game.Board
 	grid                                                      *eui.GridView
 	btnsLayout                                                *eui.BoxLayout
@@ -33,6 +35,10 @@ func New() *SceneGame {
 	s.Add(s.lblTitle)
 	s.lblVar = eui.NewStringVar("")
 	s.lblVar.Attach(s.lblTitle)
+	s.btnQuit = eui.NewButton("<", func(b *eui.Button) {
+		eui.GetUi().Pop()
+	})
+	s.Add(s.btnQuit)
 	s.board = game.New()
 	s.Add(s.board)
 	s.grid = eui.NewGridView(1, 1)
@@ -42,34 +48,39 @@ func New() *SceneGame {
 	return s
 }
 
-func (s *SceneGame) Setup(gd *data.GameData) {
+func (s *SceneGame) Setup(conf data.GameConf, gd *data.GameData) {
+	s.gameConf = conf
 	s.gameData = gd
-	conf := eui.GetUi().GetSettings()
-	s.grid.Bg(conf.Get(app.GameColorBg).(color.Color))
-	s.grid.Fg(conf.Get(app.GameColorFgCrosshair).(color.Color))
-	s.grid.Visible(conf.Get(app.ShowGrid).(bool))
+	theme := eui.GetUi().GetTheme()
+	s.grid.Bg(theme.Get(app.GameColorBg))
+	s.grid.Fg(theme.Get(app.GameColorFgCrosshair))
+	s.grid.Visible(conf.Get(data.ShowGrid).(bool))
+	s.lblTitle.Fg(theme.Get(app.GameColorBg))
 	s.btnsLayout.Container = nil
 	for _, v := range s.gameData.Modalities {
 		btn := eui.NewButton(v.GetSym(), s.buttonsLogic)
+		btn.Bg(theme.Get(app.LabelColorDefault))
+		btn.Fg(theme.Get(app.GameColorBg))
 		s.btnsLayout.Add(btn)
 		if v.GetSym() == data.Pos {
-			grid := conf.Get(app.GridSize).(int)
+			grid := conf.Get(data.GridSize).(int)
 			s.grid.Set(grid, grid)
 		}
 		v.Attach(s)
 	}
-	s.clrNeutral = conf.Get(app.LabelColorDefault).(color.Color)
-	s.clrMoved = conf.Get(app.ColorNeutral).(color.Color)
-	s.clrCorrect = conf.Get(app.ColorCorrect).(color.Color)
-	s.clrWrong = conf.Get(app.ColorWrong).(color.Color)
-	s.clrMissed = conf.Get(app.ColorMissed).(color.Color)
+	s.clrNeutral = theme.Get(app.LabelColorDefault)
+	s.clrMoved = theme.Get(app.ColorNeutral)
+	s.clrCorrect = theme.Get(app.ColorCorrect)
+	s.clrWrong = theme.Get(app.ColorWrong)
+	s.clrMissed = theme.Get(app.ColorMissed)
 	s.moveTime = int(s.gameData.MoveTime * 1000)
-	showCellPercent := conf.Get(app.ShowCellPercent).(float64)
+	appConf := eui.GetUi().GetSettings()
+	showCellPercent := appConf.Get(app.ShowCellPercent).(float64)
 	timeShowCell := int(float64(s.moveTime) * showCellPercent)
 	s.delayTimeShowCell = (s.moveTime - timeShowCell) / 2
 	s.delayTimeHideCell = s.delayTimeShowCell + timeShowCell
 	s.moveTimer = eui.NewTimer(s.moveTime + s.delayTimeShowCell)
-	s.board.Setup(s.gameData)
+	s.board.Setup(conf, s.gameData)
 	s.lblTitle.Bg(s.clrNeutral)
 	log.Println("init:", s.moveTime, timeShowCell, s.delayTimeShowCell, s.delayTimeHideCell)
 }
@@ -86,6 +97,7 @@ func (s *SceneGame) Entered() {
 
 func (s *SceneGame) Update(dt int) {
 	s.moveTimer.Update(dt)
+	s.btnQuit.Update(dt)
 	for _, v := range s.btnsLayout.Container {
 		v.Update(dt)
 	}
@@ -155,9 +167,7 @@ func (s *SceneGame) updateLbls() {
 	str.WriteString(strconv.Itoa(s.gameData.Lives))
 	str.WriteString(")")
 	str.WriteString("(")
-	str.WriteString(strconv.Itoa(s.board.Move))
-	str.WriteString("/")
-	str.WriteString(strconv.Itoa(s.gameData.TotalMoves))
+	str.WriteString(strconv.Itoa(s.gameData.TotalMoves - s.board.Move))
 	str.WriteString(")")
 	s.lblVar.SetValue(str.String())
 	if s.userMoved {
@@ -276,6 +286,8 @@ func (s *SceneGame) Resize() {
 	w := int(float64(w0) * 0.268)
 	h := int(float64(h0) * 0.05)
 	x, y := 0, 0
+	s.btnQuit.Resize([]int{x, y, h, h})
+	x += h
 	s.lblTitle.Resize([]int{x, y, w, h})
 	x = h / 2
 	y += h + h/2

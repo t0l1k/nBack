@@ -25,10 +25,10 @@ type SceneIntro struct {
 	listShort                         *eui.ListView
 }
 
-func NewSceneIntro(gdata *data.GamesData) *SceneIntro {
+func NewSceneIntro(gdata *data.GamesData, text string) *SceneIntro {
 	s := &SceneIntro{}
 	s.gamesData = gdata
-	s.topbar = eui.NewTopBar("nBack")
+	s.topbar = eui.NewTopBar(text)
 	s.Add(s.topbar)
 	s.listShort = eui.NewListView()
 	s.Add(s.listShort)
@@ -51,7 +51,7 @@ func (s *SceneIntro) Entered() {
 	eui.GetUi().GetInputKeyboard().Attach(s)
 	s.Resize()
 	if s.gamesData.Last().IsDone() {
-		level, lives, resultStr, colorStr := s.gamesData.Last().NextLevel()
+		level, lives, resultStr, colorStr := s.gamesData.NextLevel()
 		s.lblIntro.SetText(s.gamesData.Last().String())
 		s.lblIntro.Bg(colorStr)
 		s.lblResult.SetText(resultStr)
@@ -65,7 +65,7 @@ func (s *SceneIntro) Entered() {
 		strs     []string
 		bgs, fgs []color.Color
 	)
-	for _, v := range s.gamesData.Data {
+	for _, v := range s.gamesData.Games {
 		if v.IsDone() {
 			str, bg, fg := v.ShortResultStringWithColors()
 			strs = append(strs, str)
@@ -86,11 +86,17 @@ func (s *SceneIntro) Update(dt int) {
 	}
 	s.lblStopwatch.SetText(s.restStopwatch.StringShort())
 	if s.restStopwatch.Duration() < time.Duration(s.restDuration)*time.Second {
-		s.lblStopwatch.Bg(eui.Red)
+		if s.lblStopwatch.GetBg() != eui.Red && s.warningDuration > 0 {
+			s.lblStopwatch.Bg(eui.Red)
+		}
 	} else if s.restStopwatch.Duration() < s.warningDuration {
-		s.lblStopwatch.Bg(eui.Orange)
-	} else {
-		s.lblStopwatch.Bg(eui.Blue)
+		if s.lblStopwatch.GetBg() != eui.Orange {
+			s.lblStopwatch.Bg(eui.Orange)
+		}
+	} else if s.restStopwatch.Duration() > s.warningDuration {
+		if s.lblStopwatch.GetBg() != eui.Blue {
+			s.lblStopwatch.Bg(eui.Blue)
+		}
 	}
 }
 
@@ -108,7 +114,7 @@ func (s *SceneIntro) UpdateInput(value interface{}) {
 func (s *SceneIntro) playNewGame() {
 	eui.GetUi().GetInputKeyboard().Detach(s)
 	sc := scene_game.New()
-	sc.Setup(s.gamesData.Last())
+	sc.Setup(s.gamesData.Conf, s.gamesData.Last())
 	eui.GetUi().Push(sc)
 	log.Println("new session started")
 }
