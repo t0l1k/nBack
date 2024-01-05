@@ -6,7 +6,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/app"
 	"github.com/t0l1k/nBack/app/data"
@@ -48,7 +47,6 @@ func NewSceneIntro(gdata *data.GamesData, text string) *SceneIntro {
 }
 
 func (s *SceneIntro) Entered() {
-	eui.GetUi().GetInputKeyboard().Attach(s)
 	s.Resize()
 	if s.gamesData.Last().IsDone() {
 		level, lives, resultStr, colorStr := s.gamesData.NextLevel()
@@ -100,21 +98,9 @@ func (s *SceneIntro) Update(dt int) {
 	}
 }
 
-func (s *SceneIntro) UpdateInput(value interface{}) {
-	switch v := value.(type) {
-	case eui.KeyboardData:
-		for _, key := range v.GetKeys() {
-			if key == ebiten.KeySpace {
-				s.playNewGame()
-			}
-		}
-	}
-}
-
 func (s *SceneIntro) playNewGame() {
-	eui.GetUi().GetInputKeyboard().Detach(s)
 	sc := scene_game.New()
-	sc.Setup(s.gamesData.Conf, s.gamesData.Last())
+	sc.Setup(*s.gamesData.Conf, s.gamesData.Last())
 	eui.GetUi().Push(sc)
 	log.Println("new session started")
 }

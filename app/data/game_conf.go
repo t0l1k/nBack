@@ -36,7 +36,7 @@ func (t GameConf) Set(set GameConfValue, value interface{}) {
 	t[set] = value
 }
 
-func DefaultSettings() GameConf {
+func DefaultSettings() *GameConf {
 	gc := NewGameConf()
 	gc.Set(DefaultLevel, 1)
 	gc.Set(MoveTime, 1.5)
@@ -55,5 +55,5 @@ func DefaultSettings() GameConf {
 	gc.Set(MaxNumber, 10)
 	gc.Set(UseAddSub, true)
 	gc.Set(UseMulDiv, false)
-	return gc
+	return &gc
 }

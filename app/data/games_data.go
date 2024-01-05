@@ -12,7 +12,7 @@ import (
 type GamesData struct {
 	id    int
 	Games []*GameData
-	Conf  GameConf
+	Conf  *GameConf
 }
 
 func NewGamesData() *GamesData {

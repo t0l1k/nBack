@@ -35,6 +35,55 @@ func NewSceneSelectGame() *SceneSelectGame {
 			g.Setup([]string{data.Pos}, 1, 3, 80, 50, 1.5)
 			return g
 		}(),
+		"Single nBack Colors rulez brainworkshop": func() *data.GamesData {
+			g := data.NewGamesData()
+			g.Conf.Set(data.Trials, 20)
+			g.Conf.Set(data.TrialsFactor, 1)
+			g.Conf.Set(data.TrialsExponent, 2)
+			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Setup([]string{data.Col}, 1, 3, 80, 50, 1.5)
+			return g
+		}(),
+		"Single nBack Numbers rulez brainworkshop": func() *data.GamesData {
+			g := data.NewGamesData()
+			g.Conf.Set(data.Trials, 20)
+			g.Conf.Set(data.TrialsFactor, 1)
+			g.Conf.Set(data.TrialsExponent, 2)
+			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Setup([]string{data.Sym}, 1, 3, 80, 50, 1.5)
+			return g
+		}(),
+		"Single nBack Ariphmetics rulez brainworkshop": func() *data.GamesData {
+			g := data.NewGamesData()
+			g.Conf.Set(data.Trials, 20)
+			g.Conf.Set(data.TrialsFactor, 1)
+			g.Conf.Set(data.TrialsExponent, 2)
+			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Setup([]string{data.Ari}, 1, 3, 80, 50, 1.5)
+			return g
+		}(),
+		"Dual nBack Position(3x3), Colors rulez brainworkshop": func() *data.GamesData {
+			g := data.NewGamesData()
+			g.Conf.Set(data.Trials, 20)
+			g.Conf.Set(data.TrialsFactor, 1)
+			g.Conf.Set(data.TrialsExponent, 2)
+			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.GridSize, 3)
+			g.Conf.Set(data.ShowGrid, true)
+			g.Setup([]string{data.Pos, data.Col}, 1, 3, 80, 50, 2.5)
+			return g
+		}(),
+		"Triple nBack Position(3x3), Colors, Numbers rulez brainworkshop": func() *data.GamesData {
+			g := data.NewGamesData()
+			g.Conf.Set(data.Trials, 20)
+			g.Conf.Set(data.TrialsFactor, 1)
+			g.Conf.Set(data.TrialsExponent, 2)
+			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.GridSize, 3)
+			g.Conf.Set(data.ShowGrid, true)
+			g.Setup([]string{data.Pos, data.Col, data.Sym}, 1, 3, 80, 50, 3)
+			return g
+		}(),
 		"Single nBack Position(3x3) Jaeggi Rulez": func() *data.GamesData {
 			g := data.NewGamesData()
 			g.Conf.Set(data.Trials, 20)
@@ -76,7 +125,7 @@ func NewSceneSelectGame() *SceneSelectGame {
 			g.Conf.Set(data.ThresholdFallbackSessions, 3)
 			g.Conf.Set(data.GridSize, 3)
 			g.Conf.Set(data.ShowGrid, false)
-			g.Setup([]string{data.Ari}, 1, 3, 90, 75, 1.5)
+			g.Setup([]string{data.Ari}, 1, 1, 90, 75, 1.5)
 			return g
 		}(),
 		"Dual nBack Position(3x3), Color Jaeggi Rulez": func() *data.GamesData {
@@ -87,7 +136,29 @@ func NewSceneSelectGame() *SceneSelectGame {
 			g.Conf.Set(data.ThresholdFallbackSessions, 3)
 			g.Conf.Set(data.GridSize, 3)
 			g.Conf.Set(data.ShowGrid, false)
-			g.Setup([]string{data.Pos, data.Col}, 1, 3, 90, 75, 1.5)
+			g.Setup([]string{data.Pos, data.Col}, 1, 1, 90, 75, 2.0)
+			return g
+		}(),
+		"Dual nBack Position(3x3), Numbers Jaeggi Rulez": func() *data.GamesData {
+			g := data.NewGamesData()
+			g.Conf.Set(data.Trials, 20)
+			g.Conf.Set(data.TrialsFactor, 1)
+			g.Conf.Set(data.TrialsExponent, 2)
+			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.GridSize, 3)
+			g.Conf.Set(data.ShowGrid, false)
+			g.Setup([]string{data.Pos, data.Sym}, 1, 1, 90, 75, 2.0)
+			return g
+		}(),
+		"Triple nBack Position(3x3), Number, Color Jaeggi Rulez": func() *data.GamesData {
+			g := data.NewGamesData()
+			g.Conf.Set(data.Trials, 20)
+			g.Conf.Set(data.TrialsFactor, 1)
+			g.Conf.Set(data.TrialsExponent, 2)
+			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.GridSize, 3)
+			g.Conf.Set(data.ShowGrid, false)
+			g.Setup([]string{data.Pos, data.Sym, data.Col}, 1, 1, 90, 75, 3)
 			return g
 		}(),
 		"Гадкий утёнок позиции(3x3) легко": func() *data.GamesData {
@@ -102,10 +173,16 @@ func NewSceneSelectGame() *SceneSelectGame {
 			return g
 		}(),
 		// "Три поросёнка позиции(3x3) легко",
-		"Devel test set": func() *data.GamesData {
+		"Devel test set sym": func() *data.GamesData {
 			g := data.NewGamesData()
 			g.Conf.Set(data.Trials, 5)
 			g.Setup([]string{data.Sym}, 1, 1, 90, 75, 2.0)
+			return g
+		}(),
+		"Devel test set2 dual pos/sym": func() *data.GamesData {
+			g := data.NewGamesData()
+			g.Conf.Set(data.Trials, 5)
+			g.Setup([]string{data.Sym, data.Pos}, 1, 1, 90, 75, 2.0)
 			return g
 		}(),
 	}
