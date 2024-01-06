@@ -81,48 +81,48 @@ func NewSceneSelectGame() *SceneSelectGame {
 			g.Conf.Set(data.ThresholdFallbackSessions, 3)
 			g.Conf.Set(data.GridSize, 3)
 			g.Conf.Set(data.ShowGrid, true)
-			g.Setup([]string{data.Pos, data.Col, data.Sym}, 1, 3, 80, 50, 3)
+			g.Setup([]string{data.Pos, data.Sym, data.Col}, 1, 3, 80, 50, 3.0)
 			return g
 		}(),
 		"Single nBack Position(3x3) Jaeggi Rulez": func() *data.GamesData {
 			g := data.NewGamesData()
 			g.Conf.Set(data.Trials, 20)
 			g.Conf.Set(data.TrialsFactor, 1)
-			g.Conf.Set(data.TrialsExponent, 2)
-			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.TrialsExponent, 1)
+			g.Conf.Set(data.ThresholdFallbackSessions, 1)
 			g.Conf.Set(data.GridSize, 3)
 			g.Conf.Set(data.ShowGrid, false)
-			g.Setup([]string{data.Pos}, 1, 3, 90, 75, 1.5)
+			g.Setup([]string{data.Pos}, 1, 1, 90, 75, 1.5)
 			return g
 		}(),
 		"Single nBack Numbers Jaeggi Rulez": func() *data.GamesData {
 			g := data.NewGamesData()
 			g.Conf.Set(data.Trials, 20)
 			g.Conf.Set(data.TrialsFactor, 1)
-			g.Conf.Set(data.TrialsExponent, 2)
-			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.TrialsExponent, 1)
+			g.Conf.Set(data.ThresholdFallbackSessions, 1)
 			g.Conf.Set(data.GridSize, 3)
 			g.Conf.Set(data.ShowGrid, false)
-			g.Setup([]string{data.Sym}, 1, 3, 90, 75, 1.5)
+			g.Setup([]string{data.Sym}, 1, 1, 90, 75, 1.5)
 			return g
 		}(),
 		"Single nBack Colors Jaeggi Rulez": func() *data.GamesData {
 			g := data.NewGamesData()
 			g.Conf.Set(data.Trials, 20)
 			g.Conf.Set(data.TrialsFactor, 1)
-			g.Conf.Set(data.TrialsExponent, 2)
-			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.TrialsExponent, 1)
+			g.Conf.Set(data.ThresholdFallbackSessions, 1)
 			g.Conf.Set(data.GridSize, 3)
 			g.Conf.Set(data.ShowGrid, false)
-			g.Setup([]string{data.Col}, 1, 3, 90, 75, 1.5)
+			g.Setup([]string{data.Col}, 1, 1, 90, 75, 1.5)
 			return g
 		}(),
 		"Single nBack Ariphmetics Jaeggi Rulez": func() *data.GamesData {
 			g := data.NewGamesData()
 			g.Conf.Set(data.Trials, 20)
 			g.Conf.Set(data.TrialsFactor, 1)
-			g.Conf.Set(data.TrialsExponent, 2)
-			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.TrialsExponent, 1)
+			g.Conf.Set(data.ThresholdFallbackSessions, 1)
 			g.Conf.Set(data.GridSize, 3)
 			g.Conf.Set(data.ShowGrid, false)
 			g.Setup([]string{data.Ari}, 1, 1, 90, 75, 1.5)
@@ -132,8 +132,8 @@ func NewSceneSelectGame() *SceneSelectGame {
 			g := data.NewGamesData()
 			g.Conf.Set(data.Trials, 20)
 			g.Conf.Set(data.TrialsFactor, 1)
-			g.Conf.Set(data.TrialsExponent, 2)
-			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.TrialsExponent, 1)
+			g.Conf.Set(data.ThresholdFallbackSessions, 1)
 			g.Conf.Set(data.GridSize, 3)
 			g.Conf.Set(data.ShowGrid, false)
 			g.Setup([]string{data.Pos, data.Col}, 1, 1, 90, 75, 2.0)
@@ -143,8 +143,8 @@ func NewSceneSelectGame() *SceneSelectGame {
 			g := data.NewGamesData()
 			g.Conf.Set(data.Trials, 20)
 			g.Conf.Set(data.TrialsFactor, 1)
-			g.Conf.Set(data.TrialsExponent, 2)
-			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.TrialsExponent, 1)
+			g.Conf.Set(data.ThresholdFallbackSessions, 1)
 			g.Conf.Set(data.GridSize, 3)
 			g.Conf.Set(data.ShowGrid, false)
 			g.Setup([]string{data.Pos, data.Sym}, 1, 1, 90, 75, 2.0)
@@ -154,8 +154,8 @@ func NewSceneSelectGame() *SceneSelectGame {
 			g := data.NewGamesData()
 			g.Conf.Set(data.Trials, 20)
 			g.Conf.Set(data.TrialsFactor, 1)
-			g.Conf.Set(data.TrialsExponent, 2)
-			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.TrialsExponent, 1)
+			g.Conf.Set(data.ThresholdFallbackSessions, 1)
 			g.Conf.Set(data.GridSize, 3)
 			g.Conf.Set(data.ShowGrid, false)
 			g.Setup([]string{data.Pos, data.Sym, data.Col}, 1, 1, 90, 75, 3)
@@ -165,13 +165,25 @@ func NewSceneSelectGame() *SceneSelectGame {
 			g := data.NewGamesData()
 			g.Conf.Set(data.Trials, 20)
 			g.Conf.Set(data.TrialsFactor, 1)
-			g.Conf.Set(data.TrialsExponent, 2)
-			g.Conf.Set(data.ThresholdFallbackSessions, 3)
+			g.Conf.Set(data.TrialsExponent, 1)
+			g.Conf.Set(data.ThresholdFallbackSessions, 1)
 			g.Conf.Set(data.GridSize, 3)
 			g.Conf.Set(data.ShowGrid, false)
 			g.Setup([]string{data.Pos}, 1, 3, 90, 0, 1.5)
 			return g
 		}(),
+		"Гадкий утёнок цифры легко": func() *data.GamesData {
+			g := data.NewGamesData()
+			g.Conf.Set(data.Trials, 20)
+			g.Conf.Set(data.TrialsFactor, 1)
+			g.Conf.Set(data.TrialsExponent, 1)
+			g.Conf.Set(data.ThresholdFallbackSessions, 1)
+			g.Conf.Set(data.GridSize, 3)
+			g.Conf.Set(data.ShowGrid, false)
+			g.Setup([]string{data.Sym}, 1, 1, 90, 0, 1.5)
+			return g
+		}(),
+
 		// "Три поросёнка позиции(3x3) легко",
 		"Devel test set sym": func() *data.GamesData {
 			g := data.NewGamesData()
@@ -222,6 +234,16 @@ func (s *SceneSelectGame) btnsLogic(b *eui.Button) {
 			sc := scene_intro.NewSceneIntro(v, k)
 			eui.GetUi().Push(sc)
 			log.Println("new session started", b.GetText())
+		}
+	}
+}
+
+func (s *SceneSelectGame) Entered() {
+	for k, v := range s.lst {
+		for _, v1 := range v.Games {
+			if v1.IsDone() {
+				fmt.Println(k, v1)
+			}
 		}
 	}
 }

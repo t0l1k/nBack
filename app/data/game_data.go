@@ -141,7 +141,8 @@ func (g *GameData) String() string {
 	m := int(sec / 60)
 	seconds := int(sec) % 60
 	gameDuration := fmt.Sprintf("%02v:%02v.%03v", m, seconds, int(mSec))
-	s1 := "[Modality Correct-(Wrong-Missed)]"
+	// s1 := "[Modality Correct-(Wrong-Missed)]"
+	s1 := ""
 	for _, v := range g.Modalities {
 		s1 += "[" + v.sym + ":" + strconv.Itoa(v.correct) + "(" + strconv.Itoa(v.wrong) + "-" + strconv.Itoa(v.missed) + ")] "
 	}

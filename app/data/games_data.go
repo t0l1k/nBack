@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"math"
+	"time"
 
 	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/app"
@@ -69,12 +70,12 @@ func (g *GamesData) getTotalMoves(level int) int {
 	return trials + factor*int(math.Pow(float64(level), float64(exponent)))
 }
 
-func (g *GamesData) NextLevel() (level, lives int, result string, col color.Color) {
-	level = g.Games[g.Last().Id].Level
-	lives = g.Games[g.Last().Id].Lives
-	percent := g.Games[g.Last().Id].Percent
-	adv := g.Games[g.Last().Id].Advance
-	fall := g.Games[g.Last().Id].Fallback
+func (g *GamesData) calcGameFor(id int) (level, lives int, result string, col color.Color) {
+	level = g.Games[id].Level
+	lives = g.Games[id].Lives
+	percent := g.Games[id].Percent
+	adv := g.Games[id].Advance
+	fall := g.Games[id].Fallback
 	theme := eui.GetUi().GetTheme()
 	if percent >= adv {
 		level++
@@ -99,4 +100,39 @@ func (g *GamesData) NextLevel() (level, lives int, result string, col color.Colo
 		}
 	}
 	return level, lives, result, col
+}
+
+func (g *GamesData) NextLevel() (level, lives int, result string, col color.Color) {
+	level, lives, result, col = g.calcGameFor(g.Last().Id)
+	return level, lives, result, col
+}
+
+func (g *GamesData) PrevGame() (level, lives int, result string, col color.Color) {
+	level, lives, result, col = g.calcGameFor(g.Last().Id - 1)
+	return level, lives, result, col
+}
+
+func (g GamesData) String() (result string) {
+	var (
+		max, avg  int
+		durration time.Duration
+	)
+	for _, v := range g.Games {
+		if !v.IsDone() {
+			continue
+		}
+		durration += v.Duration
+		avg += v.Level
+		if v.Level > max {
+			max = v.Level
+		}
+	}
+	avg = avg / len(g.Games)
+	mSec := durration.Milliseconds() / 1e3
+	sec := durration.Seconds()
+	m := int(sec / 60)
+	seconds := int(sec) % 60
+	gameDuration := fmt.Sprintf("%02v:%02v.%03v", m, seconds, int(mSec))
+	result = fmt.Sprintf("%v #%v max:%v avg:%v [%v]", time.Now().Format("2006-01-02"), g.id, max, avg, gameDuration)
+	return result
 }

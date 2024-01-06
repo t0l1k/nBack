@@ -14,14 +14,14 @@ import (
 
 type SceneIntro struct {
 	eui.SceneBase
-	topbar                            *eui.TopBar
-	lblIntro, lblResult, lblStopwatch *eui.Text
-	gamesData                         *data.GamesData
-	restStopwatch                     *eui.Stopwatch
-	restDuration                      int
-	warningDuration                   time.Duration
-	btnStart                          *eui.Button
-	listShort                         *eui.ListView
+	topbar                                *eui.TopBar
+	lblIntro, lblMotto, lblSw, lblResults *eui.Text
+	gamesData                             *data.GamesData
+	restStopwatch                         *eui.Stopwatch
+	restDuration                          int
+	warningDuration                       time.Duration
+	btnStart                              *eui.Button
+	listShort                             *eui.ListView
 }
 
 func NewSceneIntro(gdata *data.GamesData, text string) *SceneIntro {
@@ -32,16 +32,20 @@ func NewSceneIntro(gdata *data.GamesData, text string) *SceneIntro {
 	s.listShort = eui.NewListView()
 	s.Add(s.listShort)
 	s.topbar.SetShowStopwatch()
-	s.lblIntro = eui.NewText("Нажать <Space> для старта игры!")
+	s.lblIntro = eui.NewText("")
 	s.Add(s.lblIntro)
-	s.lblResult = eui.NewText("")
-	s.Add(s.lblResult)
-	s.lblStopwatch = eui.NewText("")
-	s.Add(s.lblStopwatch)
+	s.lblMotto = eui.NewText("")
+	s.Add(s.lblMotto)
+	s.lblSw = eui.NewText("")
+	s.Add(s.lblSw)
+	s.lblResults = eui.NewText("")
+	s.Add(s.lblResults)
 	s.btnStart = eui.NewButton("Начать новую сессию", func(b *eui.Button) {
 		s.playNewGame()
 	})
 	s.Add(s.btnStart)
+	s.lblIntro.Visible(false)
+	s.lblMotto.Visible(false)
 	s.restStopwatch = eui.NewStopwatch()
 	return s
 }
@@ -49,16 +53,25 @@ func NewSceneIntro(gdata *data.GamesData, text string) *SceneIntro {
 func (s *SceneIntro) Entered() {
 	s.Resize()
 	if s.gamesData.Last().IsDone() {
-		level, lives, resultStr, colorStr := s.gamesData.NextLevel()
+		s.lblIntro.Visible(true)
+		s.lblMotto.Visible(true)
+		level, lives, mottoStr, colorStr := s.gamesData.NextLevel()
 		s.lblIntro.SetText(s.gamesData.Last().String())
 		s.lblIntro.Bg(colorStr)
-		s.lblResult.SetText(resultStr)
-		s.lblResult.Bg(colorStr)
+		s.lblMotto.SetText(mottoStr)
+		s.lblMotto.Bg(colorStr)
 		log.Println("new game", level, lives)
 		s.warningDuration = s.gamesData.Last().Duration / 2
 		s.gamesData.NewGame(level, lives)
+	} else {
+		if len(s.gamesData.Games) > 1 {
+			_, _, mottoStr, colorStr := s.gamesData.PrevGame()
+			s.lblMotto.Visible(true)
+			s.lblMotto.SetText(mottoStr)
+			s.lblMotto.Bg(colorStr)
+		}
 	}
-	s.restStopwatch.Start()
+	s.lblResults.SetText(s.gamesData.String())
 	var (
 		strs     []string
 		bgs, fgs []color.Color
@@ -76,24 +89,25 @@ func (s *SceneIntro) Entered() {
 	s.listShort.SetListViewTextWithBgFgColors(strs, bgs, fgs)
 	conf := eui.GetUi().GetSettings()
 	s.restDuration = conf.Get(app.RestDuration).(int)
+	s.restStopwatch.Start()
 }
 
 func (s *SceneIntro) Update(dt int) {
 	for _, v := range s.Container {
 		v.Update(dt)
 	}
-	s.lblStopwatch.SetText(s.restStopwatch.StringShort())
+	s.lblSw.SetText(s.restStopwatch.StringShort())
 	if s.restStopwatch.Duration() < time.Duration(s.restDuration)*time.Second {
-		if s.lblStopwatch.GetBg() != eui.Red && s.warningDuration > 0 {
-			s.lblStopwatch.Bg(eui.Red)
+		if s.lblSw.GetBg() != eui.Red && s.warningDuration > 0 {
+			s.lblSw.Bg(eui.Red)
 		}
 	} else if s.restStopwatch.Duration() < s.warningDuration {
-		if s.lblStopwatch.GetBg() != eui.Orange {
-			s.lblStopwatch.Bg(eui.Orange)
+		if s.lblSw.GetBg() != eui.Orange {
+			s.lblSw.Bg(eui.Orange)
 		}
 	} else if s.restStopwatch.Duration() > s.warningDuration {
-		if s.lblStopwatch.GetBg() != eui.Blue {
-			s.lblStopwatch.Bg(eui.Blue)
+		if s.lblSw.GetBg() != eui.Blue {
+			s.lblSw.Bg(eui.Blue)
 		}
 	}
 }
@@ -110,17 +124,19 @@ func (s *SceneIntro) Resize() {
 	w1 := int(float64(w0) * 0.68)
 	h1 := int(float64(h0) * 0.068)
 	s.topbar.Resize([]int{0, 0, w0, h1 / 2})
-	x, y := (w0-w1)/2, h0/2-h1
+	x, y := (w0-w1)/2, h0/2-h1*6
+	s.lblResults.Resize([]int{x, y, w1, h1})
+	x, y = (w0-w1)/2, h0/2-h1
 	s.lblIntro.Resize([]int{x, y, w1, h1})
 	y += h1 + h1/2
-	s.lblResult.Resize([]int{x, y, w1, h1})
-	y += h1 + h1/2
+	s.lblMotto.Resize([]int{x, y, w1, h1})
+	y = h0 - h1 - h1/2
 	s.btnStart.Resize([]int{x, y, w1, h1})
 	w := h1 * 2
 	h := h1 * 2
 	x = (w0 - h) / 2
 	y = h0/2 - h*2
-	s.lblStopwatch.Resize([]int{x, y, w, h})
+	s.lblSw.Resize([]int{x, y, w, h})
 	x, y = w0-h1*3, h1
 	w, h = h1*3, h0-h1*2
 	s.listShort.Resize([]int{x, y, w, h})
