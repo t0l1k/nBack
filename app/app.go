@@ -17,7 +17,7 @@ func setTheme(u *eui.Ui) {
 	u.GetTheme().Set(eui.SceneBg, eui.Black)
 	u.GetTheme().Set(LabelColorDefault, eui.Silver)
 	u.GetTheme().Set(GameColorBg, eui.Black)
-	u.GetTheme().Set(GameColorActiveBg, eui.Yellow)
+	u.GetTheme().Set(GameColorActiveBg, eui.Teal)
 	u.GetTheme().Set(GameColorFg, eui.Navy)
 	u.GetTheme().Set(GameColorFgCrosshair, eui.Silver)
 	u.GetTheme().Set(ColorNeutral, eui.Green)

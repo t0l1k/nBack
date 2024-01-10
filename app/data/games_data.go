@@ -114,7 +114,8 @@ func (g *GamesData) PrevGame() (level, lives int, result string, col color.Color
 
 func (g GamesData) String() (result string) {
 	var (
-		max, avg  int
+		max       int
+		avg       float64
 		durration time.Duration
 	)
 	for _, v := range g.Games {
@@ -122,17 +123,17 @@ func (g GamesData) String() (result string) {
 			continue
 		}
 		durration += v.Duration
-		avg += v.Level
+		avg += float64(v.Level)
 		if v.Level > max {
 			max = v.Level
 		}
 	}
-	avg = avg / len(g.Games)
+	avg = avg / float64(len(g.Games))
 	mSec := durration.Milliseconds() / 1e3
 	sec := durration.Seconds()
 	m := int(sec / 60)
 	seconds := int(sec) % 60
 	gameDuration := fmt.Sprintf("%02v:%02v.%03v", m, seconds, int(mSec))
-	result = fmt.Sprintf("%v #%v max:%v avg:%v [%v]", time.Now().Format("2006-01-02"), g.id, max, avg, gameDuration)
+	result = fmt.Sprintf("%v #%v max:%v avg:%0.2v [%v]", time.Now().Format("2006-01-02"), g.id, max, avg, gameDuration)
 	return result
 }

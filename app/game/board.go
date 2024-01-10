@@ -95,6 +95,7 @@ func (g *Board) MakeMove() {
 func (g *Board) NextMove() {
 	g.MakeMove()
 	g.Move++
+	g.Visible(true)
 }
 
 func (g *Board) IsVisible() bool {

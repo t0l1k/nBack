@@ -44,6 +44,7 @@ func newField(conf data.GameConf, level, totalMoves int, sym string) []int {
 }
 
 func (f *field) generate() (result []int) {
+	rand.Seed(time.Now().UnixNano())
 	center := (f.dim*f.dim - 1) / 2
 	num := 0
 	for len(result) < f.totalMoves {

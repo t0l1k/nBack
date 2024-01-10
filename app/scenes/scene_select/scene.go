@@ -172,7 +172,7 @@ func NewSceneSelectGame() *SceneSelectGame {
 			g.Setup([]string{data.Pos}, 1, 3, 90, 0, 1.5)
 			return g
 		}(),
-		"Гадкий утёнок цифры легко": func() *data.GamesData {
+		"Гадкий утёнок цифры легко(ход 1 сек)": func() *data.GamesData {
 			g := data.NewGamesData()
 			g.Conf.Set(data.Trials, 20)
 			g.Conf.Set(data.TrialsFactor, 1)
@@ -180,10 +180,18 @@ func NewSceneSelectGame() *SceneSelectGame {
 			g.Conf.Set(data.ThresholdFallbackSessions, 1)
 			g.Conf.Set(data.GridSize, 3)
 			g.Conf.Set(data.ShowGrid, false)
-			g.Setup([]string{data.Sym}, 1, 1, 90, 0, 1.5)
+			g.Setup([]string{data.Sym}, 1, 1, 90, 0, 1.0)
 			return g
 		}(),
-
+		"Гадкий утёнок цифры цвет легко(ход 2 сек)": func() *data.GamesData {
+			g := data.NewGamesData()
+			g.Conf.Set(data.Trials, 20)
+			g.Conf.Set(data.TrialsFactor, 1)
+			g.Conf.Set(data.TrialsExponent, 1)
+			g.Conf.Set(data.ThresholdFallbackSessions, 1)
+			g.Setup([]string{data.Sym, data.Col}, 1, 1, 90, 0, 2.0)
+			return g
+		}(),
 		// "Три поросёнка позиции(3x3) легко",
 		"Devel test set sym": func() *data.GamesData {
 			g := data.NewGamesData()

@@ -5,6 +5,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/t0l1k/eui"
@@ -31,7 +32,7 @@ type SceneGame struct {
 
 func New() *SceneGame {
 	s := &SceneGame{}
-	s.lblTitle = eui.NewText("nBack ") // (модальность уровень) (попыток) (ход/ходов)
+	s.lblTitle = eui.NewText("nBack ") // (модальность уровень) (попыток) (ходов осталось)
 	s.Add(s.lblTitle)
 	s.lblVar = eui.NewStringVar("")
 	s.lblVar.Attach(s.lblTitle)
@@ -79,7 +80,7 @@ func (s *SceneGame) Setup(conf data.GameConf, gd *data.GameData) {
 	timeShowCell := int(float64(s.moveTime) * showCellPercent)
 	s.delayTimeShowCell = (s.moveTime - timeShowCell) / 2
 	s.delayTimeHideCell = s.delayTimeShowCell + timeShowCell
-	s.moveTimer = eui.NewTimer(s.moveTime + s.delayTimeShowCell)
+	s.moveTimer = eui.NewTimer(s.moveTime)
 	s.board.Setup(conf, s.gameData)
 	s.lblTitle.Bg(s.clrNeutral)
 	log.Println("init:", s.moveTime, timeShowCell, s.delayTimeShowCell, s.delayTimeHideCell)
@@ -88,8 +89,8 @@ func (s *SceneGame) Setup(conf data.GameConf, gd *data.GameData) {
 func (s *SceneGame) Entered() {
 	s.Resize()
 	eui.GetUi().GetInputKeyboard().Attach(s)
+	time.Sleep(time.Duration(s.delayTimeShowCell))
 	s.moveTimer.On()
-	s.moveTimer.SetDuration(s.moveTime)
 	s.board.MakeMove()
 	s.board.Visible(false)
 	log.Println("begin play:00 hide cell", s.board.Move)
@@ -104,7 +105,6 @@ func (s *SceneGame) Update(dt int) {
 	if s.moveTimer.TimePassed() > s.delayTimeShowCell && s.moveTimer.TimePassed() < s.delayTimeHideCell && !s.board.IsVisible() {
 		s.checkProgress()
 		s.board.NextMove()
-		s.board.Visible(true)
 		log.Println("01 show cell", s.board.Move)
 	}
 	if s.moveTimer.TimePassed() > s.delayTimeHideCell && s.board.IsVisible() {
