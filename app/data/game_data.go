@@ -110,7 +110,7 @@ func (g *GameData) ShortResultStringWithColors() (str string, bg, fg color.Color
 	clrCorrect := theme.Get(app.ColorCorrect)
 	clrWrong := theme.Get(app.ColorWrong)
 	clrMissed := theme.Get(app.ColorMissed)
-	fg = eui.Black
+	fg = eui.White
 	if g.Percent >= g.Advance {
 		bg = clrCorrect
 	} else if g.Percent >= g.Fallback && g.Percent < g.Advance {
@@ -125,7 +125,7 @@ func (g *GameData) ShortResultStringWithColors() (str string, bg, fg color.Color
 	return str, bg, fg
 }
 
-func (g *GameData) String() string {
+func (g *GameData) LastGameFullResult() string {
 	dtFormat := "2006-01-02 15:04:05.000"
 	dtBeg, err := time.Parse(dtFormat, g.DtBeg)
 	if err != nil {
@@ -141,7 +141,6 @@ func (g *GameData) String() string {
 	m := int(sec / 60)
 	seconds := int(sec) % 60
 	gameDuration := fmt.Sprintf("%02v:%02v.%03v", m, seconds, int(mSec))
-	// s1 := "[Modality Correct-(Wrong-Missed)]"
 	s1 := ""
 	for _, v := range g.Modalities {
 		s1 += "[" + v.sym + ":" + strconv.Itoa(v.correct) + "(" + strconv.Itoa(v.wrong) + "-" + strconv.Itoa(v.missed) + ")] "

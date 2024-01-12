@@ -14,14 +14,14 @@ import (
 
 type SceneIntro struct {
 	eui.SceneBase
-	topbar                                *eui.TopBar
-	lblIntro, lblMotto, lblSw, lblResults *eui.Text
-	gamesData                             *data.GamesData
-	restStopwatch                         *eui.Stopwatch
-	restDuration                          int
-	warningDuration                       time.Duration
-	btnStart                              *eui.Button
-	listShort                             *eui.ListView
+	topbar                                           *eui.TopBar
+	lblIntro, lblMotto, lblSw, lblResults, lblHelper *eui.Text
+	gamesData                                        *data.GamesData
+	restStopwatch                                    *eui.Stopwatch
+	restDuration                                     int
+	warningDuration                                  time.Duration
+	btnStart                                         *eui.Button
+	listShort                                        *eui.ListView
 }
 
 func NewSceneIntro(gdata *data.GamesData, text string) *SceneIntro {
@@ -40,12 +40,15 @@ func NewSceneIntro(gdata *data.GamesData, text string) *SceneIntro {
 	s.Add(s.lblSw)
 	s.lblResults = eui.NewText("")
 	s.Add(s.lblResults)
+	s.lblHelper = eui.NewText("[Modality Correct-(Wrong-Missed)]")
+	s.Add(s.lblHelper)
 	s.btnStart = eui.NewButton("Начать новую сессию", func(b *eui.Button) {
 		s.playNewGame()
 	})
 	s.Add(s.btnStart)
 	s.lblIntro.Visible(false)
 	s.lblMotto.Visible(false)
+	s.lblHelper.Visible(false)
 	s.restStopwatch = eui.NewStopwatch()
 	return s
 }
@@ -55,11 +58,13 @@ func (s *SceneIntro) Entered() {
 	if s.gamesData.Last().IsDone() {
 		s.lblIntro.Visible(true)
 		s.lblMotto.Visible(true)
+		s.lblHelper.Visible(true)
 		level, lives, mottoStr, colorStr := s.gamesData.NextLevel()
-		s.lblIntro.SetText(s.gamesData.Last().String())
+		s.lblIntro.SetText(s.gamesData.Last().LastGameFullResult())
 		s.lblIntro.Bg(colorStr)
 		s.lblMotto.SetText(mottoStr)
 		s.lblMotto.Bg(colorStr)
+		s.lblHelper.Bg(colorStr)
 		log.Println("new game", level, lives)
 		s.warningDuration = s.gamesData.Last().Duration / 2
 		s.gamesData.NewGame(level, lives)
@@ -123,20 +128,27 @@ func (s *SceneIntro) Resize() {
 	w0, h0 := eui.GetUi().Size()
 	w1 := int(float64(w0) * 0.68)
 	h1 := int(float64(h0) * 0.068)
-	s.topbar.Resize([]int{0, 0, w0, h1 / 2})
-	x, y := (w0-w1)/2, h0/2-h1*6
+	s.topbar.Resize([]int{0, 0, w0, h1})
+	x, y := (w0-w1)/2, h1+h1/2
 	s.lblResults.Resize([]int{x, y, w1, h1})
-	x, y = (w0-w1)/2, h0/2-h1
-	s.lblIntro.Resize([]int{x, y, w1, h1})
-	y += h1 + h1/2
-	s.lblMotto.Resize([]int{x, y, w1, h1})
+
 	y = h0 - h1 - h1/2
 	s.btnStart.Resize([]int{x, y, w1, h1})
+
 	w := h1 * 2
 	h := h1 * 2
 	x = (w0 - h) / 2
-	y = h0/2 - h*2
+	y -= h + h1/2
 	s.lblSw.Resize([]int{x, y, w, h})
+
+	x = (w0 - w1) / 2
+	y -= h1 + h1/2
+	s.lblMotto.Resize([]int{x, y, w1, h1})
+	y -= h1 + h1/2
+	s.lblIntro.Resize([]int{x, y, w1, h1})
+	y -= h1 / 2
+	s.lblHelper.Resize([]int{x, y, w1, h1 / 2})
+
 	x, y = w0-h1*3, h1
 	w, h = h1*3, h0-h1*2
 	s.listShort.Resize([]int{x, y, w, h})
