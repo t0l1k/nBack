@@ -113,10 +113,10 @@ func (s *SceneIntro) Update(dt int) {
 }
 
 func (s *SceneIntro) playNewGame() {
+	log.Println("new session start")
 	sc := scene_game.New()
 	sc.Setup(*s.gamesData.Conf, s.gamesData.Last())
 	eui.GetUi().Push(sc)
-	log.Println("new session started")
 }
 
 func (s *SceneIntro) Resize() {

@@ -193,16 +193,40 @@ func NewSceneSelectGame() *SceneSelectGame {
 			return g
 		}(),
 		// "Три поросёнка позиции(3x3) легко",
-		"Devel test set sym": func() *data.GamesData {
+		"Devel test set0 pos (move 1 sec)": func() *data.GamesData {
 			g := data.NewGamesData()
 			g.Conf.Set(data.Trials, 5)
-			g.Setup([]string{data.Sym}, 1, 1, 90, 75, 2.0)
+			g.Setup([]string{data.Pos}, 1, 1, 90, 75, 1.0)
 			return g
 		}(),
-		"Devel test set2 dual pos/sym": func() *data.GamesData {
+		"Devel test set1 sym (move 1 sec)": func() *data.GamesData {
 			g := data.NewGamesData()
 			g.Conf.Set(data.Trials, 5)
-			g.Setup([]string{data.Sym, data.Pos}, 1, 1, 90, 75, 2.0)
+			g.Setup([]string{data.Sym}, 1, 1, 90, 75, 1.0)
+			return g
+		}(),
+		"Devel test set2 dual pos/sym (move 2 sec)": func() *data.GamesData {
+			g := data.NewGamesData()
+			g.Conf.Set(data.Trials, 5)
+			g.Setup([]string{data.Pos, data.Sym}, 1, 1, 90, 75, 2.0)
+			return g
+		}(),
+		"Devel test set3 dual pos/col (move 2 sec)": func() *data.GamesData {
+			g := data.NewGamesData()
+			g.Conf.Set(data.Trials, 5)
+			g.Setup([]string{data.Pos, data.Col}, 1, 1, 90, 75, 2.0)
+			return g
+		}(),
+		"Devel test set4 dual sym/col (move 2 sec)": func() *data.GamesData {
+			g := data.NewGamesData()
+			g.Conf.Set(data.Trials, 5)
+			g.Setup([]string{data.Sym, data.Col}, 1, 1, 90, 75, 2.0)
+			return g
+		}(),
+		"Devel test set5 triple pos/sym/col (move 3 sec)": func() *data.GamesData {
+			g := data.NewGamesData()
+			g.Conf.Set(data.Trials, 5)
+			g.Setup([]string{data.Pos, data.Sym, data.Col}, 1, 1, 90, 75, 3.0)
 			return g
 		}(),
 	}
@@ -241,7 +265,7 @@ func (s *SceneSelectGame) btnsLogic(b *eui.Button) {
 		if k == b.GetText() {
 			sc := scene_intro.NewSceneIntro(v, k)
 			eui.GetUi().Push(sc)
-			log.Println("new session started", b.GetText())
+			log.Println("selected profile:", b.GetText())
 		}
 	}
 }

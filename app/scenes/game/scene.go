@@ -5,7 +5,6 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/t0l1k/eui"
@@ -80,17 +79,17 @@ func (s *SceneGame) Setup(conf data.GameConf, gd *data.GameData) {
 	timeShowCell := int(float64(s.moveTime) * showCellPercent)
 	s.delayTimeShowCell = (s.moveTime - timeShowCell) / 2
 	s.delayTimeHideCell = s.delayTimeShowCell + timeShowCell
-	s.moveTimer = eui.NewTimer(s.moveTime)
+	s.moveTimer = eui.NewTimer(s.delayTimeShowCell) // pause before first move
 	s.board.Setup(conf, s.gameData)
 	s.lblTitle.Bg(s.clrNeutral)
-	log.Println("init:", s.moveTime, timeShowCell, s.delayTimeShowCell, s.delayTimeHideCell)
+	log.Printf("init move timer:%v show time:%v delay before show:%v delay hide:%v", s.moveTime, timeShowCell, s.delayTimeShowCell, s.delayTimeHideCell)
 }
 
 func (s *SceneGame) Entered() {
 	s.Resize()
 	eui.GetUi().GetInputKeyboard().Attach(s)
-	time.Sleep(time.Duration(s.delayTimeShowCell))
 	s.moveTimer.On()
+	s.moveTimer.SetDuration(s.moveTime)
 	s.board.MakeMove()
 	s.board.Visible(false)
 	log.Println("begin play:00 hide cell", s.board.Move)
@@ -101,11 +100,6 @@ func (s *SceneGame) Update(dt int) {
 	s.btnQuit.Update(dt)
 	for _, v := range s.btnsLayout.Container {
 		v.Update(dt)
-	}
-	if s.moveTimer.TimePassed() > s.delayTimeShowCell && s.moveTimer.TimePassed() < s.delayTimeHideCell && !s.board.IsVisible() {
-		s.checkProgress()
-		s.board.NextMove()
-		log.Println("01 show cell", s.board.Move)
 	}
 	if s.moveTimer.TimePassed() > s.delayTimeHideCell && s.board.IsVisible() {
 		s.board.Visible(false)
@@ -118,6 +112,9 @@ func (s *SceneGame) Update(dt int) {
 			s.checkProgress()
 			s.sendResult()
 		} else {
+			s.checkProgress()
+			s.board.NextMove()
+			log.Println("01 show cell", s.board.Move)
 			s.moveTimer.Reset()
 			log.Println("reset move timer:", s.board.Move)
 		}
