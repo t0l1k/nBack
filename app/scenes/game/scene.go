@@ -131,6 +131,12 @@ func (s *SceneGame) resetColorsAfterMove() {
 
 func (s *SceneGame) checkProgress() {
 	if s.board.Move <= s.gameData.Level {
+		if s.board.Move <= 0 {
+			return
+		}
+		for _, v := range s.gameData.Modalities {
+			v.SetRegular()
+		}
 		return
 	}
 	for _, v := range s.gameData.Modalities {

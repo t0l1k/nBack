@@ -16,6 +16,7 @@ const (
 )
 
 const (
+	Regular    = "regular"
 	AddCorrect = "correct added"
 	AddWrong   = "wrong added"
 	AddMissed  = "missed added"
@@ -26,6 +27,7 @@ type Modality struct {
 	sym                    string
 	correct, wrong, missed int
 	field                  []int
+	moveStatus             []string
 }
 
 func NewModality(sym string) *Modality {
@@ -46,21 +48,29 @@ func (m *Modality) Reset() {
 	m.wrong = 0
 	m.missed = 0
 	m.field = nil
+	m.moveStatus = nil
 }
 
-func (m *Modality) SetCorrect(value int) {
-	m.correct += value
+func (m *Modality) SetCorrect() {
+	m.correct++
 	m.SetValue([]string{m.sym, AddCorrect})
+	m.moveStatus = append(m.moveStatus, AddCorrect)
 }
 
-func (m *Modality) SetWrong(value int) {
-	m.wrong += value
+func (m *Modality) SetWrong() {
+	m.wrong++
 	m.SetValue([]string{m.sym, AddWrong})
+	m.moveStatus = append(m.moveStatus, AddWrong)
 }
 
-func (m *Modality) SetMissed(value int) {
-	m.missed += value
+func (m *Modality) SetMissed() {
+	m.missed++
 	m.SetValue([]string{m.sym, AddMissed})
+	m.moveStatus = append(m.moveStatus, AddMissed)
+}
+
+func (m *Modality) SetRegular() {
+	m.moveStatus = append(m.moveStatus, Regular)
 }
 
 func (m *Modality) CheckMove(userMove bool, last, test int) (str string) {
@@ -68,21 +78,28 @@ func (m *Modality) CheckMove(userMove bool, last, test int) (str string) {
 	str = fmt.Sprintf("progress for modal[%v] moves[%v-%v] values:[%v-%v]", m.GetSym(), last, test, testValue, lastValue)
 	if userMove {
 		if lastValue == testValue {
-			m.SetCorrect(1)
+			m.SetCorrect()
 			str += "correct answer!"
 		} else {
-			m.SetWrong(1)
+			m.SetWrong()
 			str += "wrong answer!"
 		}
 	} else if lastValue == testValue {
-		m.SetMissed(1)
+		m.SetMissed()
 		str += "missed answer!"
+	} else {
+		m.SetRegular()
+		str += "regular move!"
 	}
 	return str
 }
 
 func (m Modality) GetSym() string {
 	return m.sym
+}
+
+func (m Modality) GetMovesStatus() []string {
+	return m.moveStatus
 }
 
 func (m Modality) String() (result string) {

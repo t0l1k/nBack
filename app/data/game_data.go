@@ -47,15 +47,15 @@ func (g *GameData) SetGameDone(moves int) {
 func (g *GameData) calcPercent() {
 	var (
 		aa, bb, i, j   float64
-		correct, error float64
+		correct, wrong float64
 	)
 
 	for _, v := range g.Modalities {
 		correct += float64(v.correct)
-		error += float64(v.wrong + v.missed)
+		wrong += float64(v.wrong + v.missed)
 	}
 
-	aa, bb = float64(correct), float64(error)
+	aa, bb = float64(correct), float64(wrong)
 	if aa == 0 && bb == 0 {
 		i, j = 1, 0
 	} else if aa == 0 && bb > 0 {
@@ -70,6 +70,14 @@ func (g GameData) SetupNext() GameData { return g }
 
 func (g *GameData) GetModalities() []*Modality {
 	return g.Modalities
+}
+
+func (g *GameData) GetModalitiesMoves() (moves map[string][]string) {
+	moves = make(map[string][]string)
+	for _, v := range g.Modalities {
+		moves[v.GetSym()] = v.GetMovesStatus()
+	}
+	return moves
 }
 
 func (g *GameData) IsContainMod(mod string) bool {

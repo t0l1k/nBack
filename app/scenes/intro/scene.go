@@ -22,6 +22,8 @@ type SceneIntro struct {
 	warningDuration                                  time.Duration
 	btnStart                                         *eui.Button
 	listShort                                        *eui.ListView
+	movesLine                                        *MovesLine
+	movesIcon                                        *eui.Icon
 }
 
 func NewSceneIntro(gdata *data.GamesData, text string) *SceneIntro {
@@ -46,9 +48,13 @@ func NewSceneIntro(gdata *data.GamesData, text string) *SceneIntro {
 		s.playNewGame()
 	})
 	s.Add(s.btnStart)
+	s.movesIcon = eui.NewIcon(nil)
+	s.movesIcon.Visible(false)
+	s.Add(s.movesIcon)
 	s.lblIntro.Visible(false)
 	s.lblMotto.Visible(false)
 	s.lblHelper.Visible(false)
+	s.movesLine = NewMovesLine()
 	s.restStopwatch = eui.NewStopwatch()
 	return s
 }
@@ -65,6 +71,10 @@ func (s *SceneIntro) Entered() {
 		s.lblMotto.SetText(mottoStr)
 		s.lblMotto.Bg(colorStr)
 		s.lblHelper.Bg(colorStr)
+		s.movesLine.Setup(s.gamesData.Last().GetModalitiesMoves())
+		s.movesIcon.SetIcon(s.movesLine.Image)
+		s.movesIcon.Visible(true)
+
 		log.Println("new game", level, lives)
 		s.warningDuration = s.gamesData.Last().Duration / 2
 		s.gamesData.NewGame(level, lives)
@@ -81,7 +91,8 @@ func (s *SceneIntro) Entered() {
 		strs     []string
 		bgs, fgs []color.Color
 	)
-	for _, v := range s.gamesData.Games {
+	for i := len(s.gamesData.Games) - 1; i >= 0; i-- {
+		v := s.gamesData.Games[i]
 		if v.IsDone() {
 			str, bg, fg := v.ShortResultStringWithColors()
 			strs = append(strs, str)
@@ -143,13 +154,18 @@ func (s *SceneIntro) Resize() {
 
 	x = (w0 - w1) / 2
 	y -= h1 + h1/2
-	s.lblMotto.Resize([]int{x, y, w1, h1})
+	s.movesIcon.Resize([]int{x, y, w1, h1})
+	s.movesLine.Resize([]int{x, y, w1, h1})
+
 	y -= h1 + h1/2
 	s.lblIntro.Resize([]int{x, y, w1, h1})
 	y -= h1 / 2
 	s.lblHelper.Resize([]int{x, y, w1, h1 / 2})
 
-	x, y = w0-h1*3, h1
-	w, h = h1*3, h0-h1*2
+	y -= h1 + h1/2
+	s.lblMotto.Resize([]int{x, y, w1, h1})
+
+	x, y = w0-(w0-w1)/2, h1+h1/2
+	w, h = (w0-w1)/2, h0-h1*2
 	s.listShort.Resize([]int{x, y, w, h})
 }
