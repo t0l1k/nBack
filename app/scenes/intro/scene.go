@@ -21,7 +21,7 @@ type SceneIntro struct {
 	restDuration                                     int
 	warningDuration                                  time.Duration
 	btnStart                                         *eui.Button
-	listShort                                        *eui.ListView
+	listShort, listConf                              *eui.ListView
 	movesLine                                        *MovesLine
 	movesIcon                                        *eui.Icon
 }
@@ -33,6 +33,8 @@ func NewSceneIntro(gdata *data.GamesData, text string) *SceneIntro {
 	s.Add(s.topbar)
 	s.listShort = eui.NewListView()
 	s.Add(s.listShort)
+	s.listConf = eui.NewListView()
+	s.Add(s.listConf)
 	s.topbar.SetShowStopwatch()
 	s.lblIntro = eui.NewText("")
 	s.Add(s.lblIntro)
@@ -98,11 +100,14 @@ func (s *SceneIntro) Entered() {
 			strs = append(strs, str)
 			bgs = append(bgs, bg)
 			fgs = append(fgs, fg)
-			fmt.Println(v)
+			fmt.Println(v.LastGameFullResult())
 		}
 	}
 	s.listShort.Reset()
 	s.listShort.SetListViewTextWithBgFgColors(strs, bgs, fgs)
+	s.listConf.Reset()
+	s.listConf.SetupListViewText(s.gamesData.Conf.GameConf(s.gamesData.Games[s.gamesData.Id()]), 30, 1, eui.Teal, eui.Yellow)
+
 	conf := eui.GetUi().GetSettings()
 	s.restDuration = conf.Get(app.RestDuration).(int)
 	s.restStopwatch.Start()
@@ -168,4 +173,7 @@ func (s *SceneIntro) Resize() {
 	x, y = w0-(w0-w1)/2, h1+h1/2
 	w, h = (w0-w1)/2, h0-h1*2
 	s.listShort.Resize([]int{x, y, w, h})
+
+	x = 0
+	s.listConf.Resize([]int{x, y, w, h})
 }

@@ -259,7 +259,7 @@ func (s *SceneGame) sendResult() {
 	for _, v := range s.gameData.Modalities {
 		v.Detach(s)
 	}
-	log.Println(s.gameData)
+	log.Println(s.gameData.LastGameFullResult())
 	eui.GetUi().GetInputKeyboard().Detach(s)
 	eui.GetUi().Pop()
 }

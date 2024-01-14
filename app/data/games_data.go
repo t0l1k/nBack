@@ -16,16 +16,17 @@ type GamesData struct {
 	Conf  *GameConf
 }
 
-func NewGamesData() *GamesData {
-	g := &GamesData{id: 0, Conf: DefaultSettings()}
-	return g
-}
-
-func (g *GamesData) Setup(mods []string, level, lives, adv, fall int, moveTime float64) {
+func NewGamesData(mods []string, conf *GameConf) *GamesData {
 	var modals []*Modality
 	for _, mod := range mods {
 		modals = append(modals, NewModality(mod))
 	}
+	g := &GamesData{id: 0, Conf: conf}
+	level := g.Conf.Get(DefaultLevel).(int)
+	lives := g.Conf.Get(ThresholdFallbackSessions).(int)
+	adv := g.Conf.Get(ThresholdAdvance).(int)
+	fall := g.Conf.Get(ThresholdFallback).(int)
+	moveTime := g.Conf.Get(MoveTime).(float64)
 	g.id = len(g.Games)
 	gData := NewGame(
 		g.id,
@@ -38,6 +39,7 @@ func (g *GamesData) Setup(mods []string, level, lives, adv, fall int, moveTime f
 		moveTime,
 	)
 	g.Games = append(g.Games, gData)
+	return g
 }
 
 func (g *GamesData) NewGame(level, lives int) {
@@ -57,6 +59,10 @@ func (g *GamesData) NewGame(level, lives int) {
 		lastGame.MoveTime,
 	)
 	g.Games = append(g.Games, gData)
+}
+
+func (g *GamesData) Id() int {
+	return g.id
 }
 
 func (g *GamesData) Last() *GameData {
