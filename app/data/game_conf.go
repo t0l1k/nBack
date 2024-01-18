@@ -82,5 +82,6 @@ func (g GameConf) GameConf(gDt *GameData) (result []string) {
 		result = append(result, "Сложение/Вычитание:"+strconv.FormatBool(g.Get(UseAddSub).(bool)))
 		result = append(result, "Умножение/Деление:"+strconv.FormatBool(g.Get(UseMulDiv).(bool)))
 	}
+	result = append(result, "Процент повторов:"+strconv.Itoa(g.Get(RandomRepition).(int)))
 	return result
 }

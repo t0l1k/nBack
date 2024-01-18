@@ -13,26 +13,25 @@ import (
 var Colors = []color.Color{eui.Blue, eui.Aqua, eui.Green, eui.Olive, eui.Yellow, eui.Red, eui.Purple, eui.Orange, eui.White, eui.Gray}
 
 type field struct {
-	curModal                           string
-	level, totalMoves, rr, dim, maxNum int
-	useCenter                          bool
+	curModal                                       string
+	level, totalMoves, randomRepition, dim, maxNum int
+	useCenter                                      bool
 }
 
 func newField(conf data.GameConf, level, totalMoves int, sym string) []int {
 	beginDt := time.Now()
 	f := &field{level: level, totalMoves: totalMoves}
 	f.curModal = sym
-	f.rr = conf.Get(data.RandomRepition).(int)
+	f.randomRepition = conf.Get(data.RandomRepition).(int)
 	f.maxNum = conf.Get(data.MaxNumber).(int)
 	f.dim = conf.Get(data.GridSize).(int)
 	f.useCenter = conf.Get(data.UseCenterCell).(bool)
-	check := false
 	percent, max := 0, 0
 	best := make([]int, 0)
 	count := 0
-	for !check {
+	for max < f.randomRepition && ((count < 10000 || max < 13) && count < 100000) {
 		result := f.generate()
-		check, percent = f.checkRR(result)
+		percent = f.checkRR(result)
 		if percent > max {
 			max = percent
 			best = result
@@ -64,17 +63,17 @@ func (f *field) generate() (result []int) {
 	return result
 }
 
-func (f *field) checkRR(arr []int) (bool, int) {
-	count := 0
-	for i, v := range arr {
+func (f *field) checkRR(moves []int) int {
+	moveCount := 0
+	for i, v := range moves {
 		nextMove := i + f.level
-		if nextMove > len(arr)-1 {
+		if nextMove > len(moves)-1 {
 			break
 		}
-		if v == arr[nextMove] {
-			count++
+		if v == moves[nextMove] {
+			moveCount++
 		}
 	}
-	perc := 100 * float64(count) / float64(len(arr))
-	return perc > float64(f.rr), int(perc)
+	percent := 100 * float64(moveCount) / float64(len(moves))
+	return int(percent)
 }

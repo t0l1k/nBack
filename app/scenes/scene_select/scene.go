@@ -231,7 +231,7 @@ func NewSceneSelectGame() *SceneSelectGame {
 			conf.Set(data.GridSize, 3)
 			conf.Set(data.ShowGrid, true)
 			conf.Set(data.MoveTime, 1.0)
-			g := data.NewGamesData([]string{data.Pos}, conf)
+			g := data.NewGamesData([]string{data.Sym}, conf)
 			return g
 		}(),
 		"Гадкий утёнок цифры цвет легко(ход 2 сек)": func() *data.GamesData {
@@ -249,7 +249,7 @@ func NewSceneSelectGame() *SceneSelectGame {
 			return g
 		}(),
 		// "Три поросёнка позиции(3x3) легко",
-		"Devel test set0 pos (move 1 sec)": func() *data.GamesData {
+		"Devel single pos (move 1 sec)": func() *data.GamesData {
 			conf := data.DefaultSettings()
 			conf.Set(data.Trials, 5)
 			conf.Set(data.TrialsFactor, 1)
@@ -263,7 +263,7 @@ func NewSceneSelectGame() *SceneSelectGame {
 			g := data.NewGamesData([]string{data.Pos}, conf)
 			return g
 		}(),
-		"Devel test set1 sym (move 1 sec)": func() *data.GamesData {
+		"Devel single sym (move 1 sec)": func() *data.GamesData {
 			conf := data.DefaultSettings()
 			conf.Set(data.Trials, 5)
 			conf.Set(data.TrialsFactor, 1)
@@ -274,10 +274,40 @@ func NewSceneSelectGame() *SceneSelectGame {
 			conf.Set(data.GridSize, 3)
 			conf.Set(data.ShowGrid, true)
 			conf.Set(data.MoveTime, 1.0)
+			conf.Set(data.RandomRepition, 50)
 			g := data.NewGamesData([]string{data.Sym}, conf)
 			return g
 		}(),
-		"Devel test set2 dual pos/sym (move 2 sec)": func() *data.GamesData {
+		"Devel single color (move 1 sec)": func() *data.GamesData {
+			conf := data.DefaultSettings()
+			conf.Set(data.Trials, 5)
+			conf.Set(data.TrialsFactor, 1)
+			conf.Set(data.TrialsExponent, 1)
+			conf.Set(data.ThresholdAdvance, 90)
+			conf.Set(data.ThresholdFallback, 75)
+			conf.Set(data.ThresholdFallbackSessions, 1)
+			conf.Set(data.GridSize, 3)
+			conf.Set(data.ShowGrid, true)
+			conf.Set(data.MoveTime, 1.0)
+			conf.Set(data.RandomRepition, 50)
+			g := data.NewGamesData([]string{data.Col}, conf)
+			return g
+		}(),
+		"Devel single Ariphmetic (move 1.5 sec)": func() *data.GamesData {
+			conf := data.DefaultSettings()
+			conf.Set(data.Trials, 5)
+			conf.Set(data.TrialsFactor, 1)
+			conf.Set(data.TrialsExponent, 1)
+			conf.Set(data.ThresholdAdvance, 90)
+			conf.Set(data.ThresholdFallback, 75)
+			conf.Set(data.ThresholdFallbackSessions, 1)
+			conf.Set(data.GridSize, 3)
+			conf.Set(data.ShowGrid, true)
+			conf.Set(data.MoveTime, 1.5)
+			g := data.NewGamesData([]string{data.Ari}, conf)
+			return g
+		}(),
+		"Devel dual pos/sym (move 2 sec)": func() *data.GamesData {
 			conf := data.DefaultSettings()
 			conf.Set(data.Trials, 5)
 			conf.Set(data.TrialsFactor, 1)
@@ -291,7 +321,7 @@ func NewSceneSelectGame() *SceneSelectGame {
 			g := data.NewGamesData([]string{data.Pos, data.Sym}, conf)
 			return g
 		}(),
-		"Devel test set3 dual pos/col (move 2 sec)": func() *data.GamesData {
+		"Devel dual pos/col (move 2 sec)": func() *data.GamesData {
 			conf := data.DefaultSettings()
 			conf.Set(data.Trials, 5)
 			conf.Set(data.TrialsFactor, 1)
@@ -305,7 +335,7 @@ func NewSceneSelectGame() *SceneSelectGame {
 			g := data.NewGamesData([]string{data.Pos, data.Col}, conf)
 			return g
 		}(),
-		"Devel test set4 dual sym/col (move 2 sec)": func() *data.GamesData {
+		"Devel dual sym/col (move 2 sec)": func() *data.GamesData {
 			conf := data.DefaultSettings()
 			conf.Set(data.Trials, 5)
 			conf.Set(data.TrialsFactor, 1)
@@ -319,7 +349,7 @@ func NewSceneSelectGame() *SceneSelectGame {
 			g := data.NewGamesData([]string{data.Sym, data.Col}, conf)
 			return g
 		}(),
-		"Devel test set5 triple pos/sym/col (move 3 sec)": func() *data.GamesData {
+		"Devel triple pos/sym/col (move 3 sec)": func() *data.GamesData {
 			conf := data.DefaultSettings()
 			conf.Set(data.Trials, 5)
 			conf.Set(data.TrialsFactor, 1)
