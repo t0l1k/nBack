@@ -50,7 +50,6 @@ func (g *Board) Setup(conf data.GameConf, gameData *data.GameData) {
 			g.layout.Add(cell)
 		}
 	}
-	g.Add(g.layout)
 	for _, v := range g.gData.Modalities {
 		v.AddField(newField(conf, gameData.Level, gameData.TotalMoves, v.GetSym()))
 	}
@@ -112,13 +111,18 @@ func (g *Board) Visible(value bool) {
 }
 
 func (g *Board) Update(dt int) {
-	for _, cell := range g.layout.Container {
+	for _, cell := range g.layout.GetContainer() {
 		cell.Update(dt)
 	}
 }
 
 func (g *Board) Draw(surface *ebiten.Image) {
-	for _, cell := range g.layout.Container {
+	for _, cell := range g.layout.GetContainer() {
 		cell.Draw(surface)
 	}
+}
+
+func (c *Board) Resize(rect []int) {
+	c.View.Resize(rect)
+	c.layout.Resize(rect)
 }

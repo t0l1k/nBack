@@ -1,6 +1,6 @@
 *.db
 *.bak
 go.sum
-nBack
-nBack.exe
+*.exe
 *.apk
+log/

@@ -44,7 +44,6 @@ func New() *SceneGame {
 	s.grid = eui.NewGridView(1, 1)
 	s.Add(s.grid)
 	s.btnsLayout = eui.NewHLayout()
-	s.Add(s.btnsLayout)
 	return s
 }
 
@@ -56,7 +55,7 @@ func (s *SceneGame) Setup(conf data.GameConf, gd *data.GameData) {
 	s.grid.Fg(theme.Get(app.GameColorFgCrosshair))
 	s.grid.Visible(conf.Get(data.ShowGrid).(bool))
 	s.lblTitle.Fg(theme.Get(app.GameColorBg))
-	s.btnsLayout.Container = nil
+	s.btnsLayout.ResetContainerBase()
 	for _, v := range s.gameData.Modalities {
 		btn := eui.NewButton(v.GetSym(), s.buttonsLogic)
 		btn.Bg(theme.Get(app.LabelColorDefault))
@@ -97,8 +96,11 @@ func (s *SceneGame) Entered() {
 
 func (s *SceneGame) Update(dt int) {
 	s.moveTimer.Update(dt)
-	s.btnQuit.Update(dt)
-	for _, v := range s.btnsLayout.Container {
+	// s.btnQuit.Update(dt)
+	for _, v := range s.GetContainer() {
+		v.Update(dt)
+	}
+	for _, v := range s.btnsLayout.GetContainer() {
 		v.Update(dt)
 	}
 	if s.moveTimer.TimePassed() > s.delayTimeHideCell && s.board.IsVisible() {
@@ -124,7 +126,7 @@ func (s *SceneGame) Update(dt int) {
 
 func (s *SceneGame) resetColorsAfterMove() {
 	s.lblTitle.Bg(s.clrNeutral)
-	for _, v := range s.btnsLayout.Container {
+	for _, v := range s.btnsLayout.GetContainer() {
 		v.(*eui.Button).Bg(s.clrNeutral)
 	}
 }
@@ -175,7 +177,7 @@ func (s *SceneGame) updateLbls() {
 	s.lblVar.SetValue(str.String())
 	if s.userMoved {
 		s.lblTitle.Bg(s.clrMoved)
-		for _, v := range s.btnsLayout.Container {
+		for _, v := range s.btnsLayout.GetContainer() {
 			if s.posModMove {
 				if v.(*eui.Button).GetText() == data.Pos {
 					v.(*eui.Button).Bg(s.clrMoved)
@@ -276,11 +278,20 @@ func (s *SceneGame) UpdateData(value interface{}) {
 			clr = s.clrMissed
 		}
 		s.lblTitle.Bg(clr)
-		for _, btn := range s.btnsLayout.Container {
+		for _, btn := range s.btnsLayout.GetContainer() {
 			if btn.(*eui.Button).GetText() == v[0] {
 				btn.(*eui.Button).Bg(clr)
 			}
 		}
+	}
+}
+
+func (s *SceneGame) Draw(surface *ebiten.Image) {
+	for _, v := range s.GetContainer() {
+		v.Draw(surface)
+	}
+	for _, v := range s.btnsLayout.GetContainer() {
+		v.Draw(surface)
 	}
 }
 

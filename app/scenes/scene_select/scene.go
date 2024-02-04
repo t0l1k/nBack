@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/app/data"
 	scene_intro "github.com/t0l1k/nBack/app/scenes/intro"
@@ -20,7 +21,7 @@ type SceneSelectGame struct {
 
 func NewSceneSelectGame() *SceneSelectGame {
 	s := &SceneSelectGame{}
-	s.topBar = eui.NewTopBar("нНазад")
+	s.topBar = eui.NewTopBar("нНазад", nil)
 	s.topBar.SetShowStopwatch()
 	s.Add(s.topBar)
 	s.lst = map[string]*data.GamesData{
@@ -249,120 +250,120 @@ func NewSceneSelectGame() *SceneSelectGame {
 			return g
 		}(),
 		// "Три поросёнка позиции(3x3) легко",
-		"Devel single pos (move 1 sec)": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 5)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 75)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 1.0)
-			g := data.NewGamesData([]string{data.Pos}, conf)
-			return g
-		}(),
-		"Devel single sym (move 1 sec)": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 5)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 75)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 1.0)
-			conf.Set(data.RandomRepition, 50)
-			g := data.NewGamesData([]string{data.Sym}, conf)
-			return g
-		}(),
-		"Devel single color (move 1 sec)": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 5)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 75)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 1.0)
-			conf.Set(data.RandomRepition, 50)
-			g := data.NewGamesData([]string{data.Col}, conf)
-			return g
-		}(),
-		"Devel single Ariphmetic (move 1.5 sec)": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 5)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 75)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 1.5)
-			g := data.NewGamesData([]string{data.Ari}, conf)
-			return g
-		}(),
-		"Devel dual pos/sym (move 2 sec)": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 5)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 75)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 2.0)
-			g := data.NewGamesData([]string{data.Pos, data.Sym}, conf)
-			return g
-		}(),
-		"Devel dual pos/col (move 2 sec)": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 5)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 75)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 2.0)
-			g := data.NewGamesData([]string{data.Pos, data.Col}, conf)
-			return g
-		}(),
-		"Devel dual sym/col (move 2 sec)": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 5)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 75)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 2.0)
-			g := data.NewGamesData([]string{data.Sym, data.Col}, conf)
-			return g
-		}(),
-		"Devel triple pos/sym/col (move 3 sec)": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 5)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 75)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 3.0)
-			g := data.NewGamesData([]string{data.Pos, data.Sym, data.Col}, conf)
-			return g
-		}(),
+		// "Devel single pos (move 1 sec)": func() *data.GamesData {
+		// 	conf := data.DefaultSettings()
+		// 	conf.Set(data.Trials, 5)
+		// 	conf.Set(data.TrialsFactor, 1)
+		// 	conf.Set(data.TrialsExponent, 1)
+		// 	conf.Set(data.ThresholdAdvance, 90)
+		// 	conf.Set(data.ThresholdFallback, 75)
+		// 	conf.Set(data.ThresholdFallbackSessions, 1)
+		// 	conf.Set(data.GridSize, 3)
+		// 	conf.Set(data.ShowGrid, true)
+		// 	conf.Set(data.MoveTime, 1.0)
+		// 	g := data.NewGamesData([]string{data.Pos}, conf)
+		// 	return g
+		// }(),
+		// "Devel single sym (move 1 sec)": func() *data.GamesData {
+		// 	conf := data.DefaultSettings()
+		// 	conf.Set(data.Trials, 5)
+		// 	conf.Set(data.TrialsFactor, 1)
+		// 	conf.Set(data.TrialsExponent, 1)
+		// 	conf.Set(data.ThresholdAdvance, 90)
+		// 	conf.Set(data.ThresholdFallback, 75)
+		// 	conf.Set(data.ThresholdFallbackSessions, 1)
+		// 	conf.Set(data.GridSize, 3)
+		// 	conf.Set(data.ShowGrid, true)
+		// 	conf.Set(data.MoveTime, 1.0)
+		// 	conf.Set(data.RandomRepition, 50)
+		// 	g := data.NewGamesData([]string{data.Sym}, conf)
+		// 	return g
+		// }(),
+		// "Devel single color (move 1 sec)": func() *data.GamesData {
+		// 	conf := data.DefaultSettings()
+		// 	conf.Set(data.Trials, 5)
+		// 	conf.Set(data.TrialsFactor, 1)
+		// 	conf.Set(data.TrialsExponent, 1)
+		// 	conf.Set(data.ThresholdAdvance, 90)
+		// 	conf.Set(data.ThresholdFallback, 75)
+		// 	conf.Set(data.ThresholdFallbackSessions, 1)
+		// 	conf.Set(data.GridSize, 3)
+		// 	conf.Set(data.ShowGrid, true)
+		// 	conf.Set(data.MoveTime, 1.0)
+		// 	conf.Set(data.RandomRepition, 50)
+		// 	g := data.NewGamesData([]string{data.Col}, conf)
+		// 	return g
+		// }(),
+		// "Devel single Ariphmetic (move 1.5 sec)": func() *data.GamesData {
+		// 	conf := data.DefaultSettings()
+		// 	conf.Set(data.Trials, 5)
+		// 	conf.Set(data.TrialsFactor, 1)
+		// 	conf.Set(data.TrialsExponent, 1)
+		// 	conf.Set(data.ThresholdAdvance, 90)
+		// 	conf.Set(data.ThresholdFallback, 75)
+		// 	conf.Set(data.ThresholdFallbackSessions, 1)
+		// 	conf.Set(data.GridSize, 3)
+		// 	conf.Set(data.ShowGrid, true)
+		// 	conf.Set(data.MoveTime, 1.5)
+		// 	g := data.NewGamesData([]string{data.Ari}, conf)
+		// 	return g
+		// }(),
+		// "Devel dual pos/sym (move 2 sec)": func() *data.GamesData {
+		// 	conf := data.DefaultSettings()
+		// 	conf.Set(data.Trials, 5)
+		// 	conf.Set(data.TrialsFactor, 1)
+		// 	conf.Set(data.TrialsExponent, 1)
+		// 	conf.Set(data.ThresholdAdvance, 90)
+		// 	conf.Set(data.ThresholdFallback, 75)
+		// 	conf.Set(data.ThresholdFallbackSessions, 1)
+		// 	conf.Set(data.GridSize, 3)
+		// 	conf.Set(data.ShowGrid, true)
+		// 	conf.Set(data.MoveTime, 2.0)
+		// 	g := data.NewGamesData([]string{data.Pos, data.Sym}, conf)
+		// 	return g
+		// }(),
+		// "Devel dual pos/col (move 2 sec)": func() *data.GamesData {
+		// 	conf := data.DefaultSettings()
+		// 	conf.Set(data.Trials, 5)
+		// 	conf.Set(data.TrialsFactor, 1)
+		// 	conf.Set(data.TrialsExponent, 1)
+		// 	conf.Set(data.ThresholdAdvance, 90)
+		// 	conf.Set(data.ThresholdFallback, 75)
+		// 	conf.Set(data.ThresholdFallbackSessions, 1)
+		// 	conf.Set(data.GridSize, 3)
+		// 	conf.Set(data.ShowGrid, true)
+		// 	conf.Set(data.MoveTime, 2.0)
+		// 	g := data.NewGamesData([]string{data.Pos, data.Col}, conf)
+		// 	return g
+		// }(),
+		// "Devel dual sym/col (move 2 sec)": func() *data.GamesData {
+		// 	conf := data.DefaultSettings()
+		// 	conf.Set(data.Trials, 5)
+		// 	conf.Set(data.TrialsFactor, 1)
+		// 	conf.Set(data.TrialsExponent, 1)
+		// 	conf.Set(data.ThresholdAdvance, 90)
+		// 	conf.Set(data.ThresholdFallback, 75)
+		// 	conf.Set(data.ThresholdFallbackSessions, 1)
+		// 	conf.Set(data.GridSize, 3)
+		// 	conf.Set(data.ShowGrid, true)
+		// 	conf.Set(data.MoveTime, 2.0)
+		// 	g := data.NewGamesData([]string{data.Sym, data.Col}, conf)
+		// 	return g
+		// }(),
+		// "Devel triple pos/sym/col (move 3 sec)": func() *data.GamesData {
+		// 	conf := data.DefaultSettings()
+		// 	conf.Set(data.Trials, 5)
+		// 	conf.Set(data.TrialsFactor, 1)
+		// 	conf.Set(data.TrialsExponent, 1)
+		// 	conf.Set(data.ThresholdAdvance, 90)
+		// 	conf.Set(data.ThresholdFallback, 75)
+		// 	conf.Set(data.ThresholdFallbackSessions, 1)
+		// 	conf.Set(data.GridSize, 3)
+		// 	conf.Set(data.ShowGrid, true)
+		// 	conf.Set(data.MoveTime, 3.0)
+		// 	g := data.NewGamesData([]string{data.Pos, data.Sym, data.Col}, conf)
+		// 	return g
+		// }(),
 	}
 	s.listGames = eui.NewListView()
 	theme := eui.GetUi().GetTheme()
@@ -388,7 +389,6 @@ func NewSceneSelectGame() *SceneSelectGame {
 	s.btnsLayout.Add(s.btnTutorial)
 	s.btnOptions = eui.NewButton("Настройки", s.btnsLogic)
 	s.btnsLayout.Add(s.btnOptions)
-	s.Add(s.btnsLayout)
 	s.Resize()
 	return s
 }
@@ -411,6 +411,24 @@ func (s *SceneSelectGame) Entered() {
 				fmt.Println(k, v1.LastGameFullResult())
 			}
 		}
+	}
+}
+
+func (s *SceneSelectGame) Update(dt int) {
+	for _, v := range s.GetContainer() {
+		v.Update(dt)
+	}
+	for _, v := range s.btnsLayout.GetContainer() {
+		v.Update(dt)
+	}
+}
+
+func (s *SceneSelectGame) Draw(surface *ebiten.Image) {
+	for _, v := range s.GetContainer() {
+		v.Draw(surface)
+	}
+	for _, v := range s.btnsLayout.GetContainer() {
+		v.Draw(surface)
 	}
 }
 

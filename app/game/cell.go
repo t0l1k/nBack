@@ -51,10 +51,9 @@ func (c *cell) SetText() {
 		lbl.Fg(c.bg)
 	}
 	defer lbl.Close()
-	rect := c.GetRect()
-	lbl.Resize(rect.GetArr())
+	lbl.Resize(c.GetRect().GetArr())
 	lbl.Layout()
-	srcImg := lbl.GetImage()
+	srcImg := lbl.Image()
 	c.SetIcon(srcImg)
 	c.Layout()
 	if c.center {
@@ -75,7 +74,7 @@ func (c *cell) SetCrossHair() *ebiten.Image {
 	rect := c.GetRect()
 	crosshair.Resize(rect.GetArr())
 	crosshair.Layout()
-	return crosshair.Image
+	return crosshair.Image()
 }
 
 func (c *cell) SetActive(idx int) {

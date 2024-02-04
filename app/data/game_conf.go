@@ -63,6 +63,8 @@ func (g GameConf) Set(set GameConfValue, value interface{}) {
 }
 
 func (g GameConf) GameConf(gDt *GameData) (result []string) {
+	result = append(result,
+		"Модальностей:"+strconv.Itoa(len(gDt.Modalities))+" "+gDt.GameMode())
 	result = append(result, "Уровень следующий:"+strconv.Itoa(gDt.Level))
 	result = append(result, "Ходов:"+strconv.Itoa(gDt.TotalMoves))
 	result = append(result, "Время хода:"+strconv.FormatFloat(g.Get(MoveTime).(float64), 'f', 2, 64)+" секунд")

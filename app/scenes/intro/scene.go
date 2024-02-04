@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/app"
 	"github.com/t0l1k/nBack/app/data"
@@ -29,7 +30,9 @@ type SceneIntro struct {
 func NewSceneIntro(gdata *data.GamesData, text string) *SceneIntro {
 	s := &SceneIntro{}
 	s.gamesData = gdata
-	s.topbar = eui.NewTopBar(text)
+	s.topbar = eui.NewTopBar(text, nil)
+	s.topbar.SetTitleCoverArea(0.8)
+	s.topbar.SetTitleCoverArea(0.78)
 	s.Add(s.topbar)
 	s.listShort = eui.NewListView()
 	s.Add(s.listShort)
@@ -53,9 +56,9 @@ func NewSceneIntro(gdata *data.GamesData, text string) *SceneIntro {
 	s.movesIcon = eui.NewIcon(nil)
 	s.movesIcon.Visible(false)
 	s.Add(s.movesIcon)
-	s.lblIntro.Visible(false)
-	s.lblMotto.Visible(false)
-	s.lblHelper.Visible(false)
+	s.lblIntro.Visible = false
+	s.lblMotto.Visible = false
+	s.lblHelper.Visible = false
 	s.movesLine = NewMovesLine()
 	s.restStopwatch = eui.NewStopwatch()
 	return s
@@ -64,9 +67,9 @@ func NewSceneIntro(gdata *data.GamesData, text string) *SceneIntro {
 func (s *SceneIntro) Entered() {
 	s.Resize()
 	if s.gamesData.Last().IsDone() {
-		s.lblIntro.Visible(true)
-		s.lblMotto.Visible(true)
-		s.lblHelper.Visible(true)
+		s.lblIntro.Visible = true
+		s.lblMotto.Visible = true
+		s.lblHelper.Visible = true
 		level, lives, mottoStr, colorStr := s.gamesData.NextLevel()
 		s.lblIntro.SetText(s.gamesData.Last().LastGameFullResult())
 		s.lblIntro.Bg(colorStr)
@@ -74,7 +77,7 @@ func (s *SceneIntro) Entered() {
 		s.lblMotto.Bg(colorStr)
 		s.lblHelper.Bg(colorStr)
 		s.movesLine.Setup(s.gamesData.Last().GetModalitiesMoves())
-		s.movesIcon.SetIcon(s.movesLine.Image)
+		s.movesIcon.SetIcon(s.movesLine.Image())
 		s.movesIcon.Visible(true)
 
 		log.Println("new game", level, lives)
@@ -83,7 +86,7 @@ func (s *SceneIntro) Entered() {
 	} else {
 		if len(s.gamesData.Games) > 1 {
 			_, _, mottoStr, colorStr := s.gamesData.PrevGame()
-			s.lblMotto.Visible(true)
+			s.lblMotto.Visible = true
 			s.lblMotto.SetText(mottoStr)
 			s.lblMotto.Bg(colorStr)
 		}
@@ -114,7 +117,7 @@ func (s *SceneIntro) Entered() {
 }
 
 func (s *SceneIntro) Update(dt int) {
-	for _, v := range s.Container {
+	for _, v := range s.GetContainer() {
 		v.Update(dt)
 	}
 	s.lblSw.SetText(s.restStopwatch.StringShort())
@@ -138,6 +141,12 @@ func (s *SceneIntro) playNewGame() {
 	sc := scene_game.New()
 	sc.Setup(*s.gamesData.Conf, s.gamesData.Last())
 	eui.GetUi().Push(sc)
+}
+
+func (s *SceneIntro) Draw(surface *ebiten.Image) {
+	for _, v := range s.GetContainer() {
+		v.Draw(surface)
+	}
 }
 
 func (s *SceneIntro) Resize() {
