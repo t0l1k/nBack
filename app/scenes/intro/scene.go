@@ -1,4 +1,4 @@
-package scene_intro
+package intro
 
 import (
 	"fmt"

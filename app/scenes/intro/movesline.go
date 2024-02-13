@@ -1,4 +1,4 @@
-package scene_intro
+package intro
 
 import (
 	"image/color"
@@ -11,7 +11,7 @@ import (
 
 type MovesLine struct {
 	eui.DrawableBase
-	moves map[string][]string
+	moves map[data.ModalType][]data.MoveType
 }
 
 func NewMovesLine() *MovesLine {
@@ -19,7 +19,7 @@ func NewMovesLine() *MovesLine {
 	return c
 }
 
-func (c *MovesLine) Setup(moves map[string][]string) {
+func (c *MovesLine) Setup(moves map[data.ModalType][]data.MoveType) {
 	c.moves = moves
 	c.Layout()
 }
@@ -44,13 +44,13 @@ func (c *MovesLine) Layout() {
 		cellSizeH = float32(h0) / float32(len(c.moves))
 		y1 = float32(i) * cellSizeH
 		y2 = float32(i)*cellSizeH + cellSizeH
-		lblModName := eui.NewText(k)
+		lblModName := eui.NewText(k.String())
 		lblModName.Resize([]int{0, int(y1), int(cellSizeW), int(cellSizeH)})
 		lblModName.Bg(regularColor)
 		lblModName.Draw(c.Image())
 		for j, value := range values {
 			switch value {
-			case data.Regular:
+			case data.AddRegular:
 				col = regularColor
 			case data.AddCorrect:
 				col = correctColor

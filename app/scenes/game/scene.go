@@ -57,7 +57,7 @@ func (s *SceneGame) Setup(conf data.GameConf, gd *data.GameData) {
 	s.lblTitle.Fg(theme.Get(app.GameColorBg))
 	s.btnsLayout.ResetContainerBase()
 	for _, v := range s.gameData.Modalities {
-		btn := eui.NewButton(v.GetSym(), s.buttonsLogic)
+		btn := eui.NewButton(string(v.GetSym()), s.buttonsLogic)
 		btn.Bg(theme.Get(app.LabelColorDefault))
 		btn.Fg(theme.Get(app.GameColorBg))
 		s.btnsLayout.Add(btn)
@@ -73,8 +73,7 @@ func (s *SceneGame) Setup(conf data.GameConf, gd *data.GameData) {
 	s.clrWrong = theme.Get(app.ColorWrong)
 	s.clrMissed = theme.Get(app.ColorMissed)
 	s.moveTime = int(s.gameData.MoveTime * 1000)
-	appConf := eui.GetUi().GetSettings()
-	showCellPercent := appConf.Get(app.ShowCellPercent).(float64)
+	showCellPercent := conf.Get(data.ShowCellPercent).(float64)
 	timeShowCell := int(float64(s.moveTime) * showCellPercent)
 	s.delayTimeShowCell = (s.moveTime - timeShowCell) / 2
 	s.delayTimeHideCell = s.delayTimeShowCell + timeShowCell
@@ -167,7 +166,7 @@ func (s *SceneGame) checkProgress() {
 
 func (s *SceneGame) updateLbls() {
 	var str strings.Builder
-	str.WriteString(s.gameData.GameMode())
+	str.WriteString(string(s.gameData.GameMode()))
 	str.WriteString("(")
 	str.WriteString(strconv.Itoa(s.gameData.Lives))
 	str.WriteString(")")
@@ -179,22 +178,22 @@ func (s *SceneGame) updateLbls() {
 		s.lblTitle.Bg(s.clrMoved)
 		for _, v := range s.btnsLayout.GetContainer() {
 			if s.posModMove {
-				if v.(*eui.Button).GetText() == data.Pos {
+				if v.(*eui.Button).GetText() == string(data.Pos) {
 					v.(*eui.Button).Bg(s.clrMoved)
 				}
 			}
 			if s.colModMove {
-				if v.(*eui.Button).GetText() == data.Col {
+				if v.(*eui.Button).GetText() == string(data.Col) {
 					v.(*eui.Button).Bg(s.clrMoved)
 				}
 			}
 			if s.symModMove {
-				if v.(*eui.Button).GetText() == data.Sym {
+				if v.(*eui.Button).GetText() == string(data.Sym) {
 					v.(*eui.Button).Bg(s.clrMoved)
 				}
 			}
 			if s.ariModMove {
-				if v.(*eui.Button).GetText() == data.Ari {
+				if v.(*eui.Button).GetText() == string(data.Ari) {
 					v.(*eui.Button).Bg(s.clrMoved)
 				}
 			}
@@ -205,17 +204,17 @@ func (s *SceneGame) updateLbls() {
 
 func (s *SceneGame) buttonsLogic(b *eui.Button) {
 	switch b.GetText() {
-	case data.Pos:
-		s.userMove(data.Pos)
+	case data.Pos.String():
+		s.userMove(data.Pos.String())
 		log.Printf("button <%v> pressed", b.GetText())
-	case data.Col:
-		s.userMove(data.Col)
+	case data.Col.String():
+		s.userMove(data.Col.String())
 		log.Printf("button <%v> pressed", b.GetText())
-	case data.Sym:
-		s.userMove(data.Sym)
+	case data.Sym.String():
+		s.userMove(data.Sym.String())
 		log.Printf("button <%v> pressed", b.GetText())
-	case data.Ari:
-		s.userMove(data.Ari)
+	case data.Ari.String():
+		s.userMove(data.Ari.String())
 		log.Printf("button <%v> pressed", b.GetText())
 	}
 }
@@ -227,16 +226,16 @@ func (s *SceneGame) UpdateInput(value interface{}) {
 			if key == ebiten.KeySpace {
 				log.Println("pressed <space>")
 			} else if key == ebiten.KeyA {
-				s.userMove(data.Pos)
+				s.userMove(data.Pos.String())
 				log.Println("pressed <A>")
 			} else if key == ebiten.KeyC {
-				s.userMove(data.Col)
+				s.userMove(data.Col.String())
 				log.Println("pressed <C>")
 			} else if key == ebiten.KeyS {
-				s.userMove(data.Sym)
+				s.userMove(data.Sym.String())
 				log.Println("pressed <S>")
 			} else if key == ebiten.KeyR {
-				s.userMove(data.Ari)
+				s.userMove(data.Ari.String())
 				log.Println("pressed <R>")
 			}
 		}
@@ -244,13 +243,13 @@ func (s *SceneGame) UpdateInput(value interface{}) {
 }
 
 func (s *SceneGame) userMove(value string) {
-	if value == data.Pos {
+	if value == data.Pos.String() {
 		s.posModMove = true
-	} else if value == data.Col {
+	} else if value == data.Col.String() {
 		s.colModMove = true
-	} else if value == data.Sym {
+	} else if value == data.Sym.String() {
 		s.symModMove = true
-	} else if value == data.Ari {
+	} else if value == data.Ari.String() {
 		s.ariModMove = true
 	}
 	s.userMoved = true
@@ -268,19 +267,24 @@ func (s *SceneGame) sendResult() {
 
 func (s *SceneGame) UpdateData(value interface{}) {
 	switch v := value.(type) {
-	case []string:
-		var clr color.Color
-		if v[1] == data.AddCorrect {
-			clr = s.clrCorrect
-		} else if v[1] == data.AddWrong {
-			clr = s.clrWrong
-		} else if v[1] == data.AddMissed {
-			clr = s.clrMissed
-		}
-		s.lblTitle.Bg(clr)
-		for _, btn := range s.btnsLayout.GetContainer() {
-			if btn.(*eui.Button).GetText() == v[0] {
-				btn.(*eui.Button).Bg(clr)
+	case map[data.ModalType]data.MoveType:
+		for k1, v1 := range v {
+			var clr color.Color
+			switch v1 {
+			case data.AddCorrect:
+				clr = s.clrCorrect
+			case data.AddWrong:
+				clr = s.clrWrong
+			case data.AddMissed:
+				clr = s.clrMissed
+			case data.AddRegular:
+				clr = s.clrNeutral
+			}
+			s.lblTitle.Bg(clr)
+			for _, btn := range s.btnsLayout.GetContainer() {
+				if btn.(*eui.Button).GetText() == k1.String() {
+					btn.(*eui.Button).Bg(clr)
+				}
 			}
 		}
 	}

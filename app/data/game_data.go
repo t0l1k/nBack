@@ -72,15 +72,15 @@ func (g *GameData) GetModalities() []*Modality {
 	return g.Modalities
 }
 
-func (g *GameData) GetModalitiesMoves() (moves map[string][]string) {
-	moves = make(map[string][]string)
+func (g *GameData) GetModalitiesMoves() (moves map[ModalType][]MoveType) {
+	moves = make(map[ModalType][]MoveType)
 	for _, v := range g.Modalities {
 		moves[v.GetSym()] = v.GetMovesStatus()
 	}
 	return moves
 }
 
-func (g *GameData) IsContainMod(mod string) bool {
+func (g *GameData) IsContainMod(mod ModalType) bool {
 	for _, v := range g.Modalities {
 		if v.GetSym() == mod {
 			return true
@@ -89,7 +89,7 @@ func (g *GameData) IsContainMod(mod string) bool {
 	return false
 }
 
-func (g *GameData) GetModalityValues(mod string) []int {
+func (g *GameData) GetModalityValues(mod ModalType) []int {
 	for _, v := range g.Modalities {
 		if v.GetSym() == mod {
 			return v.GetField()
@@ -98,15 +98,15 @@ func (g *GameData) GetModalityValues(mod string) []int {
 	return nil
 }
 
-func (g *GameData) GameMode() (result string) {
+func (g *GameData) GameMode() (result ModalType) {
 	switch len(g.Modalities) {
 	case 1:
-		result = g.Modalities[0].String() + strconv.Itoa(g.Level)
+		result = ModalType(g.Modalities[0].String() + strconv.Itoa(g.Level))
 	default:
 		for _, v := range g.Modalities {
 			result += v.GetSym()
 		}
-		result += strconv.Itoa(g.Level)
+		result += ModalType(strconv.Itoa(g.Level))
 	}
 	return result
 }
@@ -151,7 +151,7 @@ func (g *GameData) LastGameFullResult() string {
 	gameDuration := fmt.Sprintf("%02v:%02v.%03v", m, seconds, int(mSec))
 	s1 := ""
 	for _, v := range g.Modalities {
-		s1 += "[" + v.sym + ":" + strconv.Itoa(v.correct) + "(" + strconv.Itoa(v.wrong) + "-" + strconv.Itoa(v.missed) + ")] "
+		s1 += "[" + string(v.sym) + ":" + strconv.Itoa(v.correct) + "(" + strconv.Itoa(v.wrong) + "-" + strconv.Itoa(v.missed) + ")] "
 	}
 	return fmt.Sprintf("#%v %v score: %v%% %v moves(%v/%v) %v", g.Id, g.GameMode(), g.Percent, s1, g.Moves, g.TotalMoves, gameDuration)
 }

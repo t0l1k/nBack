@@ -8,7 +8,9 @@ type GameConfValue int
 
 const (
 	DefaultLevel GameConfValue = iota
+	Modals
 	MoveTime
+	ShowCellPercent
 	RandomRepition
 	GridSize
 	ShowGrid
@@ -17,6 +19,7 @@ const (
 	ResetOnFirstWrong
 	ThresholdAdvance
 	ThresholdFallback
+	ThresholdAdvanceSessions
 	ThresholdFallbackSessions
 	Trials
 	TrialsFactor
@@ -30,8 +33,10 @@ type GameConf map[GameConfValue]interface{}
 
 func DefaultSettings() *GameConf {
 	gc := NewGameConf()
+	gc.Set(Modals, Sym) // по умолчанию модальность цифры
 	gc.Set(DefaultLevel, 1)
-	gc.Set(MoveTime, 1.5)
+	gc.Set(MoveTime, 2.5)
+	gc.Set(ShowCellPercent, 0.65)
 	gc.Set(RandomRepition, 30)
 	gc.Set(GridSize, 3)
 	gc.Set(ShowGrid, true)
@@ -40,10 +45,11 @@ func DefaultSettings() *GameConf {
 	gc.Set(ResetOnFirstWrong, false)
 	gc.Set(ThresholdAdvance, 90)
 	gc.Set(ThresholdFallback, 75)
+	gc.Set(ThresholdAdvanceSessions, 1)
 	gc.Set(ThresholdFallbackSessions, 1)
 	gc.Set(Trials, 20)
 	gc.Set(TrialsFactor, 1)
-	gc.Set(TrialsExponent, 2)
+	gc.Set(TrialsExponent, 1)
 	gc.Set(MaxNumber, 10)
 	gc.Set(UseAddSub, true)
 	gc.Set(UseMulDiv, false)
@@ -64,7 +70,7 @@ func (g GameConf) Set(set GameConfValue, value interface{}) {
 
 func (g GameConf) GameConf(gDt *GameData) (result []string) {
 	result = append(result,
-		"Модальностей:"+strconv.Itoa(len(gDt.Modalities))+" "+gDt.GameMode())
+		"Модальностей:"+strconv.Itoa(len(gDt.Modalities))+" "+gDt.GameMode().String())
 	result = append(result, "Уровень следующий:"+strconv.Itoa(gDt.Level))
 	result = append(result, "Ходов:"+strconv.Itoa(gDt.TotalMoves))
 	result = append(result, "Время хода:"+strconv.FormatFloat(g.Get(MoveTime).(float64), 'f', 2, 64)+" секунд")

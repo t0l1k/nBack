@@ -7,16 +7,17 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/app/data"
-	scene_intro "github.com/t0l1k/nBack/app/scenes/intro"
+	"github.com/t0l1k/nBack/app/scenes/create"
+	"github.com/t0l1k/nBack/app/scenes/intro"
 )
 
 type SceneSelectGame struct {
 	eui.SceneBase
-	topBar                                                     *eui.TopBar
-	listGames                                                  *eui.ListView
-	btnSelect, btnCreate, btnProgress, btnTutorial, btnOptions *eui.Button
-	btnsLayout                                                 *eui.BoxLayout
-	lst                                                        map[string]*data.GamesData
+	topBar                                  *eui.TopBar
+	listGames                               *eui.ListView
+	btnSel, btnCrt, btnPrgs, btnTut, btnOpt *eui.Button
+	btnsLayout                              *eui.BoxLayout
+	profiles                                *data.GameProfiles
 }
 
 func NewSceneSelectGame() *SceneSelectGame {
@@ -24,388 +25,55 @@ func NewSceneSelectGame() *SceneSelectGame {
 	s.topBar = eui.NewTopBar("нНазад", nil)
 	s.topBar.SetShowStopwatch()
 	s.Add(s.topBar)
-	s.lst = map[string]*data.GamesData{
-		"Single nBack Position(3x3) rulez brainworkshop": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 20)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 2)
-			conf.Set(data.ThresholdAdvance, 80)
-			conf.Set(data.ThresholdFallback, 50)
-			conf.Set(data.ThresholdFallbackSessions, 3)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 1.5)
-			g := data.NewGamesData([]string{data.Pos}, conf)
-			return g
-		}(),
-		"Single nBack Colors rulez brainworkshop": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 20)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 2)
-			conf.Set(data.ThresholdAdvance, 80)
-			conf.Set(data.ThresholdFallback, 50)
-			conf.Set(data.ThresholdFallbackSessions, 3)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 1.5)
-			g := data.NewGamesData([]string{data.Col}, conf)
-			return g
-		}(),
-		"Single nBack Numbers rulez brainworkshop": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 20)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 2)
-			conf.Set(data.ThresholdAdvance, 80)
-			conf.Set(data.ThresholdFallback, 50)
-			conf.Set(data.ThresholdFallbackSessions, 3)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 1.5)
-			g := data.NewGamesData([]string{data.Sym}, conf)
-			return g
-		}(),
-		"Single nBack Ariphmetics rulez brainworkshop": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 20)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 2)
-			conf.Set(data.ThresholdAdvance, 80)
-			conf.Set(data.ThresholdFallback, 50)
-			conf.Set(data.ThresholdFallbackSessions, 3)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 1.5)
-			g := data.NewGamesData([]string{data.Ari}, conf)
-			return g
-		}(),
-		"Dual nBack Position(3x3), Colors rulez brainworkshop": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 20)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 2)
-			conf.Set(data.ThresholdAdvance, 80)
-			conf.Set(data.ThresholdFallback, 50)
-			conf.Set(data.ThresholdFallbackSessions, 3)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 2.5)
-			g := data.NewGamesData([]string{data.Pos, data.Col}, conf)
-			return g
-		}(),
-		"Triple nBack Position(3x3), Numbers, Colors,rulez brainworkshop": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 20)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 2)
-			conf.Set(data.ThresholdAdvance, 80)
-			conf.Set(data.ThresholdFallback, 50)
-			conf.Set(data.ThresholdFallbackSessions, 3)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 3.0)
-			g := data.NewGamesData([]string{data.Pos, data.Sym, data.Col}, conf)
-			return g
-		}(),
-		"Single nBack Position(3x3) Jaeggi Rulez": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 20)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 75)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, false)
-			conf.Set(data.MoveTime, 1.5)
-			g := data.NewGamesData([]string{data.Pos}, conf)
-			return g
-		}(),
-		"Single nBack Numbers Jaeggi Rulez": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 20)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 75)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, false)
-			conf.Set(data.MoveTime, 1.5)
-			g := data.NewGamesData([]string{data.Sym}, conf)
-			return g
-		}(),
-		"Single nBack Colors Jaeggi Rulez": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 20)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 75)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, false)
-			conf.Set(data.MoveTime, 1.5)
-			g := data.NewGamesData([]string{data.Col}, conf)
-			return g
-		}(),
-		"Single nBack Ariphmetics Jaeggi Rulez": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 20)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 75)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, false)
-			conf.Set(data.MoveTime, 2.0)
-			g := data.NewGamesData([]string{data.Ari}, conf)
-			return g
-		}(),
-		"Dual nBack Position(3x3), Color Jaeggi Rulez": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 20)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 75)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, false)
-			conf.Set(data.MoveTime, 2.5)
-			g := data.NewGamesData([]string{data.Pos, data.Col}, conf)
-			return g
-		}(),
-		"Dual nBack Position(3x3), Numbers Jaeggi Rulez": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 20)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 75)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, false)
-			conf.Set(data.MoveTime, 2.5)
-			g := data.NewGamesData([]string{data.Pos, data.Sym}, conf)
-			return g
-		}(),
-		"Triple nBack Position(3x3), Number, Color Jaeggi Rulez": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 20)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 75)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, false)
-			conf.Set(data.MoveTime, 3.0)
-			g := data.NewGamesData([]string{data.Pos, data.Sym, data.Col}, conf)
-			return g
-		}(),
-		"Гадкий утёнок позиции(3x3) легко": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 20)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 0)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 1.5)
-			g := data.NewGamesData([]string{data.Pos}, conf)
-			return g
-		}(),
-		"Гадкий утёнок цифры легко(ход 1 сек)": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 20)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 0)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 1.0)
-			g := data.NewGamesData([]string{data.Sym}, conf)
-			return g
-		}(),
-		"Гадкий утёнок цифры цвет легко(ход 2 сек)": func() *data.GamesData {
-			conf := data.DefaultSettings()
-			conf.Set(data.Trials, 20)
-			conf.Set(data.TrialsFactor, 1)
-			conf.Set(data.TrialsExponent, 1)
-			conf.Set(data.ThresholdAdvance, 90)
-			conf.Set(data.ThresholdFallback, 0)
-			conf.Set(data.ThresholdFallbackSessions, 1)
-			conf.Set(data.GridSize, 3)
-			conf.Set(data.ShowGrid, true)
-			conf.Set(data.MoveTime, 2.0)
-			g := data.NewGamesData([]string{data.Sym, data.Col}, conf)
-			return g
-		}(),
-		// "Три поросёнка позиции(3x3) легко",
-		// "Devel single pos (move 1 sec)": func() *data.GamesData {
-		// 	conf := data.DefaultSettings()
-		// 	conf.Set(data.Trials, 5)
-		// 	conf.Set(data.TrialsFactor, 1)
-		// 	conf.Set(data.TrialsExponent, 1)
-		// 	conf.Set(data.ThresholdAdvance, 90)
-		// 	conf.Set(data.ThresholdFallback, 75)
-		// 	conf.Set(data.ThresholdFallbackSessions, 1)
-		// 	conf.Set(data.GridSize, 3)
-		// 	conf.Set(data.ShowGrid, true)
-		// 	conf.Set(data.MoveTime, 1.0)
-		// 	g := data.NewGamesData([]string{data.Pos}, conf)
-		// 	return g
-		// }(),
-		// "Devel single sym (move 1 sec)": func() *data.GamesData {
-		// 	conf := data.DefaultSettings()
-		// 	conf.Set(data.Trials, 5)
-		// 	conf.Set(data.TrialsFactor, 1)
-		// 	conf.Set(data.TrialsExponent, 1)
-		// 	conf.Set(data.ThresholdAdvance, 90)
-		// 	conf.Set(data.ThresholdFallback, 75)
-		// 	conf.Set(data.ThresholdFallbackSessions, 1)
-		// 	conf.Set(data.GridSize, 3)
-		// 	conf.Set(data.ShowGrid, true)
-		// 	conf.Set(data.MoveTime, 1.0)
-		// 	conf.Set(data.RandomRepition, 50)
-		// 	g := data.NewGamesData([]string{data.Sym}, conf)
-		// 	return g
-		// }(),
-		// "Devel single color (move 1 sec)": func() *data.GamesData {
-		// 	conf := data.DefaultSettings()
-		// 	conf.Set(data.Trials, 5)
-		// 	conf.Set(data.TrialsFactor, 1)
-		// 	conf.Set(data.TrialsExponent, 1)
-		// 	conf.Set(data.ThresholdAdvance, 90)
-		// 	conf.Set(data.ThresholdFallback, 75)
-		// 	conf.Set(data.ThresholdFallbackSessions, 1)
-		// 	conf.Set(data.GridSize, 3)
-		// 	conf.Set(data.ShowGrid, true)
-		// 	conf.Set(data.MoveTime, 1.0)
-		// 	conf.Set(data.RandomRepition, 50)
-		// 	g := data.NewGamesData([]string{data.Col}, conf)
-		// 	return g
-		// }(),
-		// "Devel single Ariphmetic (move 1.5 sec)": func() *data.GamesData {
-		// 	conf := data.DefaultSettings()
-		// 	conf.Set(data.Trials, 5)
-		// 	conf.Set(data.TrialsFactor, 1)
-		// 	conf.Set(data.TrialsExponent, 1)
-		// 	conf.Set(data.ThresholdAdvance, 90)
-		// 	conf.Set(data.ThresholdFallback, 75)
-		// 	conf.Set(data.ThresholdFallbackSessions, 1)
-		// 	conf.Set(data.GridSize, 3)
-		// 	conf.Set(data.ShowGrid, true)
-		// 	conf.Set(data.MoveTime, 1.5)
-		// 	g := data.NewGamesData([]string{data.Ari}, conf)
-		// 	return g
-		// }(),
-		// "Devel dual pos/sym (move 2 sec)": func() *data.GamesData {
-		// 	conf := data.DefaultSettings()
-		// 	conf.Set(data.Trials, 5)
-		// 	conf.Set(data.TrialsFactor, 1)
-		// 	conf.Set(data.TrialsExponent, 1)
-		// 	conf.Set(data.ThresholdAdvance, 90)
-		// 	conf.Set(data.ThresholdFallback, 75)
-		// 	conf.Set(data.ThresholdFallbackSessions, 1)
-		// 	conf.Set(data.GridSize, 3)
-		// 	conf.Set(data.ShowGrid, true)
-		// 	conf.Set(data.MoveTime, 2.0)
-		// 	g := data.NewGamesData([]string{data.Pos, data.Sym}, conf)
-		// 	return g
-		// }(),
-		// "Devel dual pos/col (move 2 sec)": func() *data.GamesData {
-		// 	conf := data.DefaultSettings()
-		// 	conf.Set(data.Trials, 5)
-		// 	conf.Set(data.TrialsFactor, 1)
-		// 	conf.Set(data.TrialsExponent, 1)
-		// 	conf.Set(data.ThresholdAdvance, 90)
-		// 	conf.Set(data.ThresholdFallback, 75)
-		// 	conf.Set(data.ThresholdFallbackSessions, 1)
-		// 	conf.Set(data.GridSize, 3)
-		// 	conf.Set(data.ShowGrid, true)
-		// 	conf.Set(data.MoveTime, 2.0)
-		// 	g := data.NewGamesData([]string{data.Pos, data.Col}, conf)
-		// 	return g
-		// }(),
-		// "Devel dual sym/col (move 2 sec)": func() *data.GamesData {
-		// 	conf := data.DefaultSettings()
-		// 	conf.Set(data.Trials, 5)
-		// 	conf.Set(data.TrialsFactor, 1)
-		// 	conf.Set(data.TrialsExponent, 1)
-		// 	conf.Set(data.ThresholdAdvance, 90)
-		// 	conf.Set(data.ThresholdFallback, 75)
-		// 	conf.Set(data.ThresholdFallbackSessions, 1)
-		// 	conf.Set(data.GridSize, 3)
-		// 	conf.Set(data.ShowGrid, true)
-		// 	conf.Set(data.MoveTime, 2.0)
-		// 	g := data.NewGamesData([]string{data.Sym, data.Col}, conf)
-		// 	return g
-		// }(),
-		// "Devel triple pos/sym/col (move 3 sec)": func() *data.GamesData {
-		// 	conf := data.DefaultSettings()
-		// 	conf.Set(data.Trials, 5)
-		// 	conf.Set(data.TrialsFactor, 1)
-		// 	conf.Set(data.TrialsExponent, 1)
-		// 	conf.Set(data.ThresholdAdvance, 90)
-		// 	conf.Set(data.ThresholdFallback, 75)
-		// 	conf.Set(data.ThresholdFallbackSessions, 1)
-		// 	conf.Set(data.GridSize, 3)
-		// 	conf.Set(data.ShowGrid, true)
-		// 	conf.Set(data.MoveTime, 3.0)
-		// 	g := data.NewGamesData([]string{data.Pos, data.Sym, data.Col}, conf)
-		// 	return g
-		// }(),
-	}
+	s.profiles = data.DefalutGameProfiles()
 	s.listGames = eui.NewListView()
 	theme := eui.GetUi().GetTheme()
 	bg := theme.Get(eui.ButtonBg)
 	fg := theme.Get(eui.ButtonFg)
-	var lst []string
-	for k := range s.lst {
-		lst = append(lst, k)
-	}
-	s.listGames.SetupListViewButtons(lst, 30, 1, bg, fg, s.btnsLogic)
+	s.listGames.SetupListViewButtons(s.profiles.GetProfilesName(), 30, 1, bg, fg, s.btnsLogic)
 	s.Add(s.listGames)
 	s.listGames.Bg(eui.Blue)
 	s.btnsLayout = eui.NewHLayout()
-	s.btnSelect = eui.NewButton("Играть", s.btnsLogic)
-	s.btnSelect.Disable()
-	s.btnSelect.Bg(eui.YellowGreen)
-	s.btnsLayout.Add(s.btnSelect)
-	s.btnCreate = eui.NewButton("Создать", s.btnsLogic)
-	s.btnsLayout.Add(s.btnCreate)
-	s.btnProgress = eui.NewButton("Итоги", s.btnsLogic)
-	s.btnsLayout.Add(s.btnProgress)
-	s.btnTutorial = eui.NewButton("Обучение", s.btnsLogic)
-	s.btnsLayout.Add(s.btnTutorial)
-	s.btnOptions = eui.NewButton("Настройки", s.btnsLogic)
-	s.btnsLayout.Add(s.btnOptions)
+	s.btnSel = eui.NewButton("Играть", s.btnsLogic)
+	s.btnSel.Disable()
+	s.btnSel.Bg(eui.YellowGreen)
+	s.btnsLayout.Add(s.btnSel)
+	s.btnCrt = eui.NewButton("Создать", s.btnsLogic)
+	s.btnsLayout.Add(s.btnCrt)
+	s.btnPrgs = eui.NewButton("Итоги", s.btnsLogic)
+	s.btnsLayout.Add(s.btnPrgs)
+	s.btnTut = eui.NewButton("Обучение", s.btnsLogic)
+	s.btnsLayout.Add(s.btnTut)
+	s.btnOpt = eui.NewButton("Настройки", s.btnsLogic)
+	s.btnsLayout.Add(s.btnOpt)
 	s.Resize()
 	return s
 }
 
 func (s *SceneSelectGame) btnsLogic(b *eui.Button) {
 	fmt.Println("selected", b.GetText())
-	for k, v := range s.lst {
-		if k == b.GetText() {
-			sc := scene_intro.NewSceneIntro(v, k)
+	for name, game := range s.profiles.GetGameProfiles() {
+		if name == b.GetText() {
+			sc := intro.NewSceneIntro(game, name)
 			eui.GetUi().Push(sc)
 			log.Println("selected profile:", b.GetText())
 		}
 	}
+
+	if b.GetText() == "Создать" {
+		sc := create.NewSceneCreateGame(s.profiles)
+		eui.GetUi().Push(sc)
+		log.Println("Выбрана сцена создание профиля")
+	}
 }
 
 func (s *SceneSelectGame) Entered() {
-	for k, v := range s.lst {
+	s.listGames.Reset()
+	theme := eui.GetUi().GetTheme()
+	bg := theme.Get(eui.ButtonBg)
+	fg := theme.Get(eui.ButtonFg)
+	s.listGames.SetupListViewButtons(s.profiles.GetProfilesName(), 30, 1, bg, fg, s.btnsLogic)
+	for k, v := range s.profiles.GetGameProfiles() {
 		for _, v1 := range v.Games {
 			if v1.IsDone() {
 				fmt.Println(k, v1.LastGameFullResult())

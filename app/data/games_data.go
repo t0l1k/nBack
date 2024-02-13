@@ -16,10 +16,10 @@ type GamesData struct {
 	Conf  *GameConf
 }
 
-func NewGamesData(mods []string, conf *GameConf) *GamesData {
+func NewGamesData(conf *GameConf) *GamesData {
 	var modals []*Modality
-	for _, mod := range mods {
-		modals = append(modals, NewModality(mod))
+	for _, mod := range conf.Get(Modals).(ModalType) {
+		modals = append(modals, NewModality(ModalType(mod)))
 	}
 	g := &GamesData{id: 0, Conf: conf}
 	level := g.Conf.Get(DefaultLevel).(int)

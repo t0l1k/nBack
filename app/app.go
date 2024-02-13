@@ -28,7 +28,6 @@ func setTheme(u *eui.Ui) {
 
 func setConf(u *eui.Ui) {
 	u.GetSettings().Set(RestDuration, 5)
-	u.GetSettings().Set(ShowCellPercent, 0.5)
 }
 
 const (
@@ -45,5 +44,4 @@ const (
 
 const (
 	RestDuration eui.SettingName = iota + 100
-	ShowCellPercent
 )

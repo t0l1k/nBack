@@ -13,12 +13,12 @@ import (
 var Colors = []color.Color{eui.Blue, eui.Aqua, eui.Green, eui.Olive, eui.Yellow, eui.Red, eui.Purple, eui.Orange, eui.White, eui.Gray}
 
 type field struct {
-	curModal                                       string
+	curModal                                       data.ModalType
 	level, totalMoves, randomRepition, dim, maxNum int
 	useCenter                                      bool
 }
 
-func newField(conf data.GameConf, level, totalMoves int, sym string) []int {
+func newField(conf data.GameConf, level, totalMoves int, sym data.ModalType) []int {
 	beginDt := time.Now()
 	f := &field{level: level, totalMoves: totalMoves}
 	f.curModal = sym
