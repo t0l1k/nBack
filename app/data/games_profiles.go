@@ -1,27 +1,29 @@
 package data
 
+import "github.com/t0l1k/nBack/app/game"
+
 type GameProfiles map[string]*GamesData
 
 func DefalutGameProfiles() *GameProfiles {
 	p := make(GameProfiles)
-	p.AddGameProfile("Example for novice triple pos/sym/col (move 3 sec)", func() *GameConf {
-		conf := DefaultSettings()
-		conf.Set(Trials, 10)
-		conf.Set(TrialsFactor, 1)
-		conf.Set(TrialsExponent, 1)
-		conf.Set(ThresholdAdvance, 90)
-		conf.Set(ThresholdFallback, 75)
-		conf.Set(ThresholdFallbackSessions, 1)
-		conf.Set(GridSize, 3)
-		conf.Set(ShowGrid, true)
-		conf.Set(MoveTime, 3.0)
-		conf.Set(Modals, Pos+Sym+Col)
+	p.AddGameProfile("Example for novice triple pos/sym/col (move 3 sec)", func() *game.GameConf {
+		conf := game.DefaultSettings()
+		conf.Set(game.Trials, 10)
+		conf.Set(game.TrialsFactor, 1)
+		conf.Set(game.TrialsExponent, 1)
+		conf.Set(game.ThresholdAdvance, 90)
+		conf.Set(game.ThresholdFallback, 75)
+		conf.Set(game.ThresholdFallbackSessions, 1)
+		conf.Set(game.GridSize, 3)
+		conf.Set(game.ShowGrid, true)
+		conf.Set(game.MoveTime, 3.0)
+		conf.Set(game.Modals, game.Pos+game.Sym+game.Col)
 		return conf
 	}())
 	return &p
 }
 
-func (p GameProfiles) AddGameProfile(name string, value *GameConf) {
+func (p GameProfiles) AddGameProfile(name string, value *game.GameConf) {
 	p[name] = NewGamesData(value)
 }
 

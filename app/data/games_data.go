@@ -8,27 +8,28 @@ import (
 
 	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/app"
+	"github.com/t0l1k/nBack/app/game"
 )
 
 type GamesData struct {
 	id    int
-	Games []*GameData
-	Conf  *GameConf
+	Games []*game.GameData
+	Conf  *game.GameConf
 }
 
-func NewGamesData(conf *GameConf) *GamesData {
-	var modals []*Modality
-	for _, mod := range conf.Get(Modals).(ModalType) {
-		modals = append(modals, NewModality(ModalType(mod)))
+func NewGamesData(conf *game.GameConf) *GamesData {
+	var modals []*game.Modality
+	for _, mod := range conf.Get(game.Modals).(game.ModalType) {
+		modals = append(modals, game.NewModality(game.ModalType(mod)))
 	}
 	g := &GamesData{id: 0, Conf: conf}
-	level := g.Conf.Get(DefaultLevel).(int)
-	lives := g.Conf.Get(ThresholdFallbackSessions).(int)
-	adv := g.Conf.Get(ThresholdAdvance).(int)
-	fall := g.Conf.Get(ThresholdFallback).(int)
-	moveTime := g.Conf.Get(MoveTime).(float64)
+	level := g.Conf.Get(game.DefaultLevel).(int)
+	lives := g.Conf.Get(game.ThresholdFallbackSessions).(int)
+	adv := g.Conf.Get(game.ThresholdAdvance).(int)
+	fall := g.Conf.Get(game.ThresholdFallback).(int)
+	moveTime := g.Conf.Get(game.MoveTime).(float64)
 	g.id = len(g.Games)
-	gData := NewGame(
+	gData := game.NewGame(
 		g.id,
 		modals,
 		level,
@@ -48,7 +49,7 @@ func (g *GamesData) NewGame(level, lives int) {
 		v.Reset()
 	}
 	g.id = len(g.Games)
-	gData := NewGame(
+	gData := game.NewGame(
 		g.id,
 		lastGame.Modalities,
 		level,
@@ -65,14 +66,14 @@ func (g *GamesData) Id() int {
 	return g.id
 }
 
-func (g *GamesData) Last() *GameData {
+func (g *GamesData) Last() *game.GameData {
 	return g.Games[g.id]
 }
 
 func (g *GamesData) getTotalMoves(level int) int {
-	trials := g.Conf.Get(Trials).(int)
-	factor := g.Conf.Get(TrialsFactor).(int)
-	exponent := g.Conf.Get(TrialsExponent).(int)
+	trials := g.Conf.Get(game.Trials).(int)
+	factor := g.Conf.Get(game.TrialsFactor).(int)
+	exponent := g.Conf.Get(game.TrialsExponent).(int)
 	return trials + factor*int(math.Pow(float64(level), float64(exponent)))
 }
 
@@ -85,7 +86,7 @@ func (g *GamesData) calcGameFor(id int) (level, lives int, result string, col co
 	theme := eui.GetUi().GetTheme()
 	if percent >= adv {
 		level++
-		lives = g.Conf.Get(ThresholdFallbackSessions).(int)
+		lives = g.Conf.Get(game.ThresholdFallbackSessions).(int)
 		result = fmt.Sprintf("Уровень(%v) пройден отлично, вверх на(%v)!", level-1, level)
 		col = theme.Get(app.ColorCorrect)
 	} else if percent >= fall && percent < adv {
@@ -99,7 +100,7 @@ func (g *GamesData) calcGameFor(id int) (level, lives int, result string, col co
 		} else {
 			if level > 1 {
 				level--
-				lives = g.Conf.Get(ThresholdFallbackSessions).(int)
+				lives = g.Conf.Get(game.ThresholdFallbackSessions).(int)
 			}
 			result = fmt.Sprintf("Уровень вниз(%v)!", level)
 			col = theme.Get(app.ColorMissed)

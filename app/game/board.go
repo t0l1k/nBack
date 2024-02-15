@@ -6,13 +6,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/app"
-	"github.com/t0l1k/nBack/app/data"
 )
 
 type Board struct {
 	eui.View
 	layout                   *eui.GridLayoutRightDown
-	gData                    *data.GameData
+	gData                    *GameData
 	cells                    []*cell
 	Move, LastMove, TestMove int
 	show                     bool
@@ -27,18 +26,18 @@ func New() *Board {
 	return g
 }
 
-func (g *Board) Setup(conf data.GameConf, gameData *data.GameData) {
+func (g *Board) Setup(conf GameConf, gameData *GameData) {
 	g.gData = gameData
 	dim := 1
-	if g.gData.IsContainMod(data.Pos) {
-		dim = conf.Get(data.GridSize).(int)
+	if g.gData.IsContainMod(Pos) {
+		dim = conf.Get(GridSize).(int)
 	}
 	g.layout.SetRows(dim)
 	g.layout.SetColumns(dim)
 	if len(g.cells) == 0 {
 		for i := 0; i < dim*dim; i++ {
-			showCrosshair := conf.Get(data.ShowCrossHair).(bool)
-			useCenterCell := conf.Get(data.UseCenterCell).(bool)
+			showCrosshair := conf.Get(ShowCrossHair).(bool)
+			useCenterCell := conf.Get(UseCenterCell).(bool)
 			isCenter := false
 			aX := i % dim
 			aY := i / dim
@@ -72,8 +71,8 @@ func (g *Board) MakeMove() {
 			if len(g.cells) == 1 {
 				return 0
 			}
-			if g.gData.IsContainMod(data.Pos) {
-				idx = g.gData.GetModalityValues(data.Pos)[g.Move-1]
+			if g.gData.IsContainMod(Pos) {
+				idx = g.gData.GetModalityValues(Pos)[g.Move-1]
 			}
 			return idx
 		}()
@@ -83,8 +82,8 @@ func (g *Board) MakeMove() {
 		if len(g.cells) == 1 {
 			return 0
 		}
-		if g.gData.IsContainMod(data.Pos) {
-			idx = g.gData.GetModalityValues(data.Pos)[g.LastMove]
+		if g.gData.IsContainMod(Pos) {
+			idx = g.gData.GetModalityValues(Pos)[g.LastMove]
 		}
 		return idx
 	}()

@@ -7,25 +7,24 @@ import (
 	"time"
 
 	"github.com/t0l1k/eui"
-	"github.com/t0l1k/nBack/app/data"
 )
 
 var Colors = []color.Color{eui.Blue, eui.Aqua, eui.Green, eui.Olive, eui.Yellow, eui.Red, eui.Purple, eui.Orange, eui.White, eui.Gray}
 
 type field struct {
-	curModal                                       data.ModalType
+	curModal                                       ModalType
 	level, totalMoves, randomRepition, dim, maxNum int
 	useCenter                                      bool
 }
 
-func newField(conf data.GameConf, level, totalMoves int, sym data.ModalType) []int {
+func newField(conf GameConf, level, totalMoves int, sym ModalType) []int {
 	beginDt := time.Now()
 	f := &field{level: level, totalMoves: totalMoves}
 	f.curModal = sym
-	f.randomRepition = conf.Get(data.RandomRepition).(int)
-	f.maxNum = conf.Get(data.MaxNumber).(int)
-	f.dim = conf.Get(data.GridSize).(int)
-	f.useCenter = conf.Get(data.UseCenterCell).(bool)
+	f.randomRepition = conf.Get(RandomRepition).(int)
+	f.maxNum = conf.Get(MaxNumber).(int)
+	f.dim = conf.Get(GridSize).(int)
+	f.useCenter = conf.Get(UseCenterCell).(bool)
 	percent, max := 0, 0
 	best := make([]int, 0)
 	count := 0
@@ -47,15 +46,15 @@ func (f *field) generate() (result []int) {
 	center := (f.dim*f.dim - 1) / 2
 	num := 0
 	for len(result) < f.totalMoves {
-		if f.curModal == data.Pos {
+		if f.curModal == Pos {
 			num = rand.Intn(f.dim * f.dim)
 			if num != center && !f.useCenter || f.useCenter {
 				result = append(result, num)
 			}
-		} else if f.curModal == data.Col {
+		} else if f.curModal == Col {
 			num = rand.Intn(len(Colors))
 			result = append(result, num)
-		} else if f.curModal == data.Sym || f.curModal == data.Ari {
+		} else if f.curModal == Sym || f.curModal == Ari {
 			num = rand.Intn(f.maxNum-1) + 1
 			result = append(result, num)
 		}

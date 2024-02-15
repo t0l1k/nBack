@@ -2,8 +2,6 @@ package game
 
 import (
 	"math/rand"
-
-	"github.com/t0l1k/nBack/app/data"
 )
 
 const (
@@ -81,9 +79,9 @@ func (o Operation) Get(a, c, max int) (int, int) {
 	return a, b
 }
 
-func (o *Operation) Rand(conf data.GameConf) {
-	adds := conf.Get(data.UseAddSub).(bool)
-	muls := conf.Get(data.UseMulDiv).(bool)
+func (o *Operation) Rand(conf GameConf) {
+	adds := conf.Get(UseAddSub).(bool)
+	muls := conf.Get(UseMulDiv).(bool)
 	if adds && !muls {
 		*o = Operation(rand.Intn(2))
 	} else if muls && !adds {

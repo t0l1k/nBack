@@ -9,7 +9,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/app"
-	"github.com/t0l1k/nBack/app/data"
 	"github.com/t0l1k/nBack/app/game"
 )
 
@@ -19,8 +18,8 @@ type SceneGame struct {
 	lblVar                                                    *eui.StringVar
 	btnQuit                                                   *eui.Button
 	moveTimer                                                 *eui.Timer
-	gameData                                                  *data.GameData
-	gameConf                                                  data.GameConf
+	gameData                                                  *game.GameData
+	gameConf                                                  game.GameConf
 	board                                                     *game.Board
 	grid                                                      *eui.GridView
 	btnsLayout                                                *eui.BoxLayout
@@ -47,13 +46,13 @@ func New() *SceneGame {
 	return s
 }
 
-func (s *SceneGame) Setup(conf data.GameConf, gd *data.GameData) {
+func (s *SceneGame) Setup(conf game.GameConf, gd *game.GameData) {
 	s.gameConf = conf
 	s.gameData = gd
 	theme := eui.GetUi().GetTheme()
 	s.grid.Bg(theme.Get(app.GameColorBg))
 	s.grid.Fg(theme.Get(app.GameColorFgCrosshair))
-	s.grid.Visible(conf.Get(data.ShowGrid).(bool))
+	s.grid.Visible(conf.Get(game.ShowGrid).(bool))
 	s.lblTitle.Fg(theme.Get(app.GameColorBg))
 	s.btnsLayout.ResetContainerBase()
 	for _, v := range s.gameData.Modalities {
@@ -61,8 +60,8 @@ func (s *SceneGame) Setup(conf data.GameConf, gd *data.GameData) {
 		btn.Bg(theme.Get(app.LabelColorDefault))
 		btn.Fg(theme.Get(app.GameColorBg))
 		s.btnsLayout.Add(btn)
-		if v.GetSym() == data.Pos {
-			grid := conf.Get(data.GridSize).(int)
+		if v.GetSym() == game.Pos {
+			grid := conf.Get(game.GridSize).(int)
 			s.grid.Set(grid, grid)
 		}
 		v.Attach(s)
@@ -73,7 +72,7 @@ func (s *SceneGame) Setup(conf data.GameConf, gd *data.GameData) {
 	s.clrWrong = theme.Get(app.ColorWrong)
 	s.clrMissed = theme.Get(app.ColorMissed)
 	s.moveTime = int(s.gameData.MoveTime * 1000)
-	showCellPercent := conf.Get(data.ShowCellPercent).(float64)
+	showCellPercent := conf.Get(game.ShowCellPercent).(float64)
 	timeShowCell := int(float64(s.moveTime) * showCellPercent)
 	s.delayTimeShowCell = (s.moveTime - timeShowCell) / 2
 	s.delayTimeHideCell = s.delayTimeShowCell + timeShowCell
@@ -141,22 +140,22 @@ func (s *SceneGame) checkProgress() {
 		return
 	}
 	for _, v := range s.gameData.Modalities {
-		if v.GetSym() == data.Pos {
+		if v.GetSym() == game.Pos {
 			str := v.CheckMove(s.posModMove, s.board.LastMove, s.board.TestMove)
 			s.posModMove = false
 			log.Println(str)
 		}
-		if v.GetSym() == data.Col {
+		if v.GetSym() == game.Col {
 			str := v.CheckMove(s.colModMove, s.board.LastMove, s.board.TestMove)
 			s.colModMove = false
 			log.Println(str)
 		}
-		if v.GetSym() == data.Sym {
+		if v.GetSym() == game.Sym {
 			str := v.CheckMove(s.symModMove, s.board.LastMove, s.board.TestMove)
 			s.symModMove = false
 			log.Println(str)
 		}
-		if v.GetSym() == data.Ari {
+		if v.GetSym() == game.Ari {
 			str := v.CheckMove(s.ariModMove, s.board.LastMove, s.board.TestMove)
 			s.ariModMove = false
 			log.Println(str)
@@ -178,22 +177,22 @@ func (s *SceneGame) updateLbls() {
 		s.lblTitle.Bg(s.clrMoved)
 		for _, v := range s.btnsLayout.GetContainer() {
 			if s.posModMove {
-				if v.(*eui.Button).GetText() == string(data.Pos) {
+				if v.(*eui.Button).GetText() == string(game.Pos) {
 					v.(*eui.Button).Bg(s.clrMoved)
 				}
 			}
 			if s.colModMove {
-				if v.(*eui.Button).GetText() == string(data.Col) {
+				if v.(*eui.Button).GetText() == string(game.Col) {
 					v.(*eui.Button).Bg(s.clrMoved)
 				}
 			}
 			if s.symModMove {
-				if v.(*eui.Button).GetText() == string(data.Sym) {
+				if v.(*eui.Button).GetText() == string(game.Sym) {
 					v.(*eui.Button).Bg(s.clrMoved)
 				}
 			}
 			if s.ariModMove {
-				if v.(*eui.Button).GetText() == string(data.Ari) {
+				if v.(*eui.Button).GetText() == string(game.Ari) {
 					v.(*eui.Button).Bg(s.clrMoved)
 				}
 			}
@@ -204,17 +203,17 @@ func (s *SceneGame) updateLbls() {
 
 func (s *SceneGame) buttonsLogic(b *eui.Button) {
 	switch b.GetText() {
-	case data.Pos.String():
-		s.userMove(data.Pos.String())
+	case game.Pos.String():
+		s.userMove(game.Pos.String())
 		log.Printf("button <%v> pressed", b.GetText())
-	case data.Col.String():
-		s.userMove(data.Col.String())
+	case game.Col.String():
+		s.userMove(game.Col.String())
 		log.Printf("button <%v> pressed", b.GetText())
-	case data.Sym.String():
-		s.userMove(data.Sym.String())
+	case game.Sym.String():
+		s.userMove(game.Sym.String())
 		log.Printf("button <%v> pressed", b.GetText())
-	case data.Ari.String():
-		s.userMove(data.Ari.String())
+	case game.Ari.String():
+		s.userMove(game.Ari.String())
 		log.Printf("button <%v> pressed", b.GetText())
 	}
 }
@@ -226,16 +225,16 @@ func (s *SceneGame) UpdateInput(value interface{}) {
 			if key == ebiten.KeySpace {
 				log.Println("pressed <space>")
 			} else if key == ebiten.KeyA {
-				s.userMove(data.Pos.String())
+				s.userMove(game.Pos.String())
 				log.Println("pressed <A>")
 			} else if key == ebiten.KeyC {
-				s.userMove(data.Col.String())
+				s.userMove(game.Col.String())
 				log.Println("pressed <C>")
 			} else if key == ebiten.KeyS {
-				s.userMove(data.Sym.String())
+				s.userMove(game.Sym.String())
 				log.Println("pressed <S>")
 			} else if key == ebiten.KeyR {
-				s.userMove(data.Ari.String())
+				s.userMove(game.Ari.String())
 				log.Println("pressed <R>")
 			}
 		}
@@ -243,13 +242,13 @@ func (s *SceneGame) UpdateInput(value interface{}) {
 }
 
 func (s *SceneGame) userMove(value string) {
-	if value == data.Pos.String() {
+	if value == game.Pos.String() {
 		s.posModMove = true
-	} else if value == data.Col.String() {
+	} else if value == game.Col.String() {
 		s.colModMove = true
-	} else if value == data.Sym.String() {
+	} else if value == game.Sym.String() {
 		s.symModMove = true
-	} else if value == data.Ari.String() {
+	} else if value == game.Ari.String() {
 		s.ariModMove = true
 	}
 	s.userMoved = true
@@ -267,17 +266,17 @@ func (s *SceneGame) sendResult() {
 
 func (s *SceneGame) UpdateData(value interface{}) {
 	switch v := value.(type) {
-	case map[data.ModalType]data.MoveType:
+	case map[game.ModalType]game.MoveType:
 		for k1, v1 := range v {
 			var clr color.Color
 			switch v1 {
-			case data.AddCorrect:
+			case game.AddCorrect:
 				clr = s.clrCorrect
-			case data.AddWrong:
+			case game.AddWrong:
 				clr = s.clrWrong
-			case data.AddMissed:
+			case game.AddMissed:
 				clr = s.clrMissed
-			case data.AddRegular:
+			case game.AddRegular:
 				clr = s.clrNeutral
 			}
 			s.lblTitle.Bg(clr)

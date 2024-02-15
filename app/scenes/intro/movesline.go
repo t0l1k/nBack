@@ -6,12 +6,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/app"
-	"github.com/t0l1k/nBack/app/data"
+	"github.com/t0l1k/nBack/app/game"
 )
 
 type MovesLine struct {
 	eui.DrawableBase
-	moves map[data.ModalType][]data.MoveType
+	moves map[game.ModalType][]game.MoveType
 }
 
 func NewMovesLine() *MovesLine {
@@ -19,7 +19,7 @@ func NewMovesLine() *MovesLine {
 	return c
 }
 
-func (c *MovesLine) Setup(moves map[data.ModalType][]data.MoveType) {
+func (c *MovesLine) Setup(moves map[game.ModalType][]game.MoveType) {
 	c.moves = moves
 	c.Layout()
 }
@@ -50,13 +50,13 @@ func (c *MovesLine) Layout() {
 		lblModName.Draw(c.Image())
 		for j, value := range values {
 			switch value {
-			case data.AddRegular:
+			case game.AddRegular:
 				col = regularColor
-			case data.AddCorrect:
+			case game.AddCorrect:
 				col = correctColor
-			case data.AddWrong:
+			case game.AddWrong:
 				col = wrongColor
-			case data.AddMissed:
+			case game.AddMissed:
 				col = missedColor
 			}
 			x1 = cellSizeW * float32(j+1)

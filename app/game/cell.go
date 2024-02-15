@@ -8,16 +8,15 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/app"
-	"github.com/t0l1k/nBack/app/data"
 )
 
 type cell struct {
 	eui.Icon
-	modals                        []*data.Modality
+	modals                        []*Modality
 	active, show, center          bool
 	bg, bgActive, fg, fgCrosshair color.Color
 	text                          string
-	conf                          data.GameConf
+	conf                          GameConf
 }
 
 func newCell(center bool) *cell {
@@ -34,7 +33,7 @@ func newCell(center bool) *cell {
 	return c
 }
 
-func (c *cell) Setup(conf data.GameConf, modals []*data.Modality) {
+func (c *cell) Setup(conf GameConf, modals []*Modality) {
 	c.conf = conf
 	c.modals = modals
 	c.show = true
@@ -81,12 +80,12 @@ func (c *cell) SetActive(idx int) {
 	c.active = true
 	for _, v := range c.modals {
 		switch v.GetSym() {
-		case data.Col:
+		case Col:
 			c.bgActive = Colors[v.GetField()[idx]]
-		case data.Sym:
+		case Sym:
 			c.text = strconv.Itoa(v.GetField()[idx])
-		case data.Ari:
-			maxNum := c.conf.Get(data.MaxNumber).(int)
+		case Ari:
+			maxNum := c.conf.Get(MaxNumber).(int)
 			oper := NewOperation()
 			oper.Rand(c.conf)
 			a, b := oper.Get(getNum(v.GetField()[idx]), v.GetField()[idx], maxNum)

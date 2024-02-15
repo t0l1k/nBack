@@ -5,6 +5,7 @@ import (
 
 	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/app/data"
+	"github.com/t0l1k/nBack/app/game"
 )
 
 var (
@@ -98,7 +99,7 @@ func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
 	})
 	s.Add(s.optCol)
 	var dtTitle = []string{"Не использовать", "Цифры", "Арифметика"}
-	var dataSym = []interface{}{"", data.Sym, data.Ari}
+	var dataSym = []interface{}{"", game.Sym, game.Ari}
 	s.cSym = eui.NewComboBox(dtTitle[1], dataSym, 1, func(cb *eui.ComboBox) {
 		if cb.Value() == dataSym[1] {
 			s.selNum = true
@@ -246,48 +247,43 @@ func (s *SceneCreateGame) Entered() {
 }
 
 func (s *SceneCreateGame) resetOpt() {
-	conf := data.DefaultSettings()
+	conf := game.DefaultSettings()
 	s.selNum = true
-	s.cSym.SetValue(data.Sym)
-	s.defLevel = conf.Get(data.DefaultLevel).(int)
+	s.cSym.SetValue(game.Sym)
+	s.defLevel = conf.Get(game.DefaultLevel).(int)
 	s.cDefLev.SetValue(s.defLevel)
-	s.moveTime = conf.Get(data.MoveTime).(float64)
+	s.moveTime = conf.Get(game.MoveTime).(float64)
 	s.cMoveTime.SetValue(s.moveTime)
-	s.showCellTime = conf.Get(data.ShowCellPercent).(float64)
+	s.showCellTime = conf.Get(game.ShowCellPercent).(float64)
 	s.cShowCellTm.SetValue(s.showCellTime)
-	s.rr = conf.Get(data.RandomRepition).(int)
+	s.rr = conf.Get(game.RandomRepition).(int)
 	s.cRR.SetValue(s.rr)
-	s.gridSz = conf.Get(data.GridSize).(int)
+	s.gridSz = conf.Get(game.GridSize).(int)
 	s.cGridSz.SetValue(s.gridSz)
-	s.showGrid = conf.Get(data.ShowGrid).(bool)
+	s.showGrid = conf.Get(game.ShowGrid).(bool)
 	s.optGrid.SetChecked(s.showGrid)
-	s.showCrossHair = conf.Get(data.ShowCrossHair).(bool)
+	s.showCrossHair = conf.Get(game.ShowCrossHair).(bool)
 	s.optCrossHair.SetChecked(s.showCrossHair)
-	s.useCenterCell = conf.Get(data.UseCenterCell).(bool)
+	s.useCenterCell = conf.Get(game.UseCenterCell).(bool)
 	s.optUseCenter.SetChecked(s.useCenterCell)
-	s.thresholdUp = conf.Get(data.ThresholdAdvance).(int)
+	s.thresholdUp = conf.Get(game.ThresholdAdvance).(int)
 	s.cThUp.SetValue(s.thresholdUp)
-	s.thresholdDown = conf.Get(data.ThresholdFallback).(int)
+	s.thresholdDown = conf.Get(game.ThresholdFallback).(int)
 	s.cThDown.SetValue(s.thresholdDown)
-	s.thresholdAdv = conf.Get(data.ThresholdAdvanceSessions).(int)
+	s.thresholdAdv = conf.Get(game.ThresholdAdvanceSessions).(int)
 	s.cThAdv.SetValue(s.thresholdAdv)
-	s.thresholdFall = conf.Get(data.ThresholdFallbackSessions).(int)
+	s.thresholdFall = conf.Get(game.ThresholdFallbackSessions).(int)
 	s.cThFall.SetValue(s.thresholdFall)
 	s.cMoves.SetValue(0)
-	s.resetOnWrong = conf.Get(data.ResetOnFirstWrong).(bool)
+	s.resetOnWrong = conf.Get(game.ResetOnFirstWrong).(bool)
 	s.optReset.SetChecked(s.resetOnWrong)
-	s.useAddSub = conf.Get(data.UseAddSub).(bool)
+	s.useAddSub = conf.Get(game.UseAddSub).(bool)
 	s.optAddSub.SetChecked(s.useAddSub)
-	s.useMulDiv = conf.Get(data.UseMulDiv).(bool)
+	s.useMulDiv = conf.Get(game.UseMulDiv).(bool)
 	s.optMulDiv.SetChecked(s.useMulDiv)
-	s.maxNum = conf.Get(data.MaxNumber).(int)
+	s.maxNum = conf.Get(game.MaxNumber).(int)
 	s.cMaxNum.SetValue(s.maxNum)
-
 	s.inpName.SetText(s.genName())
-	// trials := conf.Get(data.Trials).(int)
-	// fact := conf.Get(data.TrialsFactor).(int)
-	// exp := conf.Get(data.TrialsExponent).(int)
-	// m := trials + fact*int(math.Pow(float64(s.defLevel), float64(exp)))
 }
 
 func (s *SceneCreateGame) checkOptions(b *eui.Button) {
@@ -302,29 +298,29 @@ func (s *SceneCreateGame) checkOptions(b *eui.Button) {
 	eui.GetUi().Pop()
 }
 
-func (s *SceneCreateGame) LoadConf() *data.GameConf {
-	gc := data.NewGameConf()
+func (s *SceneCreateGame) LoadConf() *game.GameConf {
+	gc := game.NewGameConf()
 	_, m := s.getModals()
-	gc.Set(data.Modals, m)
-	gc.Set(data.DefaultLevel, s.defLevel)
-	gc.Set(data.MoveTime, s.moveTime)
-	gc.Set(data.ShowCellPercent, s.showCellTime)
-	gc.Set(data.RandomRepition, s.rr)
-	gc.Set(data.GridSize, s.gridSz)
-	gc.Set(data.ShowGrid, s.showGrid)
-	gc.Set(data.UseCenterCell, s.useCenterCell)
-	gc.Set(data.ShowCrossHair, s.showCrossHair)
-	gc.Set(data.ResetOnFirstWrong, s.resetOnWrong)
-	gc.Set(data.ThresholdAdvance, s.thresholdUp)
-	gc.Set(data.ThresholdFallback, s.thresholdDown)
-	gc.Set(data.ThresholdAdvanceSessions, s.thresholdAdv)
-	gc.Set(data.ThresholdFallbackSessions, s.thresholdFall)
-	gc.Set(data.Trials, movesArr[s.movesConfIndex][0])
-	gc.Set(data.TrialsFactor, movesArr[s.movesConfIndex][1])
-	gc.Set(data.TrialsExponent, movesArr[s.movesConfIndex][2])
-	gc.Set(data.MaxNumber, s.maxNum)
-	gc.Set(data.UseAddSub, s.useAddSub)
-	gc.Set(data.UseMulDiv, s.useMulDiv)
+	gc.Set(game.Modals, m)
+	gc.Set(game.DefaultLevel, s.defLevel)
+	gc.Set(game.MoveTime, s.moveTime)
+	gc.Set(game.ShowCellPercent, s.showCellTime)
+	gc.Set(game.RandomRepition, s.rr)
+	gc.Set(game.GridSize, s.gridSz)
+	gc.Set(game.ShowGrid, s.showGrid)
+	gc.Set(game.UseCenterCell, s.useCenterCell)
+	gc.Set(game.ShowCrossHair, s.showCrossHair)
+	gc.Set(game.ResetOnFirstWrong, s.resetOnWrong)
+	gc.Set(game.ThresholdAdvance, s.thresholdUp)
+	gc.Set(game.ThresholdFallback, s.thresholdDown)
+	gc.Set(game.ThresholdAdvanceSessions, s.thresholdAdv)
+	gc.Set(game.ThresholdFallbackSessions, s.thresholdFall)
+	gc.Set(game.Trials, movesArr[s.movesConfIndex][0])
+	gc.Set(game.TrialsFactor, movesArr[s.movesConfIndex][1])
+	gc.Set(game.TrialsExponent, movesArr[s.movesConfIndex][2])
+	gc.Set(game.MaxNumber, s.maxNum)
+	gc.Set(game.UseAddSub, s.useAddSub)
+	gc.Set(game.UseMulDiv, s.useMulDiv)
 	return &gc
 }
 
@@ -333,29 +329,29 @@ func (s *SceneCreateGame) genName() string {
 	return fmt.Sprintf("%v %v (%v/%v) ход(%vсек) попыток(%v)", s1, dtTitleMoves[s.movesConfIndex], s.thresholdUp, s.thresholdDown, s.moveTime, s.thresholdFall)
 }
 
-func (s *SceneCreateGame) getModals() (string, data.ModalType) {
+func (s *SceneCreateGame) getModals() (string, game.ModalType) {
 	s1 := ""
 	modals := 0
-	var mt data.ModalType
+	var mt game.ModalType
 	if s.selPos {
-		s1 += fmt.Sprintf("Позиции[%v(%vx%v)]", data.Pos, s.gridSz, s.gridSz)
+		s1 += fmt.Sprintf("Позиции[%v(%vx%v)]", game.Pos, s.gridSz, s.gridSz)
 		modals++
-		mt += data.Pos
+		mt += game.Pos
 	}
 	if s.selNum {
-		s1 += fmt.Sprintf("Цифры[%v]", data.Sym)
+		s1 += fmt.Sprintf("Цифры[%v]", game.Sym)
 		modals++
-		mt += data.Sym
+		mt += game.Sym
 	}
 	if s.selAri {
-		s1 += fmt.Sprintf("Арифметика[%v]", data.Ari)
+		s1 += fmt.Sprintf("Арифметика[%v]", game.Ari)
 		modals++
-		mt += data.Ari
+		mt += game.Ari
 	}
 	if s.selCol {
-		s1 += fmt.Sprintf("Цвета[%v]", data.Col)
+		s1 += fmt.Sprintf("Цвета[%v]", game.Col)
 		modals++
-		mt += data.Col
+		mt += game.Col
 	}
 	if modals == 0 {
 		s1 += "Выбрать модальность"
@@ -365,7 +361,7 @@ func (s *SceneCreateGame) getModals() (string, data.ModalType) {
 	case 1:
 		s2 += "Single"
 	case 2:
-		s2 += "Double"
+		s2 += "Dual"
 	case 3:
 		s2 += "Triple"
 	case 4:
