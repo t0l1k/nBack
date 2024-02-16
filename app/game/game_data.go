@@ -16,22 +16,23 @@ type GameData struct {
 	Id, Level, TryUp, TryDown  int
 	Moves, TotalMoves          int
 	Percent, Advance, Fallback int
-	done                       bool
+	done, ResetOnWrong         bool
 	Duration                   time.Duration
 	MoveTime                   float64
 }
 
-func NewGame(id int, mods []*Modality, level, tryUp, tryDown, totalMoves, advance, fallback int, moveTime float64) *GameData {
+func NewGame(id int, mods []*Modality, level, tryUp, tryDown, totalMoves, advance, fallback int, moveTime float64, resetOnError bool) *GameData {
 	g := &GameData{
-		Id:         id,
-		Modalities: mods,
-		Level:      level,
-		TryUp:      tryUp,
-		TryDown:    tryDown,
-		TotalMoves: totalMoves,
-		Advance:    advance,
-		Fallback:   fallback,
-		MoveTime:   moveTime,
+		Id:           id,
+		Modalities:   mods,
+		Level:        level,
+		TryUp:        tryUp,
+		TryDown:      tryDown,
+		TotalMoves:   totalMoves,
+		Advance:      advance,
+		Fallback:     fallback,
+		MoveTime:     moveTime,
+		ResetOnWrong: resetOnError,
 	}
 	return g
 }
@@ -65,6 +66,9 @@ func (g *GameData) calcPercent() {
 		i, j = aa, bb
 	}
 	g.Percent = int(i * 100 / (i + j))
+	if g.ResetOnWrong && g.Percent <= g.Advance {
+		g.Percent = 0
+	}
 }
 
 func (g GameData) SetupNext() GameData { return g }

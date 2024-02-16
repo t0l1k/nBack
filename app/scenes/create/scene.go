@@ -332,6 +332,9 @@ func (s *SceneCreateGame) genName() (result string) {
 	} else {
 		result += fmt.Sprintf(" доп.попыток(%v)", s.thresholdFall)
 	}
+	if s.resetOnWrong {
+		result += " до первой ошибки"
+	}
 	return result
 }
 

@@ -29,6 +29,7 @@ func NewGamesData(conf *game.GameConf) *GamesData {
 	stepUp := g.Conf.Get(game.ThresholdAdvance).(int)
 	stepDown := g.Conf.Get(game.ThresholdFallback).(int)
 	moveTime := g.Conf.Get(game.MoveTime).(float64)
+	resetOnWrong := g.Conf.Get(game.ResetOnFirstWrong).(bool)
 	g.id = len(g.Games)
 	gData := game.NewGame(
 		g.id,
@@ -40,6 +41,7 @@ func NewGamesData(conf *game.GameConf) *GamesData {
 		stepUp,
 		stepDown,
 		moveTime,
+		resetOnWrong,
 	)
 	g.Games = append(g.Games, gData)
 	return g
@@ -61,6 +63,7 @@ func (g *GamesData) NewGame(level, tryUp, tryDown int) {
 		lastGame.Advance,
 		lastGame.Fallback,
 		lastGame.MoveTime,
+		lastGame.ResetOnWrong,
 	)
 	g.Games = append(g.Games, gData)
 }

@@ -14,18 +14,19 @@ import (
 
 type SceneGame struct {
 	eui.SceneBase
-	lblTitle                                                  *eui.Text
-	lblVar                                                    *eui.StringVar
-	btnQuit                                                   *eui.Button
-	moveTimer                                                 *eui.Timer
-	gameData                                                  *game.GameData
-	gameConf                                                  game.GameConf
-	board                                                     *game.Board
-	grid                                                      *eui.GridView
-	btnsLayout                                                *eui.BoxLayout
-	moveTime, delayTimeShowCell, delayTimeHideCell            int
-	posModMove, symModMove, colModMove, ariModMove, userMoved bool
-	clrMoved, clrNeutral, clrCorrect, clrWrong, clrMissed     color.Color
+	lblTitle                                              *eui.Text
+	lblVar                                                *eui.StringVar
+	btnQuit                                               *eui.Button
+	moveTimer                                             *eui.Timer
+	gameData                                              *game.GameData
+	gameConf                                              game.GameConf
+	board                                                 *game.Board
+	grid                                                  *eui.GridView
+	btnsLayout                                            *eui.BoxLayout
+	moveTime, delayTimeShowCell, delayTimeHideCell        int
+	posModMove, symModMove, colModMove, ariModMove        bool
+	userMoved, resetOnError, resetOpt                     bool
+	clrMoved, clrNeutral, clrCorrect, clrWrong, clrMissed color.Color
 }
 
 func New() *SceneGame {
@@ -49,6 +50,8 @@ func New() *SceneGame {
 func (s *SceneGame) Setup(conf game.GameConf, gd *game.GameData) {
 	s.gameConf = conf
 	s.gameData = gd
+	s.resetOpt = conf.Get(game.ResetOnFirstWrong).(bool)
+	s.resetOnError = false
 	theme := eui.GetUi().GetTheme()
 	s.grid.Bg(theme.Get(app.GameColorBg))
 	s.grid.Fg(theme.Get(app.GameColorFgCrosshair))
@@ -94,7 +97,6 @@ func (s *SceneGame) Entered() {
 
 func (s *SceneGame) Update(dt int) {
 	s.moveTimer.Update(dt)
-	// s.btnQuit.Update(dt)
 	for _, v := range s.GetContainer() {
 		v.Update(dt)
 	}
@@ -107,12 +109,11 @@ func (s *SceneGame) Update(dt int) {
 	}
 	if s.moveTimer.IsDone() {
 		s.resetColorsAfterMove()
-		if s.board.Move >= s.gameData.TotalMoves {
+		s.checkProgress()
+		if s.board.Move >= s.gameData.TotalMoves || s.resetOpt && s.resetOnError {
 			log.Println("last move check")
-			s.checkProgress()
 			s.sendResult()
 		} else {
-			s.checkProgress()
 			s.board.NextMove()
 			log.Println("01 show cell", s.board.Move)
 			s.moveTimer.Reset()
@@ -271,8 +272,10 @@ func (s *SceneGame) UpdateData(value interface{}) {
 				clr = s.clrCorrect
 			case game.AddWrong:
 				clr = s.clrWrong
+				s.resetOnError = true
 			case game.AddMissed:
 				clr = s.clrMissed
+				s.resetOnError = true
 			case game.AddRegular:
 				clr = s.clrNeutral
 			}

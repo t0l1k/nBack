@@ -65,7 +65,6 @@ func (m *Modality) SetCorrect() {
 	move[m.sym] = AddCorrect
 	m.SetValue(move)
 	m.moveStatus = append(m.moveStatus, AddCorrect)
-	fmt.Println("mod:", move, m.moveStatus)
 }
 
 func (m *Modality) SetWrong() {

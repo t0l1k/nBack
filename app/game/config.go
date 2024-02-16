@@ -74,6 +74,9 @@ func (g GameConf) GameConf(gDt *GameData) (result []string) {
 	result = append(result, "Уровень следующий:"+strconv.Itoa(gDt.Level))
 	result = append(result, "Ходов:"+strconv.Itoa(gDt.TotalMoves))
 	result = append(result, "Время хода:"+strconv.FormatFloat(g.Get(MoveTime).(float64), 'f', 2, 64)+" секунд")
+	if g.Get(ResetOnFirstWrong).(bool) {
+		result = append(result, "До первой ошибки: Да")
+	}
 	result = append(result, "Переход вверх:"+strconv.Itoa(g.Get(ThresholdAdvance).(int)))
 	result = append(result, "Переход вниз:"+strconv.Itoa(g.Get(ThresholdFallback).(int)))
 	if g.Get(ThresholdAdvanceSessions).(int) > 1 {
