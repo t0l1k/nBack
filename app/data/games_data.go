@@ -24,26 +24,28 @@ func NewGamesData(conf *game.GameConf) *GamesData {
 	}
 	g := &GamesData{id: 0, Conf: conf}
 	level := g.Conf.Get(game.DefaultLevel).(int)
-	lives := g.Conf.Get(game.ThresholdFallbackSessions).(int)
-	adv := g.Conf.Get(game.ThresholdAdvance).(int)
-	fall := g.Conf.Get(game.ThresholdFallback).(int)
+	tryUp := g.Conf.Get(game.ThresholdAdvanceSessions).(int)
+	tryDown := g.Conf.Get(game.ThresholdFallbackSessions).(int)
+	stepUp := g.Conf.Get(game.ThresholdAdvance).(int)
+	stepDown := g.Conf.Get(game.ThresholdFallback).(int)
 	moveTime := g.Conf.Get(game.MoveTime).(float64)
 	g.id = len(g.Games)
 	gData := game.NewGame(
 		g.id,
 		modals,
 		level,
-		lives,
+		tryUp,
+		tryDown,
 		g.getTotalMoves(level),
-		adv,
-		fall,
+		stepUp,
+		stepDown,
 		moveTime,
 	)
 	g.Games = append(g.Games, gData)
 	return g
 }
 
-func (g *GamesData) NewGame(level, lives int) {
+func (g *GamesData) NewGame(level, tryUp, tryDown int) {
 	lastGame := g.Last().SetupNext()
 	for _, v := range lastGame.Modalities {
 		v.Reset()
@@ -53,7 +55,8 @@ func (g *GamesData) NewGame(level, lives int) {
 		g.id,
 		lastGame.Modalities,
 		level,
-		lives,
+		tryUp,
+		tryDown,
 		g.getTotalMoves(level),
 		lastGame.Advance,
 		lastGame.Fallback,
@@ -77,46 +80,56 @@ func (g *GamesData) getTotalMoves(level int) int {
 	return trials + factor*int(math.Pow(float64(level), float64(exponent)))
 }
 
-func (g *GamesData) calcGameFor(id int) (level, lives int, result string, col color.Color) {
+func (g *GamesData) calcGameFor(id int) (level, tryUp, tryDown int, result string, col color.Color) {
 	level = g.Games[id].Level
-	lives = g.Games[id].Lives
+	tryUp = g.Games[id].TryUp
+	tryDown = g.Games[id].TryDown
 	percent := g.Games[id].Percent
-	adv := g.Games[id].Advance
-	fall := g.Games[id].Fallback
+	stepUp := g.Games[id].Advance
+	stepDown := g.Games[id].Fallback
 	theme := eui.GetUi().GetTheme()
-	if percent >= adv {
-		level++
-		lives = g.Conf.Get(game.ThresholdFallbackSessions).(int)
-		result = fmt.Sprintf("Уровень(%v) пройден отлично, вверх на(%v)!", level-1, level)
-		col = theme.Get(app.ColorCorrect)
-	} else if percent >= fall && percent < adv {
+	if percent >= stepUp {
+		tryUp--
+		if tryUp == 0 {
+			level++
+			tryUp = g.Conf.Get(game.ThresholdAdvanceSessions).(int)
+			tryDown = g.Conf.Get(game.ThresholdFallbackSessions).(int)
+			result = fmt.Sprintf("Уровень(%v) пройден отлично, вверх на(%v)!", level-1, level)
+			col = theme.Get(app.ColorCorrect)
+		} else {
+			result = fmt.Sprintf("Играть уровень(%v) снова, ещё успешных попыток(%v)!", level, tryUp)
+			col = theme.Get(app.ColorNeutral)
+		}
+	} else if percent >= stepDown && percent < stepUp {
+		tryUp = g.Conf.Get(game.ThresholdAdvanceSessions).(int)
 		result = fmt.Sprintf("Играть уровень(%v) снова!", level)
 		col = theme.Get(app.ColorNeutral)
-	} else if percent < fall {
-		if lives > 1 {
-			lives--
-			result = fmt.Sprintf("Играть уровень(%v) снова! Попыток осталось(%v)", level, lives)
+	} else if percent < stepDown {
+		tryUp = g.Conf.Get(game.ThresholdAdvanceSessions).(int)
+		if tryDown > 1 {
+			tryDown--
+			result = fmt.Sprintf("Играть уровень(%v) снова! Попыток осталось(%v)", level, tryDown)
 			col = theme.Get(app.ColorWrong)
 		} else {
 			if level > 1 {
 				level--
-				lives = g.Conf.Get(game.ThresholdFallbackSessions).(int)
+				tryDown = g.Conf.Get(game.ThresholdFallbackSessions).(int)
 			}
 			result = fmt.Sprintf("Уровень вниз(%v)!", level)
 			col = theme.Get(app.ColorMissed)
 		}
 	}
-	return level, lives, result, col
+	return level, tryUp, tryDown, result, col
 }
 
-func (g *GamesData) NextLevel() (level, lives int, result string, col color.Color) {
-	level, lives, result, col = g.calcGameFor(g.Last().Id)
-	return level, lives, result, col
+func (g *GamesData) NextLevel() (level, tryUp, tryDown int, result string, col color.Color) {
+	level, tryUp, tryDown, result, col = g.calcGameFor(g.Last().Id)
+	return level, tryUp, tryDown, result, col
 }
 
-func (g *GamesData) PrevGame() (level, lives int, result string, col color.Color) {
-	level, lives, result, col = g.calcGameFor(g.Last().Id - 1)
-	return level, lives, result, col
+func (g *GamesData) PrevGame() (level, tryUp, tryDown int, result string, col color.Color) {
+	level, tryUp, tryDown, result, col = g.calcGameFor(g.Last().Id - 1)
+	return level, tryUp, tryDown, result, col
 }
 
 func (g GamesData) String() (result string) {

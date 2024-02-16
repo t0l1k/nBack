@@ -324,9 +324,15 @@ func (s *SceneCreateGame) LoadConf() *game.GameConf {
 	return &gc
 }
 
-func (s *SceneCreateGame) genName() string {
+func (s *SceneCreateGame) genName() (result string) {
 	s1, _ := s.getModals()
-	return fmt.Sprintf("%v %v (%v/%v) ход(%vсек) попыток(%v)", s1, dtTitleMoves[s.movesConfIndex], s.thresholdUp, s.thresholdDown, s.moveTime, s.thresholdFall)
+	result = fmt.Sprintf("%v %v (%v/%v) ход(%vсек)", s1, dtTitleMoves[s.movesConfIndex], s.thresholdUp, s.thresholdDown, s.moveTime)
+	if s.thresholdAdv > 1 {
+		result += fmt.Sprintf(" попыток вверх(%v) доп.попыток(%v)", s.thresholdAdv, s.thresholdFall)
+	} else {
+		result += fmt.Sprintf(" доп.попыток(%v)", s.thresholdFall)
+	}
+	return result
 }
 
 func (s *SceneCreateGame) getModals() (string, game.ModalType) {

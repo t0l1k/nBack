@@ -30,7 +30,7 @@ type SceneGame struct {
 
 func New() *SceneGame {
 	s := &SceneGame{}
-	s.lblTitle = eui.NewText("nBack ") // (модальность уровень) (попыток) (ходов осталось)
+	s.lblTitle = eui.NewText("nBack ") // (модальность уровень)(ходов осталось)
 	s.Add(s.lblTitle)
 	s.lblVar = eui.NewStringVar("")
 	s.lblVar.Attach(s.lblTitle)
@@ -166,9 +166,6 @@ func (s *SceneGame) checkProgress() {
 func (s *SceneGame) updateLbls() {
 	var str strings.Builder
 	str.WriteString(string(s.gameData.GameMode()))
-	str.WriteString("(")
-	str.WriteString(strconv.Itoa(s.gameData.Lives))
-	str.WriteString(")")
 	str.WriteString("(")
 	str.WriteString(strconv.Itoa(s.gameData.TotalMoves - s.board.Move))
 	str.WriteString(")")

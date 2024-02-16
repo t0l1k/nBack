@@ -76,7 +76,10 @@ func (g GameConf) GameConf(gDt *GameData) (result []string) {
 	result = append(result, "Время хода:"+strconv.FormatFloat(g.Get(MoveTime).(float64), 'f', 2, 64)+" секунд")
 	result = append(result, "Переход вверх:"+strconv.Itoa(g.Get(ThresholdAdvance).(int)))
 	result = append(result, "Переход вниз:"+strconv.Itoa(g.Get(ThresholdFallback).(int)))
-	result = append(result, "Попыток:"+strconv.Itoa(g.Get(ThresholdFallbackSessions).(int)))
+	if g.Get(ThresholdAdvanceSessions).(int) > 1 {
+		result = append(result, "Успешных Попыток:"+strconv.Itoa(g.Get(ThresholdAdvanceSessions).(int)))
+	}
+	result = append(result, "Доп.Попыток:"+strconv.Itoa(g.Get(ThresholdFallbackSessions).(int)))
 	result = append(result, "Показать прицел:"+strconv.FormatBool(g.Get(ShowCrossHair).(bool)))
 	if gDt.IsContainMod(Pos) {
 		result = append(result, "Размер сетки:"+strconv.Itoa(g.Get(GridSize).(int)))

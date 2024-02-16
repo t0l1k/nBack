@@ -70,7 +70,7 @@ func (s *SceneIntro) Entered() {
 		s.lblIntro.Visible = true
 		s.lblMotto.Visible = true
 		s.lblHelper.Visible = true
-		level, lives, mottoStr, colorStr := s.gamesData.NextLevel()
+		level, tryUp, tryDown, mottoStr, colorStr := s.gamesData.NextLevel()
 		s.lblIntro.SetText(s.gamesData.Last().LastGameFullResult())
 		s.lblIntro.Bg(colorStr)
 		s.lblMotto.SetText(mottoStr)
@@ -80,12 +80,12 @@ func (s *SceneIntro) Entered() {
 		s.movesIcon.SetIcon(s.movesLine.Image())
 		s.movesIcon.Visible(true)
 
-		log.Println("new game", level, lives)
+		log.Println("new game", level, tryDown)
 		s.warningDuration = s.gamesData.Last().Duration / 2
-		s.gamesData.NewGame(level, lives)
+		s.gamesData.NewGame(level, tryUp, tryDown)
 	} else {
 		if len(s.gamesData.Games) > 1 {
-			_, _, mottoStr, colorStr := s.gamesData.PrevGame()
+			_, _, _, mottoStr, colorStr := s.gamesData.PrevGame()
 			s.lblMotto.Visible = true
 			s.lblMotto.SetText(mottoStr)
 			s.lblMotto.Bg(colorStr)

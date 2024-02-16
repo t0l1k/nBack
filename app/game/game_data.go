@@ -13,7 +13,7 @@ import (
 type GameData struct {
 	DtBeg, DtEnd               string // format "2006-01-02 15:04:05.000"
 	Modalities                 []*Modality
-	Id, Level, Lives           int
+	Id, Level, TryUp, TryDown  int
 	Moves, TotalMoves          int
 	Percent, Advance, Fallback int
 	done                       bool
@@ -21,12 +21,13 @@ type GameData struct {
 	MoveTime                   float64
 }
 
-func NewGame(id int, mods []*Modality, level, lives, totalMoves, advance, fallback int, moveTime float64) *GameData {
+func NewGame(id int, mods []*Modality, level, tryUp, tryDown, totalMoves, advance, fallback int, moveTime float64) *GameData {
 	g := &GameData{
 		Id:         id,
 		Modalities: mods,
 		Level:      level,
-		Lives:      lives,
+		TryUp:      tryUp,
+		TryDown:    tryDown,
 		TotalMoves: totalMoves,
 		Advance:    advance,
 		Fallback:   fallback,
@@ -124,7 +125,7 @@ func (g *GameData) ShortResultStringWithColors() (str string, bg, fg color.Color
 	} else if g.Percent >= g.Fallback && g.Percent < g.Advance {
 		bg = clrNeutral
 	} else if g.Percent < g.Fallback {
-		if g.Lives > 1 {
+		if g.TryDown > 1 {
 			bg = clrWrong
 		} else {
 			bg = clrMissed
