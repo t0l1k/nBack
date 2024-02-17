@@ -49,9 +49,6 @@ func (g *Board) Setup(conf GameConf, gameData *GameData) {
 			g.layout.Add(cell)
 		}
 	}
-	for _, v := range g.gData.Modalities {
-		v.AddField(newField(conf, gameData.Level, gameData.TotalMoves, v.GetSym()))
-	}
 	for _, cell := range g.cells {
 		cell.Setup(conf, g.gData.GetModalities())
 	}

@@ -6,6 +6,13 @@ import (
 	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/app/data"
 	"github.com/t0l1k/nBack/app/game"
+	scene_game "github.com/t0l1k/nBack/app/scenes/game"
+)
+
+const (
+	bNew   = "Применить"
+	bReset = "Обнулить"
+	bTest  = "Тестировать"
 )
 
 var (
@@ -23,13 +30,14 @@ type SceneCreateGame struct {
 	optCrossHair, optGrid, optUseCenter, optReset           *eui.Checkbox
 	cDefLev, cSym, cGridSz, cMoves, cMoveTime, cShowCellTm  *eui.ComboBox
 	cThUp, cThDown, cThAdv, cThFall, cRR, cMaxNum           *eui.ComboBox
-	btnApply, btnReset                                      *eui.Button
+	btnApply, btnReset, btnTest                             *eui.Button
 	selPos, selCol, selNum, selAri                          bool
 	defLevel, movesConfIndex, rr, gridSz, maxNum            int
 	moveTime, showCellTime                                  float64
 	thresholdUp, thresholdDown, thresholdAdv, thresholdFall int
 	showGrid, showCrossHair, useCenterCell, resetOnWrong    bool
 	useMulDiv, useAddSub                                    bool
+	inTesting                                               bool
 }
 
 func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
@@ -234,16 +242,22 @@ func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
 	})
 	s.Add(s.cMaxNum)
 
-	s.btnApply = eui.NewButton("Применить", s.checkOptions)
+	s.btnApply = eui.NewButton(bNew, s.checkOptions)
 	s.Add(s.btnApply)
-	s.btnReset = eui.NewButton("Обнулить", s.checkOptions)
+	s.btnReset = eui.NewButton(bReset, s.checkOptions)
 	s.Add(s.btnReset)
+	s.btnTest = eui.NewButton(bTest, s.checkOptions)
+	s.Add(s.btnTest)
+
 	return s
 }
 
 func (s *SceneCreateGame) Entered() {
 	s.Resize()
-	s.resetOpt()
+	if !s.inTesting {
+		s.resetOpt()
+	}
+	s.inTesting = false
 }
 
 func (s *SceneCreateGame) resetOpt() {
@@ -287,15 +301,24 @@ func (s *SceneCreateGame) resetOpt() {
 }
 
 func (s *SceneCreateGame) checkOptions(b *eui.Button) {
-	if b.GetText() == "Обнулить" {
-		s.resetOpt()
-		return
-	}
 	profileName := s.genName()
-	s.inpName.SetText(profileName)
-	s.profile.AddGameProfile(profileName, s.LoadConf())
-	fmt.Println(s.genName())
-	eui.GetUi().Pop()
+	switch b.GetText() {
+	case bNew:
+		s.inpName.SetText(profileName)
+		s.profile.AddGameProfile(profileName, s.LoadConf())
+		eui.GetUi().Pop()
+	case bReset:
+		s.resetOpt()
+	case bTest:
+		s.inTesting = true
+		s.inpName.SetText(profileName)
+		s.profile.AddGameProfile(profileName, s.LoadConf())
+		sc := scene_game.New()
+		GamesData := s.profile.GetGamesData(profileName)
+		sc.Setup(*GamesData.Conf, GamesData.Last())
+		eui.GetUi().Push(sc)
+		delete(*s.profile, profileName)
+	}
 }
 
 func (s *SceneCreateGame) LoadConf() *game.GameConf {
@@ -442,8 +465,9 @@ func (s *SceneCreateGame) Resize() {
 	y += h + margin
 	s.optReset.Resize([]int{x, y, w1, h})
 	y += h + margin
-	w2 := w1 / 2
+	w3 := w1 / 3
 	y = rect.H - hTop - hTop/2
-	s.btnApply.Resize([]int{x, y, w2, h})
-	s.btnReset.Resize([]int{x + w2, y, w2, h})
+	s.btnApply.Resize([]int{x, y, w3, h})
+	s.btnReset.Resize([]int{x + w3, y, w3, h})
+	s.btnTest.Resize([]int{x + w3*2, y, w3, h})
 }

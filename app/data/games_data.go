@@ -44,6 +44,7 @@ func NewGamesData(conf *game.GameConf) *GamesData {
 		resetOnWrong,
 	)
 	g.Games = append(g.Games, gData)
+	gData.FillField(*g.Conf)
 	return g
 }
 
@@ -65,6 +66,7 @@ func (g *GamesData) NewGame(level, tryUp, tryDown int) {
 		lastGame.MoveTime,
 		lastGame.ResetOnWrong,
 	)
+	gData.FillField(*g.Conf)
 	g.Games = append(g.Games, gData)
 }
 

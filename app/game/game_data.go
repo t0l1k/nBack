@@ -37,6 +37,12 @@ func NewGame(id int, mods []*Modality, level, tryUp, tryDown, totalMoves, advanc
 	return g
 }
 
+func (g *GameData) FillField(conf GameConf) {
+	for _, v := range g.Modalities {
+		v.AddField(newField(conf, g.Level, g.TotalMoves, v.GetSym()))
+	}
+}
+
 func (g *GameData) IsDone() bool { return g.done }
 
 func (g *GameData) SetGameDone(moves int) {
