@@ -78,7 +78,7 @@ func (g *GamesData) Last() *game.GameData {
 	return g.Games[g.id]
 }
 
-func (g *GamesData) getTotalMoves(level int) int {
+func (g GamesData) getTotalMoves(level int) int {
 	trials := g.Conf.Get(game.Trials).(int)
 	factor := g.Conf.Get(game.TrialsFactor).(int)
 	exponent := g.Conf.Get(game.TrialsExponent).(int)

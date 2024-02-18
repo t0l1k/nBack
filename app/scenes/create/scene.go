@@ -2,8 +2,10 @@ package create
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/t0l1k/eui"
+	"github.com/t0l1k/nBack/app"
 	"github.com/t0l1k/nBack/app/data"
 	"github.com/t0l1k/nBack/app/game"
 	scene_game "github.com/t0l1k/nBack/app/scenes/game"
@@ -30,6 +32,7 @@ type SceneCreateGame struct {
 	optCrossHair, optGrid, optUseCenter, optReset           *eui.Checkbox
 	cDefLev, cSym, cGridSz, cMoves, cMoveTime, cShowCellTm  *eui.ComboBox
 	cThUp, cThDown, cThAdv, cThFall, cRR, cMaxNum           *eui.ComboBox
+	iColors                                                 *eui.Icon
 	btnApply, btnReset, btnTest                             *eui.Button
 	selPos, selCol, selNum, selAri                          bool
 	defLevel, movesConfIndex, rr, gridSz, maxNum            int
@@ -90,7 +93,8 @@ func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
 
 	s.lblSelectModal = eui.NewText("Выбор и настройка модальностей")
 	s.Add(s.lblSelectModal)
-	s.optPos = eui.NewCheckbox("Позиции", func(c *eui.Checkbox) {
+	strMod := "Модальность "
+	s.optPos = eui.NewCheckbox(strMod+"Позиции", func(c *eui.Checkbox) {
 		if c.IsChecked() {
 			s.selPos = true
 		} else {
@@ -98,7 +102,7 @@ func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
 		}
 	})
 	s.Add(s.optPos)
-	s.optCol = eui.NewCheckbox("Цвета", func(c *eui.Checkbox) {
+	s.optCol = eui.NewCheckbox(strMod+"Цвета", func(c *eui.Checkbox) {
 		if c.IsChecked() {
 			s.selCol = true
 		} else {
@@ -106,8 +110,8 @@ func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
 		}
 	})
 	s.Add(s.optCol)
-	var dtTitle = []string{"Не использовать", "Цифры", "Арифметика"}
-	var dataSym = []interface{}{"", game.Sym, game.Ari}
+	var dtTitle = []string{strMod + "не использовать", strMod + "Цифры", strMod + "Арифметика"}
+	var dataSym = []interface{}{" ", game.Sym.String(), game.Ari.String()}
 	s.cSym = eui.NewComboBox(dtTitle[1], dataSym, 1, func(cb *eui.ComboBox) {
 		if cb.Value() == dataSym[1] {
 			s.selNum = true
@@ -174,10 +178,16 @@ func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
 	s.Add(s.lblSelectMoves)
 
 	dataMoves := []interface{}{0, 1, 2, 3}
-	s.cMoves = eui.NewComboBox(dtTitleMoves[0], dataMoves, 0, func(cb *eui.ComboBox) {
+	s.cMoves = eui.NewComboBox("Сложность "+dtTitleMoves[0], dataMoves, 0, func(cb *eui.ComboBox) {
 		s.movesConfIndex = cb.Value().(int)
-		s.cMoves.SetText(dtTitleMoves[s.movesConfIndex])
-		fmt.Println("ходов:", dtTitleMoves[s.movesConfIndex])
+		totalMoves := func(level int) int {
+			trials := movesArr[s.movesConfIndex][0]
+			factor := movesArr[s.movesConfIndex][1]
+			exponent := movesArr[s.movesConfIndex][2]
+			return trials + factor*int(math.Pow(float64(level), float64(exponent)))
+		}
+		str := fmt.Sprintf("Сложность %v на 7м уровне ходов %v", dtTitleMoves[s.movesConfIndex], totalMoves(7))
+		s.cMoves.SetText(str)
 	})
 	s.Add(s.cMoves)
 
@@ -249,11 +259,20 @@ func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
 	s.btnTest = eui.NewButton(bTest, s.checkOptions)
 	s.Add(s.btnTest)
 
+	s.iColors = eui.NewIcon(nil)
+	s.Add(s.iColors)
 	return s
 }
 
 func (s *SceneCreateGame) Entered() {
 	s.Resize()
+	theme := eui.GetUi().GetTheme()
+	bg := theme.Get(app.GameColorBg)
+	fg := theme.Get(app.GameColorFg)
+	icon := NewColorsBar(bg, fg)
+	icon.Resize(s.iColors.GetRect().GetArr())
+	icon.Setup()
+	s.iColors.SetIcon(icon.Image())
 	if !s.inTesting {
 		s.resetOpt()
 	}
@@ -358,6 +377,11 @@ func (s *SceneCreateGame) genName() (result string) {
 	if s.resetOnWrong {
 		result += " до первой ошибки"
 	}
+	for _, v := range s.profile.GetProfilesName() {
+		if v == result {
+			result += "_ещё"
+		}
+	}
 	return result
 }
 
@@ -406,68 +430,68 @@ func (s *SceneCreateGame) Resize() {
 	w0, h0 := eui.GetUi().Size()
 	rect := eui.NewRect([]int{0, 0, w0, h0})
 	hTop := int(float64(rect.GetLowestSize()) * 0.05)
-	margin := int(float64(rect.GetLowestSize()) * 0.003)
+	margin := int(float64(rect.GetLowestSize()) * 0.008)
 	x, y := 0, 0
 	s.topBar.Resize([]int{x, y, w0, hTop})
-	y += hTop
-	h := rect.H / 30
+	h := (rect.H - hTop) / 17 // на сколько строк деление
 	w1 := w0 - hTop
+	w2 := w1 / 2 // в 2 столбика
+	w3 := w1 / 3 // в 3 столбика
+	w4 := w1 / 4 // в 4 столбика
+
 	x += (w0 - w1) / 2
-	y += hTop / 2
-	s.inpName.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.cDefLev.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.cMoveTime.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.cShowCellTm.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.cRR.Resize([]int{x, y, w1, h})
+	y += hTop + hTop/2
+	s.inpName.Resize([]int{x, y, w1 - margin, h - margin})
 
-	y += h + margin
-	s.lblSelectModal.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.optPos.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.optCol.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.cSym.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.optGrid.Resize([]int{x, y, w1, h})
+	y += h
+	s.cDefLev.Resize([]int{x, y, w2 - margin, h - margin})
+	s.optReset.Resize([]int{x + w2, y, w2 - margin, h - margin})
 
-	y += h + margin
-	s.cGridSz.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.optUseCenter.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.optCrossHair.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.optAddSub.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.optMulDiv.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.cMaxNum.Resize([]int{x, y, w1, h})
+	y += h
+	s.cMoveTime.Resize([]int{x, y, w2 - margin, h - margin})
+	s.cShowCellTm.Resize([]int{x + w2, y, w2 - margin, h - margin})
 
-	y += h + margin
-	s.lblSelectMoves.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.cMoves.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.lblSelectThreshold.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.cThUp.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.cThDown.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.cThAdv.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.cThFall.Resize([]int{x, y, w1, h})
-	y += h + margin
-	s.optReset.Resize([]int{x, y, w1, h})
-	y += h + margin
-	w3 := w1 / 3
-	y = rect.H - hTop - hTop/2
-	s.btnApply.Resize([]int{x, y, w3, h})
-	s.btnReset.Resize([]int{x + w3, y, w3, h})
-	s.btnTest.Resize([]int{x + w3*2, y, w3, h})
+	y += h
+	s.optCrossHair.Resize([]int{x, y, w2 - margin, h - margin})
+	s.cRR.Resize([]int{x + w2, y, w2 - margin, h - margin})
+
+	y += h
+	s.lblSelectModal.Resize([]int{x, y, w1 - margin, h - margin})
+	y += h
+	s.optPos.Resize([]int{x, y, w1 - margin, h - margin})
+	y += h
+	s.optGrid.Resize([]int{x, y, w3 - margin, h - margin})
+	s.cGridSz.Resize([]int{x + w3, y, w3 - margin, h - margin})
+	s.optUseCenter.Resize([]int{x + w3*2, y, w3 - margin, h - margin})
+
+	y += h
+	s.optCol.Resize([]int{x, y, w1 - margin, h - margin})
+	y += h
+	s.iColors.Resize([]int{x, y, w1 - margin, h - margin})
+	y += h
+	s.cSym.Resize([]int{x, y, w1 - margin, h - margin})
+
+	y += h
+	s.cMaxNum.Resize([]int{x, y, w2 - margin, h - margin})
+	s.optAddSub.Resize([]int{x + w2, y, w4 - margin, h - margin})
+	s.optMulDiv.Resize([]int{x + w2 + w4, y, w4 - margin, h - margin})
+
+	y += h
+	s.lblSelectMoves.Resize([]int{x, y, w1 - margin, h - margin})
+	y += h
+	s.cMoves.Resize([]int{x, y, w1 - margin, h - margin})
+	y += h
+	s.lblSelectThreshold.Resize([]int{x, y, w1 - margin, h - margin})
+	y += h
+	s.cThUp.Resize([]int{x, y, w2 - margin, h - margin})
+	s.cThDown.Resize([]int{x + w2, y, w2 - margin, h - margin})
+	y += h
+
+	s.cThAdv.Resize([]int{x, y, w2 - margin, h - margin})
+	s.cThFall.Resize([]int{x + w2, y, w2 - margin, h - margin})
+
+	y += h
+	s.btnApply.Resize([]int{x, y, w3 - margin, h - margin})
+	s.btnReset.Resize([]int{x + w3, y, w3 - margin, h - margin})
+	s.btnTest.Resize([]int{x + w3*2, y, w3 - margin, h - margin})
 }
