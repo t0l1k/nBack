@@ -20,6 +20,9 @@ const (
 var (
 	dtTitleMoves = []string{"Новичёк", "Начинающий", "Профессионал", "Мастер"}
 	movesArr     = [][]int{{10, 1, 1}, {20, 1, 1}, {20, 5, 1}, {20, 1, 2}}
+	strMod       = "Модальность "
+	symTitle     = []string{strMod + "не использовать", strMod + "Цифры", strMod + "Арифметика"}
+	symData      = []interface{}{" ", game.Sym.String(), game.Ari.String()}
 )
 
 type SceneCreateGame struct {
@@ -34,13 +37,14 @@ type SceneCreateGame struct {
 	cThUp, cThDown, cThAdv, cThFall, cRR, cMaxNum           *eui.ComboBox
 	iColors                                                 *eui.Icon
 	btnApply, btnReset, btnTest                             *eui.Button
-	selPos, selCol, selNum, selAri                          bool
+	selPos, selCol, selSym, selAri                          bool
 	defLevel, movesConfIndex, rr, gridSz, maxNum            int
 	moveTime, showCellTime                                  float64
 	thresholdUp, thresholdDown, thresholdAdv, thresholdFall int
 	showGrid, showCrossHair, useCenterCell, resetOnWrong    bool
 	useMulDiv, useAddSub                                    bool
 	inTesting                                               bool
+	examples                                                *ExamplesFrame
 }
 
 func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
@@ -93,7 +97,6 @@ func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
 
 	s.lblSelectModal = eui.NewText("Выбор и настройка модальностей")
 	s.Add(s.lblSelectModal)
-	strMod := "Модальность "
 	s.optPos = eui.NewCheckbox(strMod+"Позиции", func(c *eui.Checkbox) {
 		if c.IsChecked() {
 			s.selPos = true
@@ -110,24 +113,19 @@ func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
 		}
 	})
 	s.Add(s.optCol)
-	var dtTitle = []string{strMod + "не использовать", strMod + "Цифры", strMod + "Арифметика"}
-	var dataSym = []interface{}{" ", game.Sym.String(), game.Ari.String()}
-	s.cSym = eui.NewComboBox(dtTitle[1], dataSym, 1, func(cb *eui.ComboBox) {
-		if cb.Value() == dataSym[1] {
-			s.selNum = true
+	s.cSym = eui.NewComboBox(symTitle[1], symData, 1, func(cb *eui.ComboBox) {
+		if cb.Value() == symData[1] {
+			s.selSym = true
 			s.selAri = false
-			cb.SetText(dtTitle[1])
-			fmt.Println("nums on", cb.Value())
-		} else if cb.Value() == dataSym[2] {
+			cb.SetText(symTitle[1])
+		} else if cb.Value() == symData[2] {
 			s.selAri = true
-			s.selNum = false
-			cb.SetText(dtTitle[2])
-			fmt.Println("ari on", cb.Value())
-		} else {
-			s.selNum = false
+			s.selSym = false
+			cb.SetText(symTitle[2])
+		} else if cb.Value() == symData[0] {
+			s.selSym = false
 			s.selAri = false
-			cb.SetText(dtTitle[0])
-			fmt.Println("reset", cb.Value())
+			cb.SetText(symTitle[0])
 		}
 	})
 	s.Add(s.cSym)
@@ -180,13 +178,7 @@ func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
 	dataMoves := []interface{}{0, 1, 2, 3}
 	s.cMoves = eui.NewComboBox("Сложность "+dtTitleMoves[0], dataMoves, 0, func(cb *eui.ComboBox) {
 		s.movesConfIndex = cb.Value().(int)
-		totalMoves := func(level int) int {
-			trials := movesArr[s.movesConfIndex][0]
-			factor := movesArr[s.movesConfIndex][1]
-			exponent := movesArr[s.movesConfIndex][2]
-			return trials + factor*int(math.Pow(float64(level), float64(exponent)))
-		}
-		str := fmt.Sprintf("Сложность %v на 7м уровне ходов %v", dtTitleMoves[s.movesConfIndex], totalMoves(7))
+		str := fmt.Sprintf("Сложность %v на 7м уровне ходов %v", dtTitleMoves[s.movesConfIndex], s.totalMoves(7))
 		s.cMoves.SetText(str)
 	})
 	s.Add(s.cMoves)
@@ -261,7 +253,109 @@ func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
 
 	s.iColors = eui.NewIcon(nil)
 	s.Add(s.iColors)
+	s.examples = NewExamplesFrame(s.exLogic)
+	s.Add(s.examples)
 	return s
+}
+
+func (s *SceneCreateGame) exLogic(b *eui.Button) {
+	switch b.GetText() {
+	case btnJ:
+		gc := game.NewGameConf()
+		gc.Set(game.Modals, game.Pos+game.Col) // по умолчанию модальность цифры
+		gc.Set(game.DefaultLevel, 1)
+		gc.Set(game.MoveTime, 2.5)
+		gc.Set(game.ShowCellPercent, 0.5)
+		gc.Set(game.RandomRepition, 30)
+		gc.Set(game.GridSize, 3)
+		gc.Set(game.ShowGrid, false)
+		gc.Set(game.UseCenterCell, false)
+		gc.Set(game.ShowCrossHair, true)
+		gc.Set(game.ResetOnFirstWrong, false)
+		gc.Set(game.ThresholdAdvance, 90)
+		gc.Set(game.ThresholdFallback, 75)
+		gc.Set(game.ThresholdAdvanceSessions, 1)
+		gc.Set(game.ThresholdFallbackSessions, 1)
+		gc.Set(game.Trials, 20)
+		gc.Set(game.TrialsFactor, 1)
+		gc.Set(game.TrialsExponent, 1)
+		gc.Set(game.MaxNumber, 10)
+		gc.Set(game.UseAddSub, true)
+		gc.Set(game.UseMulDiv, false)
+		s.resetOpt(&gc)
+
+	case btnB:
+		gc := game.NewGameConf()
+		gc.Set(game.Modals, game.Pos+game.Sym) // по умолчанию модальность цифры
+		gc.Set(game.DefaultLevel, 1)
+		gc.Set(game.MoveTime, 3.0)
+		gc.Set(game.ShowCellPercent, 0.5)
+		gc.Set(game.RandomRepition, 30)
+		gc.Set(game.GridSize, 3)
+		gc.Set(game.ShowGrid, true)
+		gc.Set(game.UseCenterCell, false)
+		gc.Set(game.ShowCrossHair, true)
+		gc.Set(game.ResetOnFirstWrong, false)
+		gc.Set(game.ThresholdAdvance, 80)
+		gc.Set(game.ThresholdFallback, 50)
+		gc.Set(game.ThresholdAdvanceSessions, 1)
+		gc.Set(game.ThresholdFallbackSessions, 3)
+		gc.Set(game.Trials, 20)
+		gc.Set(game.TrialsFactor, 1)
+		gc.Set(game.TrialsExponent, 2)
+		gc.Set(game.MaxNumber, 10)
+		gc.Set(game.UseAddSub, true)
+		gc.Set(game.UseMulDiv, false)
+		s.resetOpt(&gc)
+
+	case bntQ:
+		gc := game.NewGameConf()
+		gc.Set(game.Modals, game.Sym+game.Col) // по умолчанию модальность цифры
+		gc.Set(game.DefaultLevel, 1)
+		gc.Set(game.MoveTime, 2.5)
+		gc.Set(game.ShowCellPercent, 0.65)
+		gc.Set(game.RandomRepition, 30)
+		gc.Set(game.GridSize, 3)
+		gc.Set(game.ShowGrid, true)
+		gc.Set(game.UseCenterCell, false)
+		gc.Set(game.ShowCrossHair, true)
+		gc.Set(game.ResetOnFirstWrong, false)
+		gc.Set(game.ThresholdAdvance, 90)
+		gc.Set(game.ThresholdFallback, 0)
+		gc.Set(game.ThresholdAdvanceSessions, 1)
+		gc.Set(game.ThresholdFallbackSessions, 1)
+		gc.Set(game.Trials, 20)
+		gc.Set(game.TrialsFactor, 5)
+		gc.Set(game.TrialsExponent, 1)
+		gc.Set(game.MaxNumber, 10)
+		gc.Set(game.UseAddSub, true)
+		gc.Set(game.UseMulDiv, false)
+		s.resetOpt(&gc)
+
+	case btnP:
+		gc := game.NewGameConf()
+		gc.Set(game.Modals, game.Ari) // по умолчанию модальность цифры
+		gc.Set(game.DefaultLevel, 1)
+		gc.Set(game.MoveTime, 2.0)
+		gc.Set(game.ShowCellPercent, 0.8)
+		gc.Set(game.RandomRepition, 30)
+		gc.Set(game.GridSize, 3)
+		gc.Set(game.ShowGrid, false)
+		gc.Set(game.UseCenterCell, false)
+		gc.Set(game.ShowCrossHair, true)
+		gc.Set(game.ResetOnFirstWrong, false)
+		gc.Set(game.ThresholdAdvance, 90)
+		gc.Set(game.ThresholdFallback, 0)
+		gc.Set(game.ThresholdAdvanceSessions, 3)
+		gc.Set(game.ThresholdFallbackSessions, 1)
+		gc.Set(game.Trials, 10)
+		gc.Set(game.TrialsFactor, 1)
+		gc.Set(game.TrialsExponent, 1)
+		gc.Set(game.MaxNumber, 10)
+		gc.Set(game.UseAddSub, true)
+		gc.Set(game.UseMulDiv, false)
+		s.resetOpt(&gc)
+	}
 }
 
 func (s *SceneCreateGame) Entered() {
@@ -269,20 +363,74 @@ func (s *SceneCreateGame) Entered() {
 	theme := eui.GetUi().GetTheme()
 	bg := theme.Get(app.GameColorBg)
 	fg := theme.Get(app.GameColorFg)
+	s.examples.setup(bg, fg)
 	icon := NewColorsBar(bg, fg)
 	icon.Resize(s.iColors.GetRect().GetArr())
 	icon.Setup()
 	s.iColors.SetIcon(icon.Image())
 	if !s.inTesting {
-		s.resetOpt()
+		s.resetOpt(nil)
 	}
 	s.inTesting = false
 }
 
-func (s *SceneCreateGame) resetOpt() {
-	conf := game.DefaultSettings()
-	s.selNum = true
-	s.cSym.SetValue(game.Sym)
+func (s *SceneCreateGame) setModals(modals game.ModalType) {
+	s.selPos = false
+	s.selCol = false
+	s.selSym = false
+	s.selAri = false
+	s.cSym.SetValue(" ")
+	s.cSym.SetText(symTitle[0])
+	s.optPos.SetChecked(false)
+	s.optCol.SetChecked(false)
+	for _, mod := range modals {
+		switch game.ModalType(mod) {
+		case game.Pos:
+			s.selPos = true
+			s.optPos.SetChecked(s.selPos)
+		case game.Col:
+			s.selCol = true
+			s.optCol.SetChecked(s.selCol)
+		case game.Sym:
+			s.selSym = true
+			s.cSym.SetValue(game.Sym.String())
+			s.cSym.SetText(symTitle[1])
+		case game.Ari:
+			s.selAri = true
+			s.cSym.SetValue(game.Ari.String())
+			s.cSym.SetText(symTitle[2])
+		}
+	}
+}
+
+func (s *SceneCreateGame) setMoves(trials, factor, exp int) {
+	// "Новичёк", "Начинающий", "Профессионал", "Мастер"
+	if trials == 10 && factor == 1 && exp == 1 {
+		s.cMoves.SetValue(0)
+		s.movesConfIndex = 0
+	}
+	if trials == 20 && factor == 1 && exp == 1 {
+		s.cMoves.SetValue(1)
+		s.movesConfIndex = 1
+	}
+	if trials == 20 && factor == 5 && exp == 1 {
+		s.cMoves.SetValue(2)
+		s.movesConfIndex = 2
+	}
+	if trials == 20 && exp == 2 {
+		s.cMoves.SetValue(3)
+		s.movesConfIndex = 3
+	}
+	str := fmt.Sprintf("Сложность %v на 4м уровне ходов %v", dtTitleMoves[s.movesConfIndex], s.totalMoves(4))
+	s.cMoves.SetText(str)
+}
+
+func (s *SceneCreateGame) resetOpt(conf *game.GameConf) {
+	if conf == nil {
+		conf = game.DefaultSettings()
+	}
+	mod := conf.Get(game.Modals).(game.ModalType)
+	s.setModals(mod)
 	s.defLevel = conf.Get(game.DefaultLevel).(int)
 	s.cDefLev.SetValue(s.defLevel)
 	s.moveTime = conf.Get(game.MoveTime).(float64)
@@ -307,7 +455,6 @@ func (s *SceneCreateGame) resetOpt() {
 	s.cThAdv.SetValue(s.thresholdAdv)
 	s.thresholdFall = conf.Get(game.ThresholdFallbackSessions).(int)
 	s.cThFall.SetValue(s.thresholdFall)
-	s.cMoves.SetValue(0)
 	s.resetOnWrong = conf.Get(game.ResetOnFirstWrong).(bool)
 	s.optReset.SetChecked(s.resetOnWrong)
 	s.useAddSub = conf.Get(game.UseAddSub).(bool)
@@ -316,6 +463,10 @@ func (s *SceneCreateGame) resetOpt() {
 	s.optMulDiv.SetChecked(s.useMulDiv)
 	s.maxNum = conf.Get(game.MaxNumber).(int)
 	s.cMaxNum.SetValue(s.maxNum)
+	trials := conf.Get(game.Trials).(int)
+	factor := conf.Get(game.TrialsFactor).(int)
+	exp := conf.Get(game.TrialsExponent).(int)
+	s.setMoves(trials, factor, exp)
 	s.inpName.SetText(s.genName())
 }
 
@@ -327,7 +478,7 @@ func (s *SceneCreateGame) checkOptions(b *eui.Button) {
 		s.profile.AddGameProfile(profileName, s.LoadConf())
 		eui.GetUi().Pop()
 	case bReset:
-		s.resetOpt()
+		s.resetOpt(nil)
 	case bTest:
 		s.inTesting = true
 		s.inpName.SetText(profileName)
@@ -394,7 +545,7 @@ func (s *SceneCreateGame) getModals() (string, game.ModalType) {
 		modals++
 		mt += game.Pos
 	}
-	if s.selNum {
+	if s.selSym {
 		s1 += fmt.Sprintf("Цифры[%v]", game.Sym)
 		modals++
 		mt += game.Sym
@@ -434,18 +585,19 @@ func (s *SceneCreateGame) Resize() {
 	x, y := 0, 0
 	s.topBar.Resize([]int{x, y, w0, hTop})
 	h := (rect.H - hTop) / 17 // на сколько строк деление
-	w1 := w0 - hTop
+
+	w1 := w0 - w0/5
 	w2 := w1 / 2 // в 2 столбика
 	w3 := w1 / 3 // в 3 столбика
 	w4 := w1 / 4 // в 4 столбика
 
-	x += (w0 - w1) / 2
 	y += hTop + hTop/2
 	s.inpName.Resize([]int{x, y, w1 - margin, h - margin})
+	s.examples.Resize([]int{x + w1, y, w0/5 - margin, hTop*5 - margin})
 
 	y += h
 	s.cDefLev.Resize([]int{x, y, w2 - margin, h - margin})
-	s.optReset.Resize([]int{x + w2, y, w2 - margin, h - margin})
+	s.cRR.Resize([]int{x + w2, y, w2 - margin, h - margin})
 
 	y += h
 	s.cMoveTime.Resize([]int{x, y, w2 - margin, h - margin})
@@ -453,7 +605,7 @@ func (s *SceneCreateGame) Resize() {
 
 	y += h
 	s.optCrossHair.Resize([]int{x, y, w2 - margin, h - margin})
-	s.cRR.Resize([]int{x + w2, y, w2 - margin, h - margin})
+	s.optReset.Resize([]int{x + w2, y, w2 - margin, h - margin})
 
 	y += h
 	s.lblSelectModal.Resize([]int{x, y, w1 - margin, h - margin})
@@ -494,4 +646,11 @@ func (s *SceneCreateGame) Resize() {
 	s.btnApply.Resize([]int{x, y, w3 - margin, h - margin})
 	s.btnReset.Resize([]int{x + w3, y, w3 - margin, h - margin})
 	s.btnTest.Resize([]int{x + w3*2, y, w3 - margin, h - margin})
+}
+
+func (s *SceneCreateGame) totalMoves(level int) int {
+	trials := movesArr[s.movesConfIndex][0]
+	factor := movesArr[s.movesConfIndex][1]
+	exponent := movesArr[s.movesConfIndex][2]
+	return trials + factor*int(math.Pow(float64(level), float64(exponent)))
 }
