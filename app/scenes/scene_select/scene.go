@@ -9,6 +9,17 @@ import (
 	"github.com/t0l1k/nBack/app/data"
 	"github.com/t0l1k/nBack/app/scenes/create"
 	"github.com/t0l1k/nBack/app/scenes/intro"
+	"github.com/t0l1k/nBack/app/scenes/options"
+	"github.com/t0l1k/nBack/app/scenes/result"
+	"github.com/t0l1k/nBack/app/scenes/tutor"
+)
+
+const (
+	bSelect  = "Выбрать"
+	bCreate  = "Создать"
+	bResult  = "Итоги"
+	bTutor   = "Помощь"
+	bOptions = "Настройки"
 )
 
 type SceneSelectGame struct {
@@ -30,28 +41,27 @@ func NewSceneSelectGame() *SceneSelectGame {
 	theme := eui.GetUi().GetTheme()
 	bg := theme.Get(eui.ButtonBg)
 	fg := theme.Get(eui.ButtonFg)
-	s.listGames.SetupListViewButtons(s.profiles.GetProfilesName(), 30, 1, bg, fg, s.btnsLogic)
+	s.listGames.SetupListViewButtons(s.profiles.GetProfilesName(), 30, 1, bg, fg, s.btnsSelectGameLogic)
 	s.Add(s.listGames)
 	s.listGames.Bg(eui.Blue)
 	s.btnsLayout = eui.NewHLayout()
-	s.btnSel = eui.NewButton("Играть", s.btnsLogic)
+	s.btnSel = eui.NewButton(bSelect, s.btnsLogic)
 	s.btnSel.Disable()
 	s.btnSel.Bg(eui.YellowGreen)
 	s.btnsLayout.Add(s.btnSel)
-	s.btnCrt = eui.NewButton("Создать", s.btnsLogic)
+	s.btnCrt = eui.NewButton(bCreate, s.btnsLogic)
 	s.btnsLayout.Add(s.btnCrt)
-	s.btnPrgs = eui.NewButton("Итоги", s.btnsLogic)
+	s.btnPrgs = eui.NewButton(bResult, s.btnsLogic)
 	s.btnsLayout.Add(s.btnPrgs)
-	s.btnTut = eui.NewButton("Обучение", s.btnsLogic)
+	s.btnTut = eui.NewButton(bTutor, s.btnsLogic)
 	s.btnsLayout.Add(s.btnTut)
-	s.btnOpt = eui.NewButton("Настройки", s.btnsLogic)
+	s.btnOpt = eui.NewButton(bOptions, s.btnsLogic)
 	s.btnsLayout.Add(s.btnOpt)
 	s.Resize()
 	return s
 }
 
-func (s *SceneSelectGame) btnsLogic(b *eui.Button) {
-	fmt.Println("selected", b.GetText())
+func (s *SceneSelectGame) btnsSelectGameLogic(b *eui.Button) {
 	for name, game := range s.profiles.GetGameProfiles() {
 		if name == b.GetText() {
 			sc := intro.NewSceneIntro(game, name)
@@ -59,12 +69,25 @@ func (s *SceneSelectGame) btnsLogic(b *eui.Button) {
 			log.Println("selected profile:", b.GetText())
 		}
 	}
+}
 
-	if b.GetText() == "Создать" {
-		sc := create.NewSceneCreateGame(s.profiles)
-		eui.GetUi().Push(sc)
+func (s *SceneSelectGame) btnsLogic(b *eui.Button) {
+	var sc eui.Sceneer
+	switch b.GetText() {
+	case bCreate:
+		sc = create.NewSceneCreateGame(s.profiles)
 		log.Println("Выбрана сцена создание профиля")
+	case bResult:
+		sc = result.NewSceneResults()
+		log.Println("Выбрана сцена изучения итогов")
+	case bTutor:
+		sc = tutor.NewSceneTutor()
+		log.Println("Выбрана сцена чтения помощи")
+	case bOptions:
+		sc = options.NewSceneOptions()
+		log.Println("Выбрана сцена настроек")
 	}
+	eui.GetUi().Push(sc)
 }
 
 func (s *SceneSelectGame) Entered() {
@@ -72,7 +95,7 @@ func (s *SceneSelectGame) Entered() {
 	theme := eui.GetUi().GetTheme()
 	bg := theme.Get(eui.ButtonBg)
 	fg := theme.Get(eui.ButtonFg)
-	s.listGames.SetupListViewButtons(s.profiles.GetProfilesName(), 30, 1, bg, fg, s.btnsLogic)
+	s.listGames.SetupListViewButtons(s.profiles.GetProfilesName(), 30, 1, bg, fg, s.btnsSelectGameLogic)
 	for k, v := range s.profiles.GetGameProfiles() {
 		for _, v1 := range v.Games {
 			if v1.IsDone() {

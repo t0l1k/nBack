@@ -14,26 +14,27 @@ import (
 
 type SceneGame struct {
 	eui.SceneBase
-	lblTitle                                              *eui.Text
-	lblVar                                                *eui.StringVar
-	btnQuit                                               *eui.Button
-	moveTimer                                             *eui.Timer
-	gameData                                              *game.GameData
-	gameConf                                              game.GameConf
-	board                                                 *game.Board
-	grid                                                  *eui.GridView
-	btnsLayout                                            *eui.BoxLayout
-	moveTime, delayTimeShowCell, delayTimeHideCell        int
-	posModMove, symModMove, colModMove, ariModMove        bool
-	userMoved, resetOnError, resetOpt                     bool
-	clrMoved, clrNeutral, clrCorrect, clrWrong, clrMissed color.Color
+	lblTitle                                                *eui.Text
+	lblVar                                                  *eui.SubjectBase
+	btnQuit                                                 *eui.Button
+	moveTimer                                               *eui.Timer
+	gameData                                                *game.GameData
+	gameConf                                                game.GameConf
+	board                                                   *game.Board
+	grid                                                    *eui.GridView
+	btnsLayout                                              *eui.BoxLayout
+	moveTime, delayTimeShowCell, delayTimeHideCell          int
+	posModMove, symModMove, colModMove, ariModMove          bool
+	userMoved, resetOnError, resetOpt                       bool
+	clrMoved, clrNeutral, clrCorrect, clrWrong, clrMissed   color.Color
+	posModalKey, colorModalKey, numberModalKey, ariModalKey ebiten.Key
 }
 
 func New() *SceneGame {
 	s := &SceneGame{}
 	s.lblTitle = eui.NewText("nBack ") // (модальность уровень)(ходов осталось)
 	s.Add(s.lblTitle)
-	s.lblVar = eui.NewStringVar("")
+	s.lblVar = eui.NewSubject()
 	s.lblVar.Attach(s.lblTitle)
 	s.btnQuit = eui.NewButton("<", func(b *eui.Button) {
 		eui.GetUi().Pop()
@@ -55,7 +56,7 @@ func (s *SceneGame) Setup(conf game.GameConf, gd *game.GameData) {
 	theme := eui.GetUi().GetTheme()
 	s.grid.Bg(theme.Get(app.GameColorBg))
 	s.grid.Fg(theme.Get(app.GameColorFgCrosshair))
-	s.grid.Visible(conf.Get(game.ShowGrid).(bool))
+	s.grid.Visible = conf.Get(game.ShowGrid).(bool)
 	s.lblTitle.Fg(theme.Get(app.GameColorBg))
 	s.btnsLayout.ResetContainerBase()
 	for _, v := range s.gameData.Modalities {
@@ -74,6 +75,11 @@ func (s *SceneGame) Setup(conf game.GameConf, gd *game.GameData) {
 	s.clrCorrect = theme.Get(app.ColorCorrect)
 	s.clrWrong = theme.Get(app.ColorWrong)
 	s.clrMissed = theme.Get(app.ColorMissed)
+	appConf := eui.GetUi().GetSettings()
+	s.posModalKey = appConf.Get(app.PositionKeypress).(ebiten.Key)
+	s.colorModalKey = appConf.Get(app.ColorKeypress).(ebiten.Key)
+	s.numberModalKey = appConf.Get(app.NumberKeypress).(ebiten.Key)
+	s.ariModalKey = appConf.Get(app.AriphmeticsKeypress).(ebiten.Key)
 	s.moveTime = int(s.gameData.MoveTime * 1000)
 	showCellPercent := conf.Get(game.ShowCellPercent).(float64)
 	timeShowCell := int(float64(s.moveTime) * showCellPercent)
@@ -220,20 +226,18 @@ func (s *SceneGame) UpdateInput(value interface{}) {
 	switch v := value.(type) {
 	case eui.KeyboardData:
 		for _, key := range v.GetKeys() {
-			if key == ebiten.KeySpace {
-				log.Println("pressed <space>")
-			} else if key == ebiten.KeyA {
+			if key == s.posModalKey {
 				s.userMove(game.Pos.String())
-				log.Println("pressed <A>")
-			} else if key == ebiten.KeyC {
+				log.Println("pressed pos modal")
+			} else if key == s.colorModalKey {
 				s.userMove(game.Col.String())
-				log.Println("pressed <C>")
-			} else if key == ebiten.KeyS {
+				log.Println("pressed color modal")
+			} else if key == s.numberModalKey {
 				s.userMove(game.Sym.String())
-				log.Println("pressed <S>")
-			} else if key == ebiten.KeyR {
+				log.Println("pressed numbers modal")
+			} else if key == s.ariModalKey {
 				s.userMove(game.Ari.String())
-				log.Println("pressed <R>")
+				log.Println("pressed ariphmrtic modal")
 			}
 		}
 	}

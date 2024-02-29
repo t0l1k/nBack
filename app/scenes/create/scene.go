@@ -18,7 +18,7 @@ const (
 )
 
 var (
-	dtTitleMoves = []string{"Новичёк", "Начинающий", "Профессионал", "Мастер"}
+	dtTitleMoves = []string{"Легко", "Нормально", "Сложно", "Экстремально"}
 	movesArr     = [][]int{{10, 1, 1}, {20, 1, 1}, {20, 5, 1}, {20, 1, 2}}
 	strMod       = "Модальность "
 	symTitle     = []string{strMod + "не использовать", strMod + "Цифры", strMod + "Арифметика"}
@@ -591,7 +591,7 @@ func (s *SceneCreateGame) Resize() {
 	w3 := w1 / 3 // в 3 столбика
 	w4 := w1 / 4 // в 4 столбика
 
-	y += hTop + hTop/2
+	y += hTop + margin
 	s.inpName.Resize([]int{x, y, w1 - margin, h - margin})
 	s.examples.Resize([]int{x + w1, y, w0/5 - margin, hTop*5 - margin})
 

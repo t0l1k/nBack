@@ -54,7 +54,7 @@ func NewSceneIntro(gdata *data.GamesData, text string) *SceneIntro {
 	})
 	s.Add(s.btnStart)
 	s.movesIcon = eui.NewIcon(nil)
-	s.movesIcon.Visible(false)
+	s.movesIcon.Visible = false
 	s.Add(s.movesIcon)
 	s.lblIntro.Visible = false
 	s.lblMotto.Visible = false
@@ -78,7 +78,7 @@ func (s *SceneIntro) Entered() {
 		s.lblHelper.Bg(colorStr)
 		s.movesLine.Setup(s.gamesData.Last().GetModalitiesMoves())
 		s.movesIcon.SetIcon(s.movesLine.Image())
-		s.movesIcon.Visible(true)
+		s.movesIcon.Visible = true
 
 		log.Println("new game", level, tryDown)
 		s.warningDuration = s.gamesData.Last().Duration / 2
@@ -124,14 +124,17 @@ func (s *SceneIntro) Update(dt int) {
 	if s.restStopwatch.Duration() < time.Duration(s.restDuration)*time.Second {
 		if s.lblSw.GetBg() != eui.Red && s.warningDuration > 0 {
 			s.lblSw.Bg(eui.Red)
+			s.btnStart.Visible(false)
 		}
 	} else if s.restStopwatch.Duration() < s.warningDuration {
 		if s.lblSw.GetBg() != eui.Orange {
 			s.lblSw.Bg(eui.Orange)
+			s.btnStart.Visible(true)
 		}
 	} else if s.restStopwatch.Duration() > s.warningDuration {
 		if s.lblSw.GetBg() != eui.Blue {
 			s.lblSw.Bg(eui.Blue)
+			s.btnStart.Visible(true)
 		}
 	}
 }

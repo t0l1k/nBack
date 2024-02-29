@@ -1,6 +1,9 @@
 package app
 
-import "github.com/t0l1k/eui"
+import (
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/t0l1k/eui"
+)
 
 func NewGame() *eui.Ui {
 	u := eui.GetUi()
@@ -8,12 +11,13 @@ func NewGame() *eui.Ui {
 	k := 30
 	w, h := 16*k, 9*k
 	u.SetSize(w, h)
-	setConf(u)
-	setTheme(u)
+	SetConf()
+	setTheme()
 	return u
 }
 
-func setTheme(u *eui.Ui) {
+func setTheme() {
+	u := eui.GetUi()
 	u.GetTheme().Set(eui.SceneBg, eui.Black)
 	u.GetTheme().Set(LabelColorDefault, eui.Silver)
 	u.GetTheme().Set(GameColorBg, eui.Black)
@@ -26,8 +30,13 @@ func setTheme(u *eui.Ui) {
 	u.GetTheme().Set(ColorMissed, eui.Red)
 }
 
-func setConf(u *eui.Ui) {
-	u.GetSettings().Set(RestDuration, 5)
+func SetConf() {
+	u := eui.GetUi()
+	u.GetSettings().Set(RestDuration, 3)
+	u.GetSettings().Set(PositionKeypress, ebiten.KeyA)
+	u.GetSettings().Set(ColorKeypress, ebiten.KeyC)
+	u.GetSettings().Set(NumberKeypress, ebiten.KeyS)
+	u.GetSettings().Set(AriphmeticsKeypress, ebiten.KeyR)
 }
 
 const (
@@ -44,4 +53,8 @@ const (
 
 const (
 	RestDuration eui.SettingName = iota + 100
+	PositionKeypress
+	ColorKeypress
+	NumberKeypress
+	AriphmeticsKeypress
 )

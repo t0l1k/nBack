@@ -21,7 +21,6 @@ type cell struct {
 
 func newCell(center bool) *cell {
 	c := &cell{}
-	c.SetupIcon(nil)
 	theme := eui.GetUi().GetTheme()
 	c.bg = theme.Get(app.GameColorBg)
 	c.bgActive = theme.Get(app.GameColorActiveBg)
@@ -30,6 +29,7 @@ func newCell(center bool) *cell {
 	c.Bg(c.bg)
 	c.Fg(c.fg)
 	c.center = center
+	c.Icon.Visible = true
 	return c
 }
 
@@ -57,10 +57,10 @@ func (c *cell) SetText() {
 	c.Layout()
 	if c.center {
 		dstImage := c.SetCrossHair()
-		c.GetImage().DrawImage(dstImage, nil)
+		c.Image().DrawImage(dstImage, nil)
 		op := &ebiten.DrawImageOptions{}
 		op.Blend = ebiten.BlendDestinationAtop
-		c.GetImage().DrawImage(srcImg, op)
+		c.Image().DrawImage(srcImg, op)
 	}
 }
 

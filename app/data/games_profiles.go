@@ -1,6 +1,10 @@
 package data
 
-import "github.com/t0l1k/nBack/app/game"
+import (
+	"sort"
+
+	"github.com/t0l1k/nBack/app/game"
+)
 
 type GameProfiles map[string]*GamesData
 
@@ -39,5 +43,6 @@ func (p GameProfiles) GetProfilesName() (result []string) {
 	for k := range p {
 		result = append(result, k)
 	}
+	sort.Strings(sort.StringSlice(result))
 	return result
 }
