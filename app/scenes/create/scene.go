@@ -31,7 +31,7 @@ type SceneCreateGame struct {
 	profile                                                 *data.GameProfiles
 	inpName                                                 *eui.InputBox
 	lblSelectModal, lblSelectMoves, lblSelectThreshold      *eui.Text
-	optPos, optCol, optAddSub, optMulDiv                    *eui.Checkbox
+	optPos, optCol, optAddSub, optMulDiv, optShowGameLbl    *eui.Checkbox
 	optCrossHair, optGrid, optUseCenter, optReset           *eui.Checkbox
 	cDefLev, cSym, cGridSz, cMoves, cMoveTime, cShowCellTm  *eui.ComboBox
 	cThUp, cThDown, cThAdv, cThFall, cRR, cMaxNum           *eui.ComboBox
@@ -42,7 +42,7 @@ type SceneCreateGame struct {
 	moveTime, showCellTime                                  float64
 	thresholdUp, thresholdDown, thresholdAdv, thresholdFall int
 	showGrid, showCrossHair, useCenterCell, resetOnWrong    bool
-	useMulDiv, useAddSub                                    bool
+	useMulDiv, useAddSub, showGameLabel                     bool
 	inTesting                                               bool
 	examples                                                *ExamplesFrame
 }
@@ -172,6 +172,11 @@ func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
 	})
 	s.Add(s.optMulDiv)
 
+	s.optShowGameLbl = eui.NewCheckbox("Показ метки и отклик метки, кнопок в игре", func(c *eui.Checkbox) {
+		s.showGameLabel = c.IsChecked()
+	})
+	s.Add(s.optShowGameLbl)
+
 	s.lblSelectMoves = eui.NewText("Выбор и настройка ходов")
 	s.Add(s.lblSelectMoves)
 
@@ -264,8 +269,8 @@ func (s *SceneCreateGame) exLogic(b *eui.Button) {
 		gc := game.NewGameConf()
 		gc.Set(game.Modals, game.Pos+game.Col) // по умолчанию модальность цифры
 		gc.Set(game.DefaultLevel, 1)
-		gc.Set(game.MoveTime, 2.5)
-		gc.Set(game.ShowCellPercent, 0.5)
+		gc.Set(game.MoveTime, 1.5)
+		gc.Set(game.ShowCellPercent, 0.65)
 		gc.Set(game.RandomRepition, 30)
 		gc.Set(game.GridSize, 3)
 		gc.Set(game.ShowGrid, false)
@@ -282,6 +287,7 @@ func (s *SceneCreateGame) exLogic(b *eui.Button) {
 		gc.Set(game.MaxNumber, 10)
 		gc.Set(game.UseAddSub, true)
 		gc.Set(game.UseMulDiv, false)
+		gc.Set(game.ShowGameLabel, true)
 		s.resetOpt(&gc)
 
 	case btnB:
@@ -306,6 +312,7 @@ func (s *SceneCreateGame) exLogic(b *eui.Button) {
 		gc.Set(game.MaxNumber, 10)
 		gc.Set(game.UseAddSub, true)
 		gc.Set(game.UseMulDiv, false)
+		gc.Set(game.ShowGameLabel, true)
 		s.resetOpt(&gc)
 
 	case bntQ:
@@ -330,6 +337,7 @@ func (s *SceneCreateGame) exLogic(b *eui.Button) {
 		gc.Set(game.MaxNumber, 10)
 		gc.Set(game.UseAddSub, true)
 		gc.Set(game.UseMulDiv, false)
+		gc.Set(game.ShowGameLabel, true)
 		s.resetOpt(&gc)
 
 	case btnP:
@@ -354,6 +362,7 @@ func (s *SceneCreateGame) exLogic(b *eui.Button) {
 		gc.Set(game.MaxNumber, 10)
 		gc.Set(game.UseAddSub, true)
 		gc.Set(game.UseMulDiv, false)
+		gc.Set(game.ShowGameLabel, true)
 		s.resetOpt(&gc)
 	}
 }
@@ -467,6 +476,8 @@ func (s *SceneCreateGame) resetOpt(conf *game.GameConf) {
 	factor := conf.Get(game.TrialsFactor).(int)
 	exp := conf.Get(game.TrialsExponent).(int)
 	s.setMoves(trials, factor, exp)
+	s.showGameLabel = conf.Get(game.ShowGameLabel).(bool)
+	s.optShowGameLbl.SetChecked(s.showGameLabel)
 	s.inpName.SetText(s.genName())
 }
 
@@ -514,6 +525,7 @@ func (s *SceneCreateGame) LoadConf() *game.GameConf {
 	gc.Set(game.MaxNumber, s.maxNum)
 	gc.Set(game.UseAddSub, s.useAddSub)
 	gc.Set(game.UseMulDiv, s.useMulDiv)
+	gc.Set(game.ShowGameLabel, s.showGameLabel)
 	return &gc
 }
 
@@ -521,8 +533,9 @@ func (s *SceneCreateGame) genName() (result string) {
 	s1, _ := s.getModals()
 	result = fmt.Sprintf("%v %v (%v/%v) ход(%vсек)", s1, dtTitleMoves[s.movesConfIndex], s.thresholdUp, s.thresholdDown, s.moveTime)
 	if s.thresholdAdv > 1 {
-		result += fmt.Sprintf(" попыток вверх(%v) доп.попыток(%v)", s.thresholdAdv, s.thresholdFall)
-	} else {
+		result += fmt.Sprintf(" попыток вверх(%v)", s.thresholdAdv)
+	}
+	if s.thresholdDown > 0 {
 		result += fmt.Sprintf(" доп.попыток(%v)", s.thresholdFall)
 	}
 	if s.resetOnWrong {
@@ -604,8 +617,9 @@ func (s *SceneCreateGame) Resize() {
 	s.cShowCellTm.Resize([]int{x + w2, y, w2 - margin, h - margin})
 
 	y += h
-	s.optCrossHair.Resize([]int{x, y, w2 - margin, h - margin})
-	s.optReset.Resize([]int{x + w2, y, w2 - margin, h - margin})
+	s.optReset.Resize([]int{x, y, w3 - margin, h - margin})
+	s.optCrossHair.Resize([]int{x + w3, y, w3 - margin, h - margin})
+	s.optShowGameLbl.Resize([]int{x + w3*2, y, w3 - margin, h - margin})
 
 	y += h
 	s.lblSelectModal.Resize([]int{x, y, w1 - margin, h - margin})

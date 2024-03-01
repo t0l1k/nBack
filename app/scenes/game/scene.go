@@ -25,7 +25,7 @@ type SceneGame struct {
 	btnsLayout                                              *eui.BoxLayout
 	moveTime, delayTimeShowCell, delayTimeHideCell          int
 	posModMove, symModMove, colModMove, ariModMove          bool
-	userMoved, resetOnError, resetOpt                       bool
+	userMoved, resetOnError, resetOpt, showLbl              bool
 	clrMoved, clrNeutral, clrCorrect, clrWrong, clrMissed   color.Color
 	posModalKey, colorModalKey, numberModalKey, ariModalKey ebiten.Key
 }
@@ -57,7 +57,6 @@ func (s *SceneGame) Setup(conf game.GameConf, gd *game.GameData) {
 	s.grid.Bg(theme.Get(app.GameColorBg))
 	s.grid.Fg(theme.Get(app.GameColorFgCrosshair))
 	s.grid.Visible = conf.Get(game.ShowGrid).(bool)
-	s.lblTitle.Fg(theme.Get(app.GameColorBg))
 	s.btnsLayout.ResetContainerBase()
 	for _, v := range s.gameData.Modalities {
 		btn := eui.NewButton(string(v.GetSym()), s.buttonsLogic)
@@ -87,7 +86,10 @@ func (s *SceneGame) Setup(conf game.GameConf, gd *game.GameData) {
 	s.delayTimeHideCell = s.delayTimeShowCell + timeShowCell
 	s.moveTimer = eui.NewTimer(s.delayTimeShowCell) // pause before first move
 	s.board.Setup(conf, s.gameData)
+	s.showLbl = conf.Get(game.ShowGameLabel).(bool)
+	s.lblTitle.Visible = s.showLbl
 	s.lblTitle.Bg(s.clrNeutral)
+	s.lblTitle.Fg(theme.Get(app.GameColorBg))
 	log.Printf("init move timer:%v show time:%v delay before show:%v delay hide:%v", s.moveTime, timeShowCell, s.delayTimeShowCell, s.delayTimeHideCell)
 }
 
@@ -130,6 +132,9 @@ func (s *SceneGame) Update(dt int) {
 }
 
 func (s *SceneGame) resetColorsAfterMove() {
+	if !s.showLbl {
+		return
+	}
 	s.lblTitle.Bg(s.clrNeutral)
 	for _, v := range s.btnsLayout.GetContainer() {
 		v.(*eui.Button).Bg(s.clrNeutral)
@@ -171,6 +176,12 @@ func (s *SceneGame) checkProgress() {
 }
 
 func (s *SceneGame) updateLbls() {
+	if !s.showLbl {
+		if s.userMoved {
+			s.userMoved = false
+		}
+		return
+	}
 	var str strings.Builder
 	str.WriteString(string(s.gameData.GameMode()))
 	str.WriteString("(")
@@ -267,6 +278,9 @@ func (s *SceneGame) sendResult() {
 }
 
 func (s *SceneGame) UpdateData(value interface{}) {
+	if !s.showLbl {
+		return
+	}
 	switch v := value.(type) {
 	case map[game.ModalType]game.MoveType:
 		for k1, v1 := range v {

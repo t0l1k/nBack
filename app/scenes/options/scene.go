@@ -17,21 +17,30 @@ type SceneOptions struct {
 	eui.SceneBase
 	topbar                                                 *eui.TopBar
 	btnApply, btnReset                                     *eui.Button
+	optFullScreen                                          *eui.Checkbox
 	optRestDelay                                           *eui.ComboBox
 	optPosModKey, optColModKey, optNumModKey, optAriModKey *InputKey
 	restDelay                                              int
+	fullScreen                                             bool
 }
 
 func NewSceneOptions() *SceneOptions {
 	s := &SceneOptions{}
 	s.topbar = eui.NewTopBar("Настройки нназад", nil)
 	s.Add(s.topbar)
+
+	s.optFullScreen = eui.NewCheckbox("Во весь экран приложение при запуске", func(c *eui.Checkbox) {
+		s.fullScreen = c.IsChecked()
+	})
+	s.Add(s.optFullScreen)
+
 	dt := []interface{}{1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233}
 	s.restDelay = dt[1].(int)
 	s.optRestDelay = eui.NewComboBox("Обязательная пауза после сессии", dt, 1, func(c *eui.ComboBox) {
 		s.restDelay = c.Value().(int)
 	})
 	s.Add(s.optRestDelay)
+
 	s.optPosModKey = NewInputKey(strPosModalKey)
 	s.Add(s.optPosModKey)
 	s.optColModKey = NewInputKey(strColModalKey)
@@ -40,6 +49,7 @@ func NewSceneOptions() *SceneOptions {
 	s.Add(s.optNumModKey)
 	s.optAriModKey = NewInputKey(strAriModalKey)
 	s.Add(s.optAriModKey)
+
 	s.btnApply = eui.NewButton("Применить", func(b *eui.Button) {
 		appOpt := eui.GetUi().GetSettings()
 		appOpt.Set(app.PositionKeypress, s.optPosModKey.Value())
@@ -47,6 +57,7 @@ func NewSceneOptions() *SceneOptions {
 		appOpt.Set(app.NumberKeypress, s.optNumModKey.Value())
 		appOpt.Set(app.AriphmeticsKeypress, s.optAriModKey.Value())
 		appOpt.Set(app.RestDuration, s.restDelay)
+		appOpt.Set(eui.UiFullscreen, s.fullScreen)
 	})
 	s.Add(s.btnApply)
 	s.btnReset = eui.NewButton("Обнулить", func(b *eui.Button) {
@@ -64,6 +75,7 @@ func (s *SceneOptions) Entered() {
 
 func (s *SceneOptions) resetOpt() {
 	appOpt := eui.GetUi().GetSettings()
+	s.optFullScreen.SetChecked(appOpt.Get(eui.UiFullscreen).(bool))
 	s.optRestDelay.SetValue(appOpt.Get(app.RestDuration))
 	s.optPosModKey.SetValue(appOpt.Get(app.PositionKeypress).(ebiten.Key))
 	s.optColModKey.SetValue(appOpt.Get(app.ColorKeypress).(ebiten.Key))
@@ -77,6 +89,8 @@ func (s *SceneOptions) Resize() {
 	w1 := w0 - w0/5
 	x, y := 0, 0
 	s.topbar.Resize([]int{x, y, w0, h1})
+	y += h1
+	s.optFullScreen.Resize([]int{x, y, w1, h1})
 	y += h1
 	s.optRestDelay.Resize([]int{x, y, w1, h1})
 	y += h1

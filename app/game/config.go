@@ -27,6 +27,7 @@ const (
 	MaxNumber
 	UseAddSub
 	UseMulDiv
+	ShowGameLabel
 )
 
 type GameConf map[GameConfValue]interface{}
@@ -53,6 +54,7 @@ func DefaultSettings() *GameConf {
 	gc.Set(MaxNumber, 10)
 	gc.Set(UseAddSub, true)
 	gc.Set(UseMulDiv, false)
+	gc.Set(ShowGameLabel, true)
 	return &gc
 }
 

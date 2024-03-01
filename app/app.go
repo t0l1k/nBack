@@ -32,6 +32,7 @@ func setTheme() {
 
 func SetConf() {
 	u := eui.GetUi()
+	u.GetSettings().Set(eui.UiFullscreen, false)
 	u.GetSettings().Set(RestDuration, 3)
 	u.GetSettings().Set(PositionKeypress, ebiten.KeyA)
 	u.GetSettings().Set(ColorKeypress, ebiten.KeyC)
