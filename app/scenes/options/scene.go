@@ -4,6 +4,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/app"
+	"github.com/t0l1k/nBack/app/db"
 )
 
 var (
@@ -58,10 +59,11 @@ func NewSceneOptions() *SceneOptions {
 		appOpt.Set(app.AriphmeticsKeypress, s.optAriModKey.Value())
 		appOpt.Set(app.RestDuration, s.restDelay)
 		appOpt.Set(eui.UiFullscreen, s.fullScreen)
+		db.GetDb().InsertAppConf()
 	})
 	s.Add(s.btnApply)
 	s.btnReset = eui.NewButton("Обнулить", func(b *eui.Button) {
-		app.SetConf()
+		app.SetDefaultConf()
 		s.resetOpt()
 	})
 	s.Add(s.btnReset)

@@ -52,6 +52,10 @@ func (g *Board) Setup(conf GameConf, gameData *GameData) {
 	for _, cell := range g.cells {
 		cell.Setup(conf, g.gData.GetModalities())
 	}
+	for _, v := range g.gData.Modalities {
+		v.Reset()
+	}
+	g.gData.FillField(conf)
 	g.gData.DtBeg = time.Now().Format("2006-01-02 15:04:05.000")
 }
 

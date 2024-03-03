@@ -36,7 +36,7 @@ func DefaultSettings() *GameConf {
 	gc := NewGameConf()
 	gc.Set(Modals, Sym) // по умолчанию модальность цифры
 	gc.Set(DefaultLevel, 1)
-	gc.Set(MoveTime, 2.5)
+	gc.Set(MoveTime, 1.5)
 	gc.Set(ShowCellPercent, 0.65)
 	gc.Set(RandomRepition, 30)
 	gc.Set(GridSize, 3)
@@ -48,7 +48,7 @@ func DefaultSettings() *GameConf {
 	gc.Set(ThresholdFallback, 75)
 	gc.Set(ThresholdAdvanceSessions, 1)
 	gc.Set(ThresholdFallbackSessions, 1)
-	gc.Set(Trials, 20)
+	gc.Set(Trials, 10)
 	gc.Set(TrialsFactor, 1)
 	gc.Set(TrialsExponent, 1)
 	gc.Set(MaxNumber, 10)

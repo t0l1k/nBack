@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/t0l1k/eui"
 	"github.com/t0l1k/nBack/app/data"
+	"github.com/t0l1k/nBack/app/db"
 	"github.com/t0l1k/nBack/app/scenes/create"
 	"github.com/t0l1k/nBack/app/scenes/intro"
 	"github.com/t0l1k/nBack/app/scenes/options"
@@ -91,6 +92,8 @@ func (s *SceneSelectGame) btnsLogic(b *eui.Button) {
 }
 
 func (s *SceneSelectGame) Entered() {
+	s.loadConf()
+
 	s.listGames.Reset()
 	theme := eui.GetUi().GetTheme()
 	bg := theme.Get(eui.ButtonBg)
@@ -103,6 +106,19 @@ func (s *SceneSelectGame) Entered() {
 			}
 		}
 	}
+}
+
+func (*SceneSelectGame) loadConf() {
+	if conf := db.GetDb().GetFromDbAppConfData(); conf != nil {
+		log.Print("___Get Conf from DB___:", conf)
+		for k, v := range *conf {
+			fmt.Println(k, v)
+		}
+	} else {
+		log.Println("___New Conf___")
+		db.GetDb().InsertAppConf()
+	}
+	ebiten.SetFullscreen(eui.GetUi().GetSettings().Get(eui.UiFullscreen).(bool))
 }
 
 func (s *SceneSelectGame) Update(dt int) {
