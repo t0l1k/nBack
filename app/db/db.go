@@ -57,7 +57,7 @@ func (*Db) getDbPath() string {
 		log.Println(err)
 		panic(err)
 	}
-	filename := fmt.Sprintf("%v/nback.db", strings.TrimSuffix(m.ItemPath("nback.txt"), "/nback.txt"))
-	log.Println("to db path", strings.TrimSuffix(m.ItemPath("nback.txt"), "/nback.txt"), filename)
+	filename := fmt.Sprintf("%vnback.db", strings.TrimSuffix(m.ItemPath("nback.txt"), "nback.txt"))
+	log.Println("to db path", strings.TrimSuffix(m.ItemPath("nback.txt"), "nback.txt"), filename)
 	return filename
 }
