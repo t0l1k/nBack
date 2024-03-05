@@ -14,20 +14,20 @@ import (
 
 type SceneGame struct {
 	eui.SceneBase
-	lblTitle                                                *eui.Text
-	lblVar                                                  *eui.SubjectBase
-	btnQuit                                                 *eui.Button
-	moveTimer                                               *eui.Timer
-	gameData                                                *game.GameData
-	gameConf                                                game.GameConf
-	board                                                   *game.Board
-	grid                                                    *eui.GridView
-	btnsLayout                                              *eui.BoxLayout
-	moveTime, delayTimeShowCell, delayTimeHideCell          int
-	posModMove, symModMove, colModMove, ariModMove          bool
-	userMoved, resetOnError, resetOpt, showLbl              bool
-	clrMoved, clrNeutral, clrCorrect, clrWrong, clrMissed   color.Color
-	posModalKey, colorModalKey, numberModalKey, ariModalKey ebiten.Key
+	lblTitle                                              *eui.Text
+	lblVar                                                *eui.SubjectBase
+	btnQuit                                               *eui.Button
+	moveTimer                                             *eui.Timer
+	gameData                                              *game.GameData
+	gameConf                                              game.GameConf
+	board                                                 *game.Board
+	grid                                                  *eui.GridView
+	btnsLayout                                            *eui.BoxLayout
+	moveTime, delayTimeShowCell, delayTimeHideCell        int
+	posModMove, colModMove, symModMove                    bool
+	userMoved, resetOnError, resetOpt, showLbl            bool
+	clrMoved, clrNeutral, clrCorrect, clrWrong, clrMissed color.Color
+	posModalKey, colorModalKey, symbolModalKey            ebiten.Key
 }
 
 func New() *SceneGame {
@@ -77,8 +77,7 @@ func (s *SceneGame) Setup(conf game.GameConf, gd *game.GameData) {
 	appConf := eui.GetUi().GetSettings()
 	s.posModalKey = appConf.Get(app.PositionKeypress).(ebiten.Key)
 	s.colorModalKey = appConf.Get(app.ColorKeypress).(ebiten.Key)
-	s.numberModalKey = appConf.Get(app.NumberKeypress).(ebiten.Key)
-	s.ariModalKey = appConf.Get(app.AriphmeticsKeypress).(ebiten.Key)
+	s.symbolModalKey = appConf.Get(app.SymbolKeypress).(ebiten.Key)
 	s.moveTime = int(s.gameData.MoveTime * 1000)
 	showCellPercent := conf.Get(game.ShowCellPercent).(float64)
 	timeShowCell := int(float64(s.moveTime) * showCellPercent)
@@ -166,10 +165,9 @@ func (s *SceneGame) checkProgress() {
 			str := v.CheckMove(s.symModMove, s.board.LastMove, s.board.TestMove)
 			s.symModMove = false
 			log.Println(str)
-		}
-		if v.GetSym() == game.Ari {
-			str := v.CheckMove(s.ariModMove, s.board.LastMove, s.board.TestMove)
-			s.ariModMove = false
+		} else if v.GetSym() == game.Ari {
+			str := v.CheckMove(s.symModMove, s.board.LastMove, s.board.TestMove)
+			s.symModMove = false
 			log.Println(str)
 		}
 	}
@@ -204,10 +202,7 @@ func (s *SceneGame) updateLbls() {
 			if s.symModMove {
 				if v.(*eui.Button).GetText() == string(game.Sym) {
 					v.(*eui.Button).Bg(s.clrMoved)
-				}
-			}
-			if s.ariModMove {
-				if v.(*eui.Button).GetText() == string(game.Ari) {
+				} else if v.(*eui.Button).GetText() == string(game.Ari) {
 					v.(*eui.Button).Bg(s.clrMoved)
 				}
 			}
@@ -243,12 +238,9 @@ func (s *SceneGame) UpdateInput(value interface{}) {
 			} else if key == s.colorModalKey {
 				s.userMove(game.Col.String())
 				log.Println("pressed color modal")
-			} else if key == s.numberModalKey {
+			} else if key == s.symbolModalKey {
 				s.userMove(game.Sym.String())
-				log.Println("pressed numbers modal")
-			} else if key == s.ariModalKey {
-				s.userMove(game.Ari.String())
-				log.Println("pressed ariphmrtic modal")
+				log.Println("pressed symbol modal")
 			}
 		}
 	}
@@ -262,7 +254,7 @@ func (s *SceneGame) userMove(value string) {
 	} else if value == game.Sym.String() {
 		s.symModMove = true
 	} else if value == game.Ari.String() {
-		s.ariModMove = true
+		s.symModMove = true
 	}
 	s.userMoved = true
 }

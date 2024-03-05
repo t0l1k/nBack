@@ -10,11 +10,11 @@ type ModalType string
 
 const (
 	Pos ModalType = "p" // Позиции
-	Sym ModalType = "s" // Символы
 	Col ModalType = "c" // Цвета
+	Sym ModalType = "s" // Символы
 	Ari ModalType = "a" // Ариифметика
 	Fig ModalType = "f" // Фигуры
-	Aud ModalType = "w" // Звуки букв цифр
+	Aud ModalType = "w" // Звуки букв цифр ещё в поле идей
 )
 
 func (m ModalType) String() string { return string(m) }
@@ -123,10 +123,10 @@ func (m Modality) String() (result string) {
 	switch m.sym {
 	case Pos:
 		result = "Pos"
-	case Sym:
-		result = "Sym"
 	case Col:
 		result = "Col"
+	case Sym:
+		result = "Sym"
 	case Ari:
 		result = "Ari"
 	case Fig:

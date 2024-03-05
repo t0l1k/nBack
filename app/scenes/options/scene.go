@@ -10,8 +10,8 @@ import (
 var (
 	strPosModalKey = "Клавиша для модальности Позиции"
 	strColModalKey = "Клавиша для модальности Цвета"
-	strNumModalKey = "Клавиша для модальности Цифры"
-	strAriModalKey = "Клавиша для модальности Арифметика"
+	strSymModalKey = "Клавиша для модальности Цифры, Арифметика"
+	strAudModalKey = "Клавиша для модальности Звуки"
 )
 
 type SceneOptions struct {
@@ -20,7 +20,7 @@ type SceneOptions struct {
 	btnApply, btnReset                                     *eui.Button
 	optFullScreen                                          *eui.Checkbox
 	optRestDelay                                           *eui.ComboBox
-	optPosModKey, optColModKey, optNumModKey, optAriModKey *InputKey
+	optPosModKey, optColModKey, optSymModKey, optAudModKey *InputKey
 	restDelay                                              int
 	fullScreen                                             bool
 }
@@ -46,17 +46,17 @@ func NewSceneOptions() *SceneOptions {
 	s.Add(s.optPosModKey)
 	s.optColModKey = NewInputKey(strColModalKey)
 	s.Add(s.optColModKey)
-	s.optNumModKey = NewInputKey(strNumModalKey)
-	s.Add(s.optNumModKey)
-	s.optAriModKey = NewInputKey(strAriModalKey)
-	s.Add(s.optAriModKey)
+	s.optSymModKey = NewInputKey(strSymModalKey)
+	s.Add(s.optSymModKey)
+	s.optAudModKey = NewInputKey(strAudModalKey)
+	s.Add(s.optAudModKey)
 
 	s.btnApply = eui.NewButton("Применить", func(b *eui.Button) {
 		appOpt := eui.GetUi().GetSettings()
 		appOpt.Set(app.PositionKeypress, s.optPosModKey.Value())
 		appOpt.Set(app.ColorKeypress, s.optColModKey.Value())
-		appOpt.Set(app.NumberKeypress, s.optNumModKey.Value())
-		appOpt.Set(app.AriphmeticsKeypress, s.optAriModKey.Value())
+		appOpt.Set(app.SymbolKeypress, s.optSymModKey.Value())
+		appOpt.Set(app.AudKeypress, s.optAudModKey.Value())
 		appOpt.Set(app.RestDuration, s.restDelay)
 		appOpt.Set(eui.UiFullscreen, s.fullScreen)
 		db.GetDb().InsertAppConf()
@@ -81,8 +81,8 @@ func (s *SceneOptions) resetOpt() {
 	s.optRestDelay.SetValue(appOpt.Get(app.RestDuration))
 	s.optPosModKey.SetValue(appOpt.Get(app.PositionKeypress).(ebiten.Key))
 	s.optColModKey.SetValue(appOpt.Get(app.ColorKeypress).(ebiten.Key))
-	s.optNumModKey.SetValue(appOpt.Get(app.NumberKeypress).(ebiten.Key))
-	s.optAriModKey.SetValue(appOpt.Get(app.AriphmeticsKeypress).(ebiten.Key))
+	s.optSymModKey.SetValue(appOpt.Get(app.SymbolKeypress).(ebiten.Key))
+	s.optAudModKey.SetValue(appOpt.Get(app.AudKeypress).(ebiten.Key))
 }
 
 func (s *SceneOptions) Resize() {
@@ -100,9 +100,9 @@ func (s *SceneOptions) Resize() {
 	y += h1
 	s.optColModKey.Resize([]int{x, y, w1, h1})
 	y += h1
-	s.optNumModKey.Resize([]int{x, y, w1, h1})
+	s.optSymModKey.Resize([]int{x, y, w1, h1})
 	y += h1
-	s.optAriModKey.Resize([]int{x, y, w1, h1})
+	s.optAudModKey.Resize([]int{x, y, w1, h1})
 	y = h0 - h1
 	s.btnApply.Resize([]int{x, y, w1 / 2, h1})
 	s.btnReset.Resize([]int{x + w1/2, y, w1 / 2, h1})

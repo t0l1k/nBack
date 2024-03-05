@@ -21,8 +21,8 @@ const (
 	RestDuration eui.SettingName = iota + 100
 	PositionKeypress
 	ColorKeypress
-	NumberKeypress
-	AriphmeticsKeypress
+	SymbolKeypress
+	AudKeypress
 	AppLang
 )
 
@@ -57,7 +57,7 @@ func SetDefaultConf() {
 	u.GetSettings().Set(RestDuration, 3)
 	u.GetSettings().Set(PositionKeypress, ebiten.KeyA)
 	u.GetSettings().Set(ColorKeypress, ebiten.KeyC)
-	u.GetSettings().Set(NumberKeypress, ebiten.KeyS)
-	u.GetSettings().Set(AriphmeticsKeypress, ebiten.KeyR)
+	u.GetSettings().Set(SymbolKeypress, ebiten.KeyS)
+	u.GetSettings().Set(AudKeypress, ebiten.KeyR)
 	u.GetSettings().Set(AppLang, "ru")
 }

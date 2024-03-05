@@ -18,7 +18,7 @@ const (
 )
 
 var (
-	dtTitleMoves = []string{"Легко", "Нормально", "Сложно", "Экстремально"}
+	dtTitleMoves = []string{"Мало", "Нормально", "Много", "Экстремально"}
 	movesArr     = [][]int{{10, 1, 1}, {20, 1, 1}, {20, 5, 1}, {20, 1, 2}}
 	strMod       = "Модальность "
 	symTitle     = []string{strMod + "не использовать", strMod + "Цифры", strMod + "Арифметика"}
@@ -181,9 +181,9 @@ func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
 	s.Add(s.lblSelectMoves)
 
 	dataMoves := []interface{}{0, 1, 2, 3}
-	s.cMoves = eui.NewComboBox("Сложность "+dtTitleMoves[0], dataMoves, 0, func(cb *eui.ComboBox) {
+	s.cMoves = eui.NewComboBox("Ходов "+dtTitleMoves[0], dataMoves, 0, func(cb *eui.ComboBox) {
 		s.movesConfIndex = cb.Value().(int)
-		str := fmt.Sprintf("Сложность %v на 7м уровне ходов %v", dtTitleMoves[s.movesConfIndex], s.totalMoves(7))
+		str := fmt.Sprintf("Ходов %v на 7м уровне %v", dtTitleMoves[s.movesConfIndex], s.totalMoves(7))
 		s.cMoves.SetText(str)
 	})
 	s.Add(s.cMoves)
@@ -430,7 +430,7 @@ func (s *SceneCreateGame) setMoves(trials, factor, exp int) {
 		s.cMoves.SetValue(3)
 		s.movesConfIndex = 3
 	}
-	str := fmt.Sprintf("Сложность %v на 4м уровне ходов %v", dtTitleMoves[s.movesConfIndex], s.totalMoves(4))
+	str := fmt.Sprintf("Ходов %v на 4м уровне %v", dtTitleMoves[s.movesConfIndex], s.totalMoves(4))
 	s.cMoves.SetText(str)
 }
 
@@ -531,7 +531,7 @@ func (s *SceneCreateGame) LoadConf() *game.GameConf {
 
 func (s *SceneCreateGame) genName() (result string) {
 	s1, _ := s.getModals()
-	result = fmt.Sprintf("%v %v (%v/%v) ход(%vсек)", s1, dtTitleMoves[s.movesConfIndex], s.thresholdUp, s.thresholdDown, s.moveTime)
+	result = fmt.Sprintf("%v Ходов %v (%v/%v) время хода(%vсек)", s1, dtTitleMoves[s.movesConfIndex], s.thresholdUp, s.thresholdDown, s.moveTime)
 	if s.thresholdAdv > 1 {
 		result += fmt.Sprintf(" попыток вверх(%v)", s.thresholdAdv)
 	}

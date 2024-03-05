@@ -11,7 +11,7 @@ import (
 )
 
 func (d *Db) createAppConfTable() {
-	var createGameDB string = "CREATE TABLE IF NOT EXISTS app_conf(id INTEGER PRIMARY KEY AUTOINCREMENT, fullscreen INTEGER, restperiod INTEGER, positionkey TEXT, colorkey TEXT, numberkey TEXT, ariphmetickey TEXT, lang TEXT)"
+	var createGameDB string = "CREATE TABLE IF NOT EXISTS app_conf(id INTEGER PRIMARY KEY AUTOINCREMENT, fullscreen INTEGER, restperiod INTEGER, positionkey TEXT, colorkey TEXT, symbolkey TEXT, audkey TEXT, lang TEXT)"
 	cur, err := d.conn.Prepare(createGameDB)
 	if err != nil {
 		log.Println(err)
@@ -35,7 +35,7 @@ func (d *Db) InsertAppConf() {
 	cur.Exec()
 	log.Println("Deleted previous settings")
 
-	insStr := "INSERT INTO app_conf(fullscreen, restperiod, positionkey, colorkey, numberkey, ariphmetickey, lang) VALUES(?,?,?,?,?,?,?)"
+	insStr := "INSERT INTO app_conf(fullscreen, restperiod, positionkey, colorkey, symbolkey, audkey, lang) VALUES(?,?,?,?,?,?,?)"
 	curIns, err := d.conn.Prepare(insStr)
 	if err != nil {
 		log.Println("Error in DB:", insStr, values)
@@ -52,16 +52,16 @@ func (d *Db) InsertAppConf() {
 	if err != nil {
 		panic(err)
 	}
-	numberkey, err := values.Get(app.NumberKeypress).(ebiten.Key).MarshalText()
+	symbolkey, err := values.Get(app.SymbolKeypress).(ebiten.Key).MarshalText()
 	if err != nil {
 		panic(err)
 	}
-	ariphmetickey, err := values.Get(app.AriphmeticsKeypress).(ebiten.Key).MarshalText()
+	audkey, err := values.Get(app.AudKeypress).(ebiten.Key).MarshalText()
 	if err != nil {
 		panic(err)
 	}
 	lang := values.Get(app.AppLang).(string)
-	curIns.Exec(fullscreen, restperiod, positionkey, colorkey, numberkey, ariphmetickey, lang)
+	curIns.Exec(fullscreen, restperiod, positionkey, colorkey, symbolkey, audkey, lang)
 	log.Println("DB:Inserted:", values, curIns)
 }
 
@@ -82,17 +82,17 @@ func (d *Db) GetFromDbAppConfData() *eui.Setting {
 	restperiod := 0
 	positionkey := ""
 	colorkey := ""
-	numberkey := ""
-	ariphmetickey := ""
+	symbolkey := ""
+	audkey := ""
 	lang := ""
 
 	for rows.Next() {
-		err = rows.Scan(&id, &fullscreen, &restperiod, &positionkey, &colorkey, &numberkey, &ariphmetickey, &lang)
+		err = rows.Scan(&id, &fullscreen, &restperiod, &positionkey, &colorkey, &symbolkey, &audkey, &lang)
 		if err != nil && err != sql.ErrNoRows {
 			log.Println(err)
 			panic(err)
 		}
-		fmt.Println("db read result:", id, fullscreen, restperiod, positionkey, colorkey, numberkey, ariphmetickey)
+		fmt.Println("db read result:", id, fullscreen, restperiod, positionkey, colorkey, symbolkey, audkey)
 		if fullscreen == 0 {
 			conf.Set(eui.UiFullscreen, false)
 		} else {
@@ -108,13 +108,13 @@ func (d *Db) GetFromDbAppConfData() *eui.Setting {
 		colKey.UnmarshalText([]byte(colorkey))
 		conf.Set(app.ColorKeypress, colKey)
 
-		numKey := conf.Get(app.NumberKeypress).(ebiten.Key)
-		numKey.UnmarshalText([]byte(numberkey))
-		conf.Set(app.NumberKeypress, numKey)
+		numKey := conf.Get(app.SymbolKeypress).(ebiten.Key)
+		numKey.UnmarshalText([]byte(symbolkey))
+		conf.Set(app.SymbolKeypress, numKey)
 
-		ariKey := conf.Get(app.AriphmeticsKeypress).(ebiten.Key)
-		ariKey.UnmarshalText([]byte(ariphmetickey))
-		conf.Set(app.AriphmeticsKeypress, ariKey)
+		audKey := conf.Get(app.AudKeypress).(ebiten.Key)
+		audKey.UnmarshalText([]byte(audkey))
+		conf.Set(app.AudKeypress, audKey)
 		conf.Set(app.AppLang, lang)
 	}
 	if len(*conf) > 0 {
