@@ -36,6 +36,7 @@ type Modality struct {
 	correct, wrong, missed int
 	field                  []int      // поле ходов
 	moveStatus             []MoveType //результат игры
+	score                  []int
 }
 
 func NewModality(sym ModalType) *Modality {
@@ -51,20 +52,26 @@ func (m *Modality) GetField() []int {
 	return m.field
 }
 
-func (m *Modality) Reset() {
+func (m *Modality) ResetResults() {
 	m.correct = 0
 	m.wrong = 0
 	m.missed = 0
-	m.field = nil
-	m.moveStatus = nil
 }
 
-func (m *Modality) SetCorrect() {
+func (m *Modality) Reset() {
+	m.ResetResults()
+	m.field = nil
+	m.moveStatus = nil
+	m.score = nil
+}
+
+func (m *Modality) SetCorrect(level int) {
 	m.correct++
 	move := make(map[ModalType]MoveType)
 	move[m.sym] = AddCorrect
 	m.SetValue(move)
 	m.moveStatus = append(m.moveStatus, AddCorrect)
+	m.score = append(m.score, level)
 }
 
 func (m *Modality) SetWrong() {
@@ -73,6 +80,7 @@ func (m *Modality) SetWrong() {
 	move[m.sym] = AddWrong
 	m.SetValue(move)
 	m.moveStatus = append(m.moveStatus, AddWrong)
+	m.score = append(m.score, 0)
 }
 
 func (m *Modality) SetMissed() {
@@ -81,21 +89,23 @@ func (m *Modality) SetMissed() {
 	move[m.sym] = AddMissed
 	m.SetValue(move)
 	m.moveStatus = append(m.moveStatus, AddMissed)
+	m.score = append(m.score, 0)
 }
 
-func (m *Modality) SetRegular() {
+func (m *Modality) SetRegular(level int) {
 	move := make(map[ModalType]MoveType)
 	move[m.sym] = AddRegular
 	m.SetValue(move)
 	m.moveStatus = append(m.moveStatus, AddRegular)
+	m.score = append(m.score, level)
 }
 
-func (m *Modality) CheckMove(userMove bool, last, test int) (str string) {
+func (m *Modality) CheckMove(userMove bool, last, test, level int) (str string) {
 	lastValue, testValue := m.GetField()[last], m.GetField()[test]
 	str = fmt.Sprintf("progress for modal[%v] moves[%v-%v] values:[%v-%v]", m.GetSym(), last, test, testValue, lastValue)
 	if userMove {
 		if lastValue == testValue {
-			m.SetCorrect()
+			m.SetCorrect(level)
 			str += "correct answer!"
 		} else {
 			m.SetWrong()
@@ -105,7 +115,7 @@ func (m *Modality) CheckMove(userMove bool, last, test int) (str string) {
 		m.SetMissed()
 		str += "missed answer!"
 	} else {
-		m.SetRegular()
+		m.SetRegular(level)
 		str += "regular move!"
 	}
 	return str

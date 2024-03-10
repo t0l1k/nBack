@@ -17,7 +17,7 @@ type SceneGame struct {
 	lblTitle                                              *eui.Text
 	lblVar                                                *eui.SubjectBase
 	btnQuit                                               *eui.Button
-	moveTimer                                             *eui.Timer
+	moveTimer, gameTimer                                  *eui.Timer
 	gameData                                              *game.GameData
 	gameConf                                              game.GameConf
 	board                                                 *game.Board
@@ -25,9 +25,10 @@ type SceneGame struct {
 	btnsLayout                                            *eui.BoxLayout
 	moveTime, delayTimeShowCell, delayTimeHideCell        int
 	posModMove, colModMove, symModMove                    bool
-	userMoved, resetOnError, resetOpt, showLbl            bool
+	userMoved, resetOnError, resetOpt, showLbl, checkIn   bool
 	clrMoved, clrNeutral, clrCorrect, clrWrong, clrMissed color.Color
 	posModalKey, colorModalKey, symbolModalKey            ebiten.Key
+	nextLevelDialog                                       *nextLevelDialog
 }
 
 func New() *SceneGame {
@@ -40,6 +41,8 @@ func New() *SceneGame {
 		eui.GetUi().Pop()
 	})
 	s.Add(s.btnQuit)
+	s.nextLevelDialog = newNextLevelDialog(5000)
+	s.Add(s.nextLevelDialog)
 	s.board = game.New()
 	s.Add(s.board)
 	s.grid = eui.NewGridView(1, 1)
@@ -78,6 +81,13 @@ func (s *SceneGame) Setup(conf game.GameConf, gd *game.GameData) {
 	s.posModalKey = appConf.Get(app.PositionKeypress).(ebiten.Key)
 	s.colorModalKey = appConf.Get(app.ColorKeypress).(ebiten.Key)
 	s.symbolModalKey = appConf.Get(app.SymbolKeypress).(ebiten.Key)
+	totalTime := conf.Get(game.TotalTime).(int)
+	if totalTime > 0 {
+		s.gameTimer = eui.NewTimer(totalTime * 60 * 1000)
+		if s.gameData.CheckIn {
+			s.checkIn = true
+		}
+	}
 	s.moveTime = int(s.gameData.MoveTime * 1000)
 	showCellPercent := conf.Get(game.ShowCellPercent).(float64)
 	timeShowCell := int(float64(s.moveTime) * showCellPercent)
@@ -89,12 +99,18 @@ func (s *SceneGame) Setup(conf game.GameConf, gd *game.GameData) {
 	s.lblTitle.Visible = s.showLbl
 	s.lblTitle.Bg(s.clrNeutral)
 	s.lblTitle.Fg(theme.Get(app.GameColorBg))
+	confApp := eui.GetUi().GetSettings()
+	restDuration := confApp.Get(app.RestDuration).(int)
+	s.nextLevelDialog.timer.SetDuration(restDuration * 1000)
 	log.Printf("init move timer:%v show time:%v delay before show:%v delay hide:%v", s.moveTime, timeShowCell, s.delayTimeShowCell, s.delayTimeHideCell)
 }
 
 func (s *SceneGame) Entered() {
 	s.Resize()
 	eui.GetUi().GetInputKeyboard().Attach(s)
+	if s.gameTimer != nil {
+		s.gameTimer.On()
+	}
 	s.moveTimer.On()
 	s.moveTimer.SetDuration(s.moveTime)
 	s.board.MakeMove()
@@ -103,10 +119,16 @@ func (s *SceneGame) Entered() {
 }
 
 func (s *SceneGame) Update(dt int) {
-	s.moveTimer.Update(dt)
 	for _, v := range s.GetContainer() {
 		v.Update(dt)
 	}
+	if s.nextLevelDialog.Visible {
+		return
+	}
+	if s.gameTimer != nil {
+		s.gameTimer.Update(dt)
+	}
+	s.moveTimer.Update(dt)
 	for _, v := range s.btnsLayout.GetContainer() {
 		v.Update(dt)
 	}
@@ -117,9 +139,16 @@ func (s *SceneGame) Update(dt int) {
 	if s.moveTimer.IsDone() {
 		s.resetColorsAfterMove()
 		s.checkProgress()
-		if s.board.Move >= s.gameData.TotalMoves || s.resetOpt && s.resetOnError {
+		if !s.checkIn && s.board.Move >= s.gameData.TotalMoves || (!s.checkIn && s.resetOpt && s.resetOnError) || (s.gameTimer != nil && s.gameTimer.IsDone()) {
 			log.Println("last move check")
 			s.sendResult()
+		} else if s.checkIn && s.board.Move >= s.gameData.TotalMoves || s.checkIn && s.resetOpt && s.resetOnError {
+			s.board.Reset()
+			s.resetOnError = false
+			msg, col := s.gameData.CheckNextLevel(s.gameConf)
+			s.nextLevelDialog.show(msg, col)
+			s.gameData.FillField(s.gameConf)
+			log.Println("begin play:05 hide cell", s.board.Move)
 		} else {
 			s.board.NextMove()
 			log.Println("01 show cell", s.board.Move)
@@ -146,27 +175,27 @@ func (s *SceneGame) checkProgress() {
 			return
 		}
 		for _, v := range s.gameData.Modalities {
-			v.SetRegular()
+			v.SetRegular(s.gameData.Level)
 		}
 		return
 	}
 	for _, v := range s.gameData.Modalities {
 		if v.GetSym() == game.Pos {
-			str := v.CheckMove(s.posModMove, s.board.LastMove, s.board.TestMove)
+			str := v.CheckMove(s.posModMove, s.board.LastMove, s.board.TestMove, s.gameData.Level)
 			s.posModMove = false
 			log.Println(str)
 		}
 		if v.GetSym() == game.Col {
-			str := v.CheckMove(s.colModMove, s.board.LastMove, s.board.TestMove)
+			str := v.CheckMove(s.colModMove, s.board.LastMove, s.board.TestMove, s.gameData.Level)
 			s.colModMove = false
 			log.Println(str)
 		}
 		if v.GetSym() == game.Sym {
-			str := v.CheckMove(s.symModMove, s.board.LastMove, s.board.TestMove)
+			str := v.CheckMove(s.symModMove, s.board.LastMove, s.board.TestMove, s.gameData.Level)
 			s.symModMove = false
 			log.Println(str)
 		} else if v.GetSym() == game.Ari {
-			str := v.CheckMove(s.symModMove, s.board.LastMove, s.board.TestMove)
+			str := v.CheckMove(s.symModMove, s.board.LastMove, s.board.TestMove, s.gameData.Level)
 			s.symModMove = false
 			log.Println(str)
 		}
@@ -182,9 +211,24 @@ func (s *SceneGame) updateLbls() {
 	}
 	var str strings.Builder
 	str.WriteString(string(s.gameData.GameMode()))
-	str.WriteString("(")
-	str.WriteString(strconv.Itoa(s.gameData.TotalMoves - s.board.Move))
-	str.WriteString(")")
+
+	if s.gameTimer != nil {
+		str.WriteString("(")
+		str.WriteString(strconv.Itoa(s.board.Move))
+		str.WriteString("/")
+		str.WriteString(strconv.Itoa(s.gameData.TotalMoves))
+		str.WriteString(")")
+
+		str.WriteString("(")
+		str.WriteString(s.gameTimer.String())
+		str.WriteString(")")
+	} else {
+		str.WriteString("(")
+		str.WriteString(strconv.Itoa(s.gameData.TotalMoves - s.board.Move))
+		str.WriteString(")")
+
+	}
+
 	s.lblVar.SetValue(str.String())
 	if s.userMoved {
 		s.lblTitle.Bg(s.clrMoved)
@@ -232,13 +276,14 @@ func (s *SceneGame) UpdateInput(value interface{}) {
 	switch v := value.(type) {
 	case eui.KeyboardData:
 		for _, key := range v.GetKeys() {
-			if key == s.posModalKey {
+			switch key {
+			case s.posModalKey:
 				s.userMove(game.Pos.String())
 				log.Println("pressed pos modal")
-			} else if key == s.colorModalKey {
+			case s.colorModalKey:
 				s.userMove(game.Col.String())
 				log.Println("pressed color modal")
-			} else if key == s.symbolModalKey {
+			case s.symbolModalKey:
 				s.userMove(game.Sym.String())
 				log.Println("pressed symbol modal")
 			}
@@ -247,13 +292,14 @@ func (s *SceneGame) UpdateInput(value interface{}) {
 }
 
 func (s *SceneGame) userMove(value string) {
-	if value == game.Pos.String() {
+	switch value {
+	case game.Pos.String():
 		s.posModMove = true
-	} else if value == game.Col.String() {
+	case game.Col.String():
 		s.colModMove = true
-	} else if value == game.Sym.String() {
+	case game.Sym.String():
 		s.symModMove = true
-	} else if value == game.Ari.String() {
+	case game.Ari.String():
 		s.symModMove = true
 	}
 	s.userMoved = true
@@ -300,6 +346,10 @@ func (s *SceneGame) UpdateData(value interface{}) {
 }
 
 func (s *SceneGame) Draw(surface *ebiten.Image) {
+	if s.nextLevelDialog.Visible {
+		s.nextLevelDialog.Draw(surface)
+		return
+	}
 	for _, v := range s.GetContainer() {
 		v.Draw(surface)
 	}
@@ -322,4 +372,7 @@ func (s *SceneGame) Resize() {
 	s.grid.Resize([]int{x, y, w0 - h, h0 - h*4})
 	y += h0 - h*4 + h/2
 	s.btnsLayout.Resize([]int{x, y, w0 - h, h * 2})
+	w1, h1 := w0/2, h0/2
+	x, y = (w0-w1)/2, (h0-h1)/2
+	s.nextLevelDialog.Resize([]int{x, y, w1, h1})
 }

@@ -10,7 +10,7 @@ import (
 var (
 	strPosModalKey = "Клавиша для модальности Позиции"
 	strColModalKey = "Клавиша для модальности Цвета"
-	strSymModalKey = "Клавиша для модальности Цифры, Арифметика"
+	strSymModalKey = "Клавиша для модальности Цифры, Арифметика, Фигуры"
 	strAudModalKey = "Клавиша для модальности Звуки"
 )
 
@@ -35,7 +35,7 @@ func NewSceneOptions() *SceneOptions {
 	})
 	s.Add(s.optFullScreen)
 
-	dt := []interface{}{1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233}
+	dt := []interface{}{1, 2, 3, 5, 8, 13, 21, 34}
 	s.restDelay = dt[1].(int)
 	s.optRestDelay = eui.NewComboBox("Обязательная пауза после сессии", dt, 1, func(c *eui.ComboBox) {
 		s.restDelay = c.Value().(int)

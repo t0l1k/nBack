@@ -76,7 +76,7 @@ func (s *SceneIntro) Entered() {
 		s.lblMotto.SetText(mottoStr)
 		s.lblMotto.Bg(colorStr)
 		s.lblHelper.Bg(colorStr)
-		s.movesLine.Setup(s.gamesData.Last().GetModalitiesMoves())
+		s.movesLine.Setup(s.gamesData.Last().GetModalitiesMoves(), s.gamesData.Last().GetModalitiesScore())
 		s.movesIcon.SetIcon(s.movesLine.Image())
 		s.movesIcon.Visible = true
 

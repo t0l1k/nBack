@@ -1,7 +1,9 @@
 package intro
 
 import (
+	"fmt"
 	"image/color"
+	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/t0l1k/eui"
@@ -11,7 +13,8 @@ import (
 
 type MovesLine struct {
 	eui.DrawableBase
-	moves map[game.ModalType][]game.MoveType
+	moves  map[game.ModalType][]game.MoveType
+	scores map[game.ModalType][]int
 }
 
 func NewMovesLine() *MovesLine {
@@ -19,8 +22,9 @@ func NewMovesLine() *MovesLine {
 	return c
 }
 
-func (c *MovesLine) Setup(moves map[game.ModalType][]game.MoveType) {
+func (c *MovesLine) Setup(moves map[game.ModalType][]game.MoveType, scores map[game.ModalType][]int) {
 	c.moves = moves
+	c.scores = scores
 	c.Layout()
 }
 
@@ -63,6 +67,12 @@ func (c *MovesLine) Layout() {
 			x2 = cellSizeW * float32(j+2)
 			x := x1 + (x2-x1)/2
 			vector.StrokeLine(c.Image(), x, y1, x, y2, cellSizeW-2, col, true)
+			score := c.scores[k][j]
+			fmt.Println("sc:", k, j, score, len(c.moves), len(values))
+			lblScore := eui.NewText(strconv.Itoa(score))
+			lblScore.Resize([]int{int(x1), int(y1), int(cellSizeW), int(cellSizeH)})
+			lblScore.Bg(col)
+			lblScore.Draw(c.Image())
 		}
 		i++
 		vector.StrokeRect(c.Image(), 0, y1, float32(w0), cellSizeH, 1, regularColor, true)

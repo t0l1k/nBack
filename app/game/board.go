@@ -59,6 +59,11 @@ func (g *Board) Setup(conf GameConf, gameData *GameData) {
 	g.gData.DtBeg = time.Now().Format("2006-01-02 15:04:05.000")
 }
 
+func (g *Board) Reset() {
+	g.cells[g.getPrev()].SetInactive()
+	g.Move = 0
+}
+
 func (g *Board) MakeMove() {
 	g.LastMove = g.Move
 	level := g.gData.Level
@@ -68,16 +73,7 @@ func (g *Board) MakeMove() {
 	if g.Move == 0 {
 		g.TestMove = -1
 	} else {
-		prevIdx := func() (idx int) {
-			if len(g.cells) == 1 {
-				return 0
-			}
-			if g.gData.IsContainMod(Pos) {
-				idx = g.gData.GetModalityValues(Pos)[g.Move-1]
-			}
-			return idx
-		}()
-		g.cells[prevIdx].SetInactive()
+		g.cells[g.getPrev()].SetInactive()
 	}
 	idx := func() (idx int) {
 		if len(g.cells) == 1 {
@@ -95,6 +91,15 @@ func (g *Board) NextMove() {
 	g.MakeMove()
 	g.Move++
 	g.Visible(true)
+}
+
+func (g *Board) getPrev() (idx int) {
+	if g.gData.IsContainMod(Pos) {
+		idx = g.gData.GetModalityValues(Pos)[g.Move-1]
+	} else {
+		idx = 0
+	}
+	return idx
 }
 
 func (g *Board) IsVisible() bool {

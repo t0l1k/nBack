@@ -28,13 +28,15 @@ const (
 	UseAddSub
 	UseMulDiv
 	ShowGameLabel
+	TotalTime
+	ChechIn
 )
 
 type GameConf map[GameConfValue]interface{}
 
 func DefaultSettings() *GameConf {
 	gc := NewGameConf()
-	gc.Set(Modals, Sym) // по умолчанию модальность цифры
+	gc.Set(Modals, Col) // по умолчанию модальность цифры
 	gc.Set(DefaultLevel, 1)
 	gc.Set(MoveTime, 1.5)
 	gc.Set(ShowCellPercent, 0.65)
@@ -55,6 +57,8 @@ func DefaultSettings() *GameConf {
 	gc.Set(UseAddSub, true)
 	gc.Set(UseMulDiv, false)
 	gc.Set(ShowGameLabel, true)
+	gc.Set(TotalTime, 0)
+	gc.Set(ChechIn, false)
 	return &gc
 }
 
@@ -90,11 +94,10 @@ func (g GameConf) GameConf(gDt *GameData) (result []string) {
 		result = append(result, "Размер сетки:"+strconv.Itoa(g.Get(GridSize).(int)))
 		result = append(result, "Показать сетку:"+strconv.FormatBool(g.Get(ShowGrid).(bool)))
 	}
-	if gDt.IsContainMod(Sym) {
+	if gDt.IsContainMod(Sym) || gDt.IsContainMod(Ari) {
 		result = append(result, "Наибольшее число:"+strconv.Itoa(g.Get(MaxNumber).(int)))
 	}
 	if gDt.IsContainMod(Ari) {
-		result = append(result, "Наибольшее число:"+strconv.Itoa(g.Get(MaxNumber).(int)))
 		result = append(result, "Сложение/Вычитание:"+strconv.FormatBool(g.Get(UseAddSub).(bool)))
 		result = append(result, "Умножение/Деление:"+strconv.FormatBool(g.Get(UseMulDiv).(bool)))
 	}

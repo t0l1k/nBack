@@ -30,6 +30,16 @@ func NewGamesData(conf *game.GameConf) *GamesData {
 	stepDown := g.Conf.Get(game.ThresholdFallback).(int)
 	moveTime := g.Conf.Get(game.MoveTime).(float64)
 	resetOnWrong := g.Conf.Get(game.ResetOnFirstWrong).(bool)
+	totalTime := g.Conf.Get(game.TotalTime).(int)
+	checkIn := g.Conf.Get(game.ChechIn).(bool)
+	var totalMoves int
+	if totalTime > 0 && !checkIn {
+		mt := moveTime * 1000
+		tt := float64(totalTime) * 60 * 1000
+		totalMoves = int(tt / mt)
+	} else if totalTime == 0 || totalTime > 0 && checkIn {
+		totalMoves = g.getTotalMoves(level)
+	}
 	g.id = len(g.Games)
 	gData := game.NewGame(
 		g.id,
@@ -37,11 +47,13 @@ func NewGamesData(conf *game.GameConf) *GamesData {
 		level,
 		tryUp,
 		tryDown,
-		g.getTotalMoves(level),
+		totalMoves,
 		stepUp,
 		stepDown,
+		totalTime,
 		moveTime,
 		resetOnWrong,
+		checkIn,
 	)
 	g.Games = append(g.Games, gData)
 	return g
@@ -50,17 +62,28 @@ func NewGamesData(conf *game.GameConf) *GamesData {
 func (g *GamesData) NewGame(level, tryUp, tryDown int) {
 	lastGame := g.Last().SetupNext()
 	g.id = len(g.Games)
+	var totalMoves int
+	if lastGame.TotalTime > 0 && !lastGame.CheckIn {
+		mt := lastGame.MoveTime * 1000
+		tt := float64(lastGame.TotalTime) * 60 * 1000
+		totalMoves = int(tt / mt)
+	} else if lastGame.TotalTime == 0 || lastGame.TotalTime > 0 && lastGame.CheckIn {
+		totalMoves = g.getTotalMoves(level)
+	}
+
 	gData := game.NewGame(
 		g.id,
 		lastGame.Modalities,
 		level,
 		tryUp,
 		tryDown,
-		g.getTotalMoves(level),
+		totalMoves,
 		lastGame.Advance,
 		lastGame.Fallback,
+		lastGame.TotalTime,
 		lastGame.MoveTime,
 		lastGame.ResetOnWrong,
+		lastGame.CheckIn,
 	)
 	g.Games = append(g.Games, gData)
 }

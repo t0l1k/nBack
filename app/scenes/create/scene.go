@@ -23,28 +23,29 @@ var (
 	strMod       = "Модальность "
 	symTitle     = []string{strMod + "не использовать", strMod + "Цифры", strMod + "Арифметика"}
 	symData      = []interface{}{" ", game.Sym.String(), game.Ari.String()}
+	sPlayTime    = []string{"Играть на колличество ходов", "Играть указанное время минут"}
 )
 
 type SceneCreateGame struct {
 	eui.SceneBase
-	topBar                                                  *eui.TopBar
-	profile                                                 *data.GameProfiles
-	inpName                                                 *eui.InputBox
-	lblSelectModal, lblSelectMoves, lblSelectThreshold      *eui.Text
-	optPos, optCol, optAddSub, optMulDiv, optShowGameLbl    *eui.Checkbox
-	optCrossHair, optGrid, optUseCenter, optReset           *eui.Checkbox
-	cDefLev, cSym, cGridSz, cMoves, cMoveTime, cShowCellTm  *eui.ComboBox
-	cThUp, cThDown, cThAdv, cThFall, cRR, cMaxNum           *eui.ComboBox
-	iColors                                                 *eui.Icon
-	btnApply, btnReset, btnTest                             *eui.Button
-	selPos, selCol, selSym, selAri                          bool
-	defLevel, movesConfIndex, rr, gridSz, maxNum            int
-	moveTime, showCellTime                                  float64
-	thresholdUp, thresholdDown, thresholdAdv, thresholdFall int
-	showGrid, showCrossHair, useCenterCell, resetOnWrong    bool
-	useMulDiv, useAddSub, showGameLabel                     bool
-	inTesting                                               bool
-	examples                                                *ExamplesFrame
+	topBar                                                   *eui.TopBar
+	profile                                                  *data.GameProfiles
+	inpName                                                  *eui.InputBox
+	lblSelectModal, lblSelectMoves, lblSelectThreshold       *eui.Text
+	optPos, optCol, optAddSub, optMulDiv, optShowGameLbl     *eui.Checkbox
+	optCrossHair, optGrid, optUseCenter, optReset, optCheck  *eui.Checkbox
+	cDefLev, cSym, cGridSz, cMoves, cMoveTime, cShowCellTm   *eui.ComboBox
+	cThUp, cThDown, cThAdv, cThFall, cRR, cMaxNum, cPlayTime *eui.ComboBox
+	iColors                                                  *eui.Icon
+	btnApply, btnReset, btnTest                              *eui.Button
+	selPos, selCol, selSym, selAri                           bool
+	defLevel, movesConfIndex, rr, gridSz, maxNum, tm         int
+	moveTime, showCellTime                                   float64
+	thresholdUp, thresholdDown, thresholdAdv, thresholdFall  int
+	showGrid, showCrossHair, useCenterCell, resetOnWrong     bool
+	useMulDiv, useAddSub, showGameLabel, checkIn             bool
+	inTesting                                                bool
+	examples                                                 *ExamplesFrame
 }
 
 func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
@@ -249,6 +250,24 @@ func NewSceneCreateGame(profile *data.GameProfiles) *SceneCreateGame {
 	})
 	s.Add(s.cMaxNum)
 
+	times := []interface{}{0, 1, 2, 3, 5, 8, 13, 21}
+
+	s.tm = times[0].(int)
+	s.cPlayTime = eui.NewComboBox(sPlayTime[0], times, 0, func(cb *eui.ComboBox) {
+		s.tm = cb.Value().(int)
+		if s.tm > 0 {
+			s.cPlayTime.SetText(sPlayTime[1])
+		} else {
+			s.cPlayTime.SetText(sPlayTime[0])
+		}
+	})
+	s.Add(s.cPlayTime)
+
+	s.optCheck = eui.NewCheckbox("Проверка порогов по истечнию ходов", func(c *eui.Checkbox) {
+		s.checkIn = c.IsChecked()
+	})
+	s.Add(s.optCheck)
+
 	s.btnApply = eui.NewButton(bNew, s.checkOptions)
 	s.Add(s.btnApply)
 	s.btnReset = eui.NewButton(bReset, s.checkOptions)
@@ -288,6 +307,8 @@ func (s *SceneCreateGame) exLogic(b *eui.Button) {
 		gc.Set(game.UseAddSub, true)
 		gc.Set(game.UseMulDiv, false)
 		gc.Set(game.ShowGameLabel, true)
+		gc.Set(game.TotalTime, 0)
+		gc.Set(game.ChechIn, false)
 		s.resetOpt(&gc)
 
 	case btnB:
@@ -313,6 +334,8 @@ func (s *SceneCreateGame) exLogic(b *eui.Button) {
 		gc.Set(game.UseAddSub, true)
 		gc.Set(game.UseMulDiv, false)
 		gc.Set(game.ShowGameLabel, true)
+		gc.Set(game.TotalTime, 0)
+		gc.Set(game.ChechIn, false)
 		s.resetOpt(&gc)
 
 	case bntQ:
@@ -338,6 +361,8 @@ func (s *SceneCreateGame) exLogic(b *eui.Button) {
 		gc.Set(game.UseAddSub, true)
 		gc.Set(game.UseMulDiv, false)
 		gc.Set(game.ShowGameLabel, true)
+		gc.Set(game.TotalTime, 0)
+		gc.Set(game.ChechIn, false)
 		s.resetOpt(&gc)
 
 	case btnP:
@@ -363,6 +388,8 @@ func (s *SceneCreateGame) exLogic(b *eui.Button) {
 		gc.Set(game.UseAddSub, true)
 		gc.Set(game.UseMulDiv, false)
 		gc.Set(game.ShowGameLabel, true)
+		gc.Set(game.TotalTime, 0)
+		gc.Set(game.ChechIn, false)
 		s.resetOpt(&gc)
 	}
 }
@@ -413,7 +440,6 @@ func (s *SceneCreateGame) setModals(modals game.ModalType) {
 }
 
 func (s *SceneCreateGame) setMoves(trials, factor, exp int) {
-	// "Новичёк", "Начинающий", "Профессионал", "Мастер"
 	if trials == 10 && factor == 1 && exp == 1 {
 		s.cMoves.SetValue(0)
 		s.movesConfIndex = 0
@@ -478,6 +504,10 @@ func (s *SceneCreateGame) resetOpt(conf *game.GameConf) {
 	s.setMoves(trials, factor, exp)
 	s.showGameLabel = conf.Get(game.ShowGameLabel).(bool)
 	s.optShowGameLbl.SetChecked(s.showGameLabel)
+	s.tm = conf.Get(game.TotalTime).(int)
+	s.cPlayTime.SetValue(s.tm)
+	s.checkIn = conf.Get(game.ChechIn).(bool)
+	s.optCheck.SetChecked(s.checkIn)
 	s.inpName.SetText(s.genName())
 }
 
@@ -526,12 +556,17 @@ func (s *SceneCreateGame) LoadConf() *game.GameConf {
 	gc.Set(game.UseAddSub, s.useAddSub)
 	gc.Set(game.UseMulDiv, s.useMulDiv)
 	gc.Set(game.ShowGameLabel, s.showGameLabel)
+	gc.Set(game.TotalTime, s.tm)
+	gc.Set(game.ChechIn, s.checkIn)
 	return &gc
 }
 
 func (s *SceneCreateGame) genName() (result string) {
 	s1, _ := s.getModals()
 	result = fmt.Sprintf("%v Ходов %v (%v/%v) время хода(%vсек)", s1, dtTitleMoves[s.movesConfIndex], s.thresholdUp, s.thresholdDown, s.moveTime)
+	if s.tm > 0 {
+		result += fmt.Sprintf("длительность игры %v минуты", s.tm)
+	}
 	if s.thresholdAdv > 1 {
 		result += fmt.Sprintf(" попыток вверх(%v)", s.thresholdAdv)
 	}
@@ -597,7 +632,7 @@ func (s *SceneCreateGame) Resize() {
 	margin := int(float64(rect.GetLowestSize()) * 0.008)
 	x, y := 0, 0
 	s.topBar.Resize([]int{x, y, w0, hTop})
-	h := (rect.H - hTop) / 17 // на сколько строк деление
+	h := (rect.H - hTop) / 18 // на сколько строк деление
 
 	w1 := w0 - w0/5
 	w2 := w1 / 2 // в 2 столбика
@@ -652,9 +687,12 @@ func (s *SceneCreateGame) Resize() {
 	s.cThUp.Resize([]int{x, y, w2 - margin, h - margin})
 	s.cThDown.Resize([]int{x + w2, y, w2 - margin, h - margin})
 	y += h
-
 	s.cThAdv.Resize([]int{x, y, w2 - margin, h - margin})
 	s.cThFall.Resize([]int{x + w2, y, w2 - margin, h - margin})
+
+	y += h
+	s.cPlayTime.Resize([]int{x, y, w2 - margin, h - margin})
+	s.optCheck.Resize([]int{x + w2, y, w2 - margin, h - margin})
 
 	y += h
 	s.btnApply.Resize([]int{x, y, w3 - margin, h - margin})
