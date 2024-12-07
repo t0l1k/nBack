@@ -515,8 +515,12 @@ func (s *SceneCreateGame) checkOptions(b *eui.Button) {
 	profileName := s.genName()
 	switch b.GetText() {
 	case bNew:
-		s.inpName.SetText(profileName)
-		s.profile.AddGameProfile(profileName, s.LoadConf())
+		inp := s.inpName.GetText()
+		if profileName != inp && len(inp) > 0 {
+			s.profile.AddGameProfile(inp, s.LoadConf())
+		} else {
+			s.profile.AddGameProfile(profileName, s.LoadConf())
+		}
 		eui.GetUi().Pop()
 	case bReset:
 		s.resetOpt(nil)

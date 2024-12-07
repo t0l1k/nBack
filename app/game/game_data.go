@@ -115,8 +115,8 @@ func (g *GameData) IsDone() bool { return g.done }
 func (g *GameData) SetGameDone(moves int) {
 	g.DtEnd = time.Now().Format("2006-01-02 15:04:05.000")
 	correct, wrong, missed := 0.0, 0.0, 0.0
+	res := g.GetModalitiesScore()
 	if g.MoveTime > 0 && g.CheckIn {
-		res := g.GetModalitiesScore()
 		movs := g.GetModalitiesMoves()
 		var (
 			move   int
@@ -161,6 +161,12 @@ func (g *GameData) SetGameDone(moves int) {
 		correct, wrong = g.getModalsResult()
 		g.calcPercent(correct, wrong)
 		g.Moves = moves
+
+		for _, values := range res {
+			for _, value := range values {
+				g.Score += value
+			}
+		}
 	}
 	g.done = true
 }
@@ -247,7 +253,7 @@ func (g *GameData) ShortResultStringWithColors() (str string, bg, fg color.Color
 	if g.TotalTime > 0 && g.CheckIn {
 		str = fmt.Sprintf("#%v %v %v", g.Id, g.GameMode(), g.Score)
 	} else {
-		str = fmt.Sprintf("#%v %v %v%%", g.Id, g.GameMode(), g.Percent)
+		str = fmt.Sprintf("#%v %v %v%% (%v)", g.Id, g.GameMode(), g.Percent, g.Score)
 	}
 	fg, bg = g.getResultColors()
 	return str, bg, fg

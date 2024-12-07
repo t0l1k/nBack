@@ -157,14 +157,15 @@ func (g *GamesData) PrevGame() (level, tryUp, tryDown int, result string, col co
 
 func (g GamesData) String() (result string) {
 	var (
-		max       int
-		avg       float64
-		durration time.Duration
+		score, max int
+		avg        float64
+		durration  time.Duration
 	)
 	for _, v := range g.Games {
 		if !v.IsDone() {
 			continue
 		}
+		score += v.Score
 		durration += v.Duration
 		avg += float64(v.Level)
 		if v.Level > max {
@@ -177,6 +178,6 @@ func (g GamesData) String() (result string) {
 	m := int(sec / 60)
 	seconds := int(sec) % 60
 	gameDuration := fmt.Sprintf("%02v:%02v.%03v", m, seconds, int(mSec))
-	result = fmt.Sprintf("%v #%v max:%v avg:%0.2v [%v]", time.Now().Format("2006-01-02"), g.id, max, avg, gameDuration)
+	result = fmt.Sprintf("%v #%v max:%v avg:%0.2v score:%v [%v]", time.Now().Format("2006-01-02"), g.id, max, avg, score, gameDuration)
 	return result
 }
