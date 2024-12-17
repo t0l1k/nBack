@@ -6,10 +6,10 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/t0l1k/eui"
+	"github.com/t0l1k/eui/colors"
 )
 
-var Colors = []color.Color{eui.Blue, eui.Aqua, eui.Green, eui.Olive, eui.Yellow, eui.Red, eui.Purple, eui.Orange, eui.White, eui.Gray}
+var Colors = []color.Color{colors.Blue, colors.Aqua, colors.Green, colors.Olive, colors.Yellow, colors.Red, colors.Purple, colors.Orange, colors.White, colors.Gray}
 
 type field struct {
 	curModal                                       ModalType

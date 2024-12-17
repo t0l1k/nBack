@@ -59,7 +59,7 @@ func (s *SceneGame) Setup(conf game.GameConf, gd *game.GameData) {
 	theme := eui.GetUi().GetTheme()
 	s.grid.Bg(theme.Get(app.GameColorBg))
 	s.grid.Fg(theme.Get(app.GameColorFgCrosshair))
-	s.grid.Visible = conf.Get(game.ShowGrid).(bool)
+	s.grid.Visible(conf.Get(game.ShowGrid).(bool))
 	s.btnsLayout.ResetContainerBase()
 	for _, v := range s.gameData.Modalities {
 		btn := eui.NewButton(string(v.GetSym()), s.buttonsLogic)
@@ -68,7 +68,7 @@ func (s *SceneGame) Setup(conf game.GameConf, gd *game.GameData) {
 		s.btnsLayout.Add(btn)
 		if v.GetSym() == game.Pos {
 			grid := conf.Get(game.GridSize).(int)
-			s.grid.Set(grid, grid)
+			s.grid.Set(float64(grid), float64(grid))
 		}
 		v.Attach(s)
 	}
@@ -96,7 +96,7 @@ func (s *SceneGame) Setup(conf game.GameConf, gd *game.GameData) {
 	s.moveTimer = eui.NewTimer(s.delayTimeShowCell) // pause before first move
 	s.board.Setup(conf, s.gameData)
 	s.showLbl = conf.Get(game.ShowGameLabel).(bool)
-	s.lblTitle.Visible = s.showLbl
+	s.lblTitle.Visible(s.showLbl)
 	s.lblTitle.Bg(s.clrNeutral)
 	s.lblTitle.Fg(theme.Get(app.GameColorBg))
 	confApp := eui.GetUi().GetSettings()
@@ -122,7 +122,7 @@ func (s *SceneGame) Update(dt int) {
 	for _, v := range s.GetContainer() {
 		v.Update(dt)
 	}
-	if s.nextLevelDialog.Visible {
+	if s.nextLevelDialog.IsVisible() {
 		return
 	}
 	if s.gameTimer != nil {
@@ -346,7 +346,7 @@ func (s *SceneGame) UpdateData(value interface{}) {
 }
 
 func (s *SceneGame) Draw(surface *ebiten.Image) {
-	if s.nextLevelDialog.Visible {
+	if s.nextLevelDialog.IsVisible() {
 		s.nextLevelDialog.Draw(surface)
 		return
 	}
@@ -369,7 +369,7 @@ func (s *SceneGame) Resize() {
 	x = h / 2
 	y += h + h/2
 	s.board.Resize([]int{x, y, w0 - h, h0 - h*4})
-	s.grid.Resize([]int{x, y, w0 - h, h0 - h*4})
+	s.grid.Resize(s.board.GetLayRect())
 	y += h0 - h*4 + h/2
 	s.btnsLayout.Resize([]int{x, y, w0 - h, h * 2})
 	w1, h1 := w0/2, h0/2

@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/t0l1k/eui"
+	"github.com/t0l1k/eui/colors"
 )
 
 const (
@@ -39,16 +40,16 @@ func NewGame() *eui.Ui {
 
 func setTheme() {
 	u := eui.GetUi()
-	u.GetTheme().Set(eui.SceneBg, eui.Black)
-	u.GetTheme().Set(LabelColorDefault, eui.Silver)
-	u.GetTheme().Set(GameColorBg, eui.Black)
-	u.GetTheme().Set(GameColorActiveBg, eui.Teal)
-	u.GetTheme().Set(GameColorFg, eui.Navy)
-	u.GetTheme().Set(GameColorFgCrosshair, eui.Silver)
-	u.GetTheme().Set(ColorNeutral, eui.Green)
-	u.GetTheme().Set(ColorCorrect, eui.Blue)
-	u.GetTheme().Set(ColorWrong, eui.Orange)
-	u.GetTheme().Set(ColorMissed, eui.Red)
+	u.GetTheme().Set(eui.SceneBg, colors.Black)
+	u.GetTheme().Set(LabelColorDefault, colors.Silver)
+	u.GetTheme().Set(GameColorBg, colors.Black)
+	u.GetTheme().Set(GameColorActiveBg, colors.Teal)
+	u.GetTheme().Set(GameColorFg, colors.Navy)
+	u.GetTheme().Set(GameColorFgCrosshair, colors.Silver)
+	u.GetTheme().Set(ColorNeutral, colors.Green)
+	u.GetTheme().Set(ColorCorrect, colors.Blue)
+	u.GetTheme().Set(ColorWrong, colors.Orange)
+	u.GetTheme().Set(ColorMissed, colors.Red)
 }
 
 func SetDefaultConf() {

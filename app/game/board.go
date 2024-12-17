@@ -32,8 +32,8 @@ func (g *Board) Setup(conf GameConf, gameData *GameData) {
 	if g.gData.IsContainMod(Pos) {
 		dim = conf.Get(GridSize).(int)
 	}
-	g.layout.SetRows(dim)
-	g.layout.SetColumns(dim)
+	g.layout.SetRows(float64(dim))
+	g.layout.SetColumns(float64(dim))
 	if len(g.cells) == 0 {
 		for i := 0; i < dim*dim; i++ {
 			showCrosshair := conf.Get(ShowCrossHair).(bool)
@@ -127,6 +127,7 @@ func (g *Board) Draw(surface *ebiten.Image) {
 	}
 }
 
+func (c *Board) GetLayRect() (rect []int) { return c.layout.ItemsRect.GetArr() }
 func (c *Board) Resize(rect []int) {
 	c.View.Resize(rect)
 	c.layout.Resize(rect)

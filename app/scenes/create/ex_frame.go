@@ -24,7 +24,7 @@ type ExamplesFrame struct {
 
 func NewExamplesFrame(f func(b *eui.Button)) *ExamplesFrame {
 	e := &ExamplesFrame{}
-	e.Visible = true
+	e.Visible(true)
 	e.layout = &eui.ContainerBase{}
 	strs := []string{btnJ, btnB, bntQ, btnP}
 	lbl := eui.NewText("Примеры настроек")
@@ -60,7 +60,7 @@ func (e *ExamplesFrame) Update(dt int) {
 }
 
 func (v *ExamplesFrame) Draw(surface *ebiten.Image) {
-	if !v.Visible {
+	if !v.IsVisible() {
 		return
 	}
 	if v.Dirty {

@@ -155,6 +155,25 @@ func (g *GamesData) PrevGame() (level, tryUp, tryDown int, result string, col co
 	return level, tryUp, tryDown, result, col
 }
 
+func (g GamesData) GetPlotData() (xArr, yArr, vArr []int) {
+	for i := 0; i < len(g.Games); i++ {
+		xArr = append(xArr, i+1)
+	}
+	max := 0
+	for _, v := range g.Games {
+		if v.Level > max {
+			max = v.Level
+		}
+	}
+	for i := 0; i < max+1; i++ {
+		yArr = append(yArr, i+1)
+	}
+	for _, v := range g.Games {
+		vArr = append(vArr, v.Level)
+	}
+	return xArr, yArr, vArr
+}
+
 func (g GamesData) String() (result string) {
 	var (
 		score, max int

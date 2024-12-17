@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/t0l1k/eui"
+	"github.com/t0l1k/eui/colors"
 	"github.com/t0l1k/nBack/app/data"
 	"github.com/t0l1k/nBack/app/db"
 	"github.com/t0l1k/nBack/app/scenes/create"
@@ -35,7 +36,8 @@ type SceneSelectGame struct {
 func NewSceneSelectGame() *SceneSelectGame {
 	s := &SceneSelectGame{}
 	s.topBar = eui.NewTopBar("нНазад", nil)
-	s.topBar.SetShowStopwatch()
+	s.topBar.SetUseStopwatch()
+	s.topBar.SetShowStoppwatch(true)
 	s.Add(s.topBar)
 	s.profiles = data.DefalutGameProfiles()
 	s.listGames = eui.NewListView()
@@ -44,11 +46,11 @@ func NewSceneSelectGame() *SceneSelectGame {
 	fg := theme.Get(eui.ButtonFg)
 	s.listGames.SetupListViewButtons(s.profiles.GetProfilesName(), 30, 1, bg, fg, s.btnsSelectGameLogic)
 	s.Add(s.listGames)
-	s.listGames.Bg(eui.Blue)
+	s.listGames.Bg(colors.Blue)
 	s.btnsLayout = eui.NewHLayout()
 	s.btnSel = eui.NewButton(bSelect, s.btnsLogic)
 	s.btnSel.Disable()
-	s.btnSel.Bg(eui.YellowGreen)
+	s.btnSel.Bg(colors.YellowGreen)
 	s.btnsLayout.Add(s.btnSel)
 	s.btnCrt = eui.NewButton(bCreate, s.btnsLogic)
 	s.btnsLayout.Add(s.btnCrt)

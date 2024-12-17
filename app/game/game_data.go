@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/t0l1k/eui"
+	"github.com/t0l1k/eui/colors"
 	"github.com/t0l1k/nBack/app"
 )
 
@@ -265,7 +266,7 @@ func (g *GameData) getResultColors() (fg, bg color.Color) {
 	clrCorrect := theme.Get(app.ColorCorrect)
 	clrWrong := theme.Get(app.ColorWrong)
 	clrMissed := theme.Get(app.ColorMissed)
-	fg = eui.White
+	fg = colors.White
 	if g.Percent >= g.Advance {
 		bg = clrCorrect
 	} else if g.Percent >= g.Fallback && g.Percent < g.Advance {

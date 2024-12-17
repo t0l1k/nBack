@@ -29,7 +29,7 @@ func newCell(center bool) *cell {
 	c.Bg(c.bg)
 	c.Fg(c.fg)
 	c.center = center
-	c.Icon.Visible = true
+	c.Icon.Visible(true)
 	return c
 }
 

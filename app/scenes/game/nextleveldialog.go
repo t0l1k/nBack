@@ -18,13 +18,13 @@ func newNextLevelDialog(delay int) *nextLevelDialog {
 	n.messageLbl = eui.NewText("")
 	n.Add(n.messageLbl)
 	n.timeLbl = eui.NewText("")
-	n.messageLbl.Visible = false
-	n.timeLbl.Visible = false
 	n.Add(n.timeLbl)
 	n.timer = eui.NewTimer(delay)
-	n.messageLbl.Visible = false
-	n.timeLbl.Visible = false
-	n.Visible = false
+	n.messageLbl.Visible(false)
+	n.timeLbl.Visible(false)
+	n.messageLbl.Visible(false)
+	n.timeLbl.Visible(false)
+	n.Visible(false)
 	return n
 }
 
@@ -34,9 +34,9 @@ func (n *nextLevelDialog) show(msg string, col color.Color) {
 	n.timeLbl.Bg(col)
 	n.messageLbl.SetText(msg)
 	n.timeLbl.SetText(n.timer.String())
-	n.Visible = true
-	n.messageLbl.Visible = true
-	n.timeLbl.Visible = true
+	n.Visible(true)
+	n.messageLbl.Visible(true)
+	n.timeLbl.Visible(true)
 	n.timer.On()
 }
 
@@ -44,9 +44,9 @@ func (n *nextLevelDialog) Update(dt int) {
 	n.timer.Update(dt)
 	n.timeLbl.SetText(n.timer.String())
 	if n.timer.IsDone() {
-		n.messageLbl.Visible = false
-		n.timeLbl.Visible = false
-		n.Visible = false
+		n.messageLbl.Visible(false)
+		n.timeLbl.Visible(false)
+		n.Visible(false)
 	}
 }
 

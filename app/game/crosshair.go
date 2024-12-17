@@ -27,10 +27,14 @@ func (c *Crosshair) Layout() {
 	m = float32(c.GetRect().GetLowestSize()) * c.lenght
 	x1 = float32(c.GetRect().W) / 2
 	y1 = m
-	x2 = x1
+	x2 = float32(c.GetRect().W) / 2
 	y2 = float32(c.GetRect().H) - m
 	vector.StrokeLine(c.Image(), x1, y1, x2, y2, c.thickness, c.fg, true)
-	vector.StrokeLine(c.Image(), y1, x1, y2, x2, c.thickness, c.fg, true)
+	x1 = m
+	y1 = float32(c.GetRect().H) / 2
+	x2 = float32(c.GetRect().W) - m
+	y2 = float32(c.GetRect().H) / 2
+	vector.StrokeLine(c.Image(), x1, y1, x2, y2, c.thickness, c.fg, true)
 	c.Dirty = false
 }
 
